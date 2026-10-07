@@ -537,18 +537,21 @@ interface UseActivities {
 
 T3 — substitua src/app/(tabs)/activities.tsx:
 - Estado local de filtro: 'pendentes' | 'todas' | 'concluidas' (default pendentes).
-- Segmented control custom (crie src/components/ui/Segmented.tsx — único componente novo, com
-  justificativa: 3 telas vão usá-lo? NÃO — só activities usa. Então: implemente inline no arquivo da
-  tela como um subcomponente local, NÃO em ui/. Botões: fundo backgroundElement, selecionado: borda
-  borderStrong 1.5px, texto text vs textSecondary).
+- Controlador de filtro: subcomponente LOCAL definido no MESMO arquivo da tela (ex.: function
+  SegmentedFilter). NÃO crie arquivo novo em src/components/ui/ (só 1 tela usa — não é biblioteca).
+  Visual: linha de 3 botões; não selecionado: fundo backgroundElement, texto textSecondary;
+  selecionado: borda 1.5px borderStrong, texto text; radius Radius.chip; fonte Typography.meta;
+  padding h Spacing.two.
 - FlatList de ListItems ordenados (filtro aplicado DEPOIS do sortActivities; concluídas aparecem só em
   'todas'/'concluidas').
-- Linha do item: [checkbox circular 24px: pendente = círculo borda borderStrong vazia; concluída =
-  círculo preenchido surfaceInverse com traço branco '—' (View), onPress toggleStatus] | coluna:
-  título (bodyStrong, line-through + textTertiary se concluída) + meta '{Monogram sm} Matéria' |
-  direita: Badge do prazo — 'hoje'/'amanhã'/'em N dias' (relativeLabelBR) outline;
-  'atrasada N dias' tone='inverse'; sem dueDate: nada. Item tappable (sem onPress no Pressable do
-  texto) -> router.push(`/activity-form?id=${id}`).
+- Linha do item: [checkbox circular 24px: pendente = círculo vazio com borda borderStrong; concluída =
+  círculo preenchido surfaceInverse com traço claro no centro (View 10x2, backgroundColor textOnInverse);
+  Pressable ANINHADO com onPress -> toggleStatus — no React Native o Pressable mais interno captura o
+  toque, então tocar o checkbox NÃO abre o editor] | coluna:
+  título (bodyStrong, line-through + textTertiary se concluída) + meta com Monogram sm + nome da matéria |
+  direita: Badge do prazo — 'hoje'/'amanhã'/'em N dias' (relativeLabelBR) tone='outline';
+  'atrasada N dias' tone='inverse'; sem dueDate: nada. A LINHA INTEIRA (menos o checkbox) tem
+  onPress -> router.push(`/activity-form?id=${id}`).
 - Header: ScreenHeader 'Atividades' action '+ Nova atividade' -> /activity-form.
 - Vazios: pendentes 'Nenhuma atividade pendente.' / 'Você está em dia.'; concluídas 'Nenhuma atividade
   concluída ainda.'; todas 'Nenhuma atividade ainda. Crie a primeira.'

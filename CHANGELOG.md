@@ -14,6 +14,10 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Slice 1 — navegação + UI Kit: rotas definitivas (`(tabs)` com 4 abas text-only, Stack raiz com 3
   modais de formulário), tokens monocromáticos completos em `theme.ts` (Colors/Radius/Typography), 10
   componentes `src/components/ui/`, remoção dos artefatos de demo do scaffold. (commit `12b79d2`)
+- Slice 2 — matérias: `hooks/use-subjects` (agregados + bloqueio cross-repositório na exclusão),
+  T2 lista de cards (monograma, métricas, barra de progresso, estados vazio/carregando/erro) e
+  T5 formulário com validação inline (RF-01/02/03) com edição via `?id=` e Alert de confirmação.
+  (commit `3ec06d2`)
 - Revisão do planejador nos dois slices: tsc + expo lint limpos, zero hex fora do tema, zero shadow,
   contrato de modelos respeitado (sem `color`/`grade`).
 
