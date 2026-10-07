@@ -36,7 +36,14 @@
   `cssInterop(Ionicons, { className: 'style' })` no topo (veja `src/app/(tabs)/_layout.tsx` como
   referência).
 - Imports com alias `@/` (`@/* → ./src/*`).
-- Rotas **só** em `src/app/`; componentes/hooks/domínio/dados fora dele.
+- **Estrutura (ADR-0008, obrigatório):** rotas **só** em `src/app/` (layouts + re-export de 1 linha);
+  cada tela é uma PASTA `src/screens/<Tela>Page/index.tsx` (default export nomeado `<Tela>Page`);
+  componente específico de UMA tela vai em `src/components/<Tela>Page/<Nome>.tsx`; `src/components/ui/`
+  é SÓ para kit usado em ≥2 telas (Button, Input, Card, ListItem, EmptyState, Badge, Divider,
+  ScreenHeader, ProgressBar, Monogram, **ChoiceChip**, **ListSkeleton**). Proibido: tela-solta
+  `src/screens/<tela>.tsx`; subcomponente com JSX próprio dentro do `index.tsx` da tela; componente
+  mono-uso em `ui/`. Reaproveite `ChoiceChip` (chips de seleção) e `ListSkeleton` (loading) em vez
+  de recriar; máscara de data é `maskDDMMYYYY` de `src/domain/date.ts`.
 - Ao final: commit com a mensagem indicada; `git add` só dos arquivos listados.
 
 ---
@@ -602,38 +609,86 @@ Refs: docs/specs/2026-10-07-slice-3-activities"
 Você vai implementar o Slice 4 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
 CRUD de AVALIAÇÕES (provas/seminários) com data obrigatória.
 
-LEIA: RF-08 + CAs (docs/requirements/functional-requirements.md); docs/architecture/domain-model.md
-→ Assessment (SEM campo de nota); src/domain/{models,validation,date,sorting}.ts;
-src/storage/assessment.repository.ts; src/components/ui/*; specs/2026-10-07-slice-4.
+ESTRUTURA OBRIGATÓRIA (ADR-0008 — leia antes):
+- Cada tela é uma PASTA: src/screens/<Tela>Page/index.tsx, com default export nomeado <Tela>Page.
+- Componente específico de UMA tela: src/components/<Tela>Page/<Nome>.tsx (um arquivo por componente).
+- src/components/ui/ é SÓ kit reutilizado em ≥2 telas. Já existem lá: Button, Input, Card, ListItem,
+  EmptyState, Badge, Divider, ScreenHeader, ProgressBar, Monogram, ChoiceChip, ListSkeleton.
+- As ROTAS src/app/(tabs)/assessments.tsx e src/app/assessment-form.tsx já são re-exports finos
+  apontando para as pastas — NÃO as edite.
+- REAPROVEITE, não recrie: ChoiceChip (chips de matéria), ListSkeleton (loading), e a máscara de data
+  maskDDMMYYYY que já está em src/domain/date.ts.
+
+LEIA (contratos): RF-08 + CAs (docs/requirements/functional-requirements.md);
+docs/architecture/domain-model.md → Assessment (SEM campo de nota);
+src/domain/{models,validation,date,sorting}.ts; src/storage/assessment.repository.ts;
+src/hooks/use-activities.ts e src/hooks/use-subjects.ts (padrões de hook);
+src/screens/ActivitiesPage/index.tsx + src/components/ActivitiesPage/* (padrão de tela+componentes);
+src/screens/ActivityFormPage/index.tsx (padrão de formulário com chips).
 
 CONTRATO — crie src/hooks/use-assessments.ts espelhando use-activities:
-{ assessments (sortAssessments), subjects, loading, error, create, update, toggleStatus
-(agendada<->realizada, preservando os demais campos via spread), remove, refresh } —
-validateAssessment; `date` é OBRIGATÓRIA e passa por parseDDMMYYYY (mesma máscara DD/MM/AAAA).
+interface UseAssessments {
+  assessments: Assessment[];   // sortAssessments (agendadas date asc, depois realizadas date desc)
+  subjects: Subject[];
+  loading: boolean; error: string | null;
+  create(input: AssessmentFormInput): Promise<{ ok: boolean; errors: FieldErrors }>;
+  update(id: string, input: AssessmentFormInput): Promise<{ ok: boolean; errors: FieldErrors }>;
+  toggleStatus(id: string): Promise<void>;   // agendada <-> realizada, preservando os demais campos via spread
+  remove(id: string): Promise<void>;
+  refresh(): void;
+}
+- create/update: validateAssessment (date OBRIGATÓRIA via parseDDMMYYYY; dateWarning não bloqueia).
+  Válido: Assessment { id: existing/gerado, subjectId: trim, title: trim,
+  date: parseDDMMYYYY(input.date)!, status: original ou 'agendada', createdAt: original ou agora }
+  e assessmentRepository.upsert. Assina notifier: 'assessments:changed' e 'subjects:changed'.
+- Erro de carga: 'Falha ao carregar seus dados.'; erro de save: { title: 'Não foi possível salvar a avaliação.' }.
 
-T4 — substitua src/screens/assessments.tsx (a rota src/app/(tabs)/assessments.tsx é só o re-export
-fino — NÃO a edite):
-- Lista de ListItems: título (line-through + textTertiary se realizada) + monograma&matéria na meta
-  + à direita: Badge 'agendada' outline com relativeLabelBR da data; realizada: texto 'realizada'
-  meta textTertiary sem badge forte. Pressionar item: router.push(`/assessment-form?id=`).
-- Toggle de situação na própria linha (mesmo padrão do checkbox circular, rótulo 'Realizada').
-- Header: ScreenHeader 'Avaliações' + '+ Nova avaliação'. Vazio: 'Nenhuma avaliação ainda.' +
-  'Cadastre suas provas para acompanhar as datas.'.
+T4 — crie src/components/AssessmentsPage/AssessmentRow.tsx e edite src/screens/AssessmentsPage/index.tsx:
+AssessmentRow.tsx (props { assessment, subject, onToggle, onOpen }):
+- ListItem onPress={onOpen}; linha com: Pressable aninhado (checkbox circular 24px, MESMO visual do
+  ActivityRow: agendada = círculo vazio borda borderStrong; realizada = preenchido surfaceInverse +
+  traço claro) onPress={onToggle} | coluna { título (text-body font-semibold text-text; se realizada:
+  text-text-tertiary + style textDecorationLine line-through); meta com Monogram sm + nome da matéria }
+  | direita: agendada -> Badge tone='outline' label=relativeLabelBR(date); realizada -> Text
+  text-meta text-text-tertiary 'realizada'.
+index.tsx:
+- useAssessments(); ScreenHeader title='Avaliações' action '+ Nova avaliação' -> router.push('/assessment-form').
+- FlatList das assessments (já ordenadas). Linha: subject via lookup assessment.subjectId (NUNCA
+  assessment.id). onPress da linha -> router.push(`/assessment-form?id=${encodeURIComponent(id)}`);
+  onToggle -> void toggleStatus(id).
+- loading -> <ListSkeleton height={96} />; erro -> EmptyState 'Deu errado' + 'Tentar de novo';
+  vazio -> EmptyState title='Nenhuma avaliação ainda' text='Cadastre suas provas para acompanhar as datas.'
+  actionLabel='+ Nova avaliação'.
 
-T7 — substitua src/screens/assessment-form.tsx (rota src/app/assessment-form.tsx é o re-export fino):
-- Como T6 (padrão idêntico de chips de matéria + ponte para T5 quando não há matérias) mas o campo
-  Data é OBRIGATÓRIO ('Data' label, number-pad, máscara DD/MM/AAAA, maxLength 10) e NÃO há campo tipo
-  nem descrição. Passado -> 'Aviso: esta data está no passado.' não-bloqueante.
-- Salvar/Excluir/Cancelar = mesmo padrão P2/P3.
+T7 — edite src/screens/AssessmentFormPage/index.tsx (espelho de ActivityFormPage, mais simples):
+- useLocalSearchParams<{ id?: string }>(); títulos 'Nova avaliação' / 'Editar avaliação'.
+- Padrão de rascunho (draft ?? original), submitTried, clearFieldError — igual ActivityFormPage.
+- noSubjects (!loading && subjects.length===0): mesmo bloco-ponte EmptyState 'Cadastrar matéria' ->
+  router.push('/subject-form') + campos pointerEvents='none' + Salvar disabled (CA-04.4 análogo).
+- Campos (ordem): Input 'Título' (obrigatório); linha horizontal de ChoiceChip de MATÉRIA (Monogram sm
+  + nome; selecionado = borda borderStrong — ChoiceChip já cuida disso; NÃO usar grow aqui);
+  Input 'Data' number-pad maxLength 10 com onChangeText={(t) => setDateDraft(maskDDMMYYYY(t))}.
+- NÃO existe campo tipo, descrição ou nota (nota está definitivamente fora — OQ-04).
+- Salvar -> create/update -> ok: router.back(); senão errors. dateWarning (data passada) renderiza
+  como warning do Input (linha 'Aviso: ...' não-bloqueante).
+- Edição: Button ghost 'Excluir' com Alert de confirmação + blockMessage (padrão P2/P3). Cancelar -> back.
 
-VERIFICAÇÃO: gates + manual: criar sem data -> 'Informe a data...'; com data válida -> aparece ordenada
-(agendadas primeiro); toggle realizada -> esmaece e move p/ fim; fechar/reabrir -> intacta.
+REGRAS DE UI: monocromático via className (tokens do tema); zero #hex fora de global.css; zero shadow;
+zero emoji; PT-BR; labels 'Título', 'Matéria', 'Data'; botão 'Salvar'.
 
-COMMIT:
-git add src/hooks/use-assessments.ts src/screens/assessments.tsx src/screens/assessment-form.tsx
+VERIFICAÇÃO (rode e cole a saída):
+npx tsc --noEmit && npx expo lint
+Manual: criar sem data -> 'Informe a data. Use o formato DD/MM/AAAA.'; data '99/99/9999' -> erro de
+formato; válida -> lista ordenada (agendadas primeiro, proximidade); toggle realizada -> esmaece e vai
+para o fim; fechar/reabrir app -> intacta.
+
+COMMIT (obrigatório — não deixe código no working tree):
+git add src/hooks/use-assessments.ts src/components/AssessmentsPage src/screens/AssessmentsPage/index.tsx src/screens/AssessmentFormPage/index.tsx
 git commit -m "feat(assessments): lista e formulário de avaliações
 
 Refs: docs/specs/2026-10-07-slice-4-assessments"
+
+RELATÓRIO: arquivos criados/editados, saída dos gates, divergências (não adapte silenciosamente).
 ```
 
 ---
@@ -642,13 +697,18 @@ Refs: docs/specs/2026-10-07-slice-4-assessments"
 
 ```text
 Você vai implementar o Slice 5 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
-o Painel inicial (substituir o placeholder de src/screens/dashboard.tsx — a rota
+o Painel inicial (substituir o placeholder de src/screens/DashboardPage/index.tsx — a rota
 src/app/(tabs)/index.tsx é só o re-export fino). Só LEITURA das 3 coleções
 via hooks existentes — nenhum mutation neste slice.
 
+ESTRUTURA OBRIGATÓRIA (ADR-0008): tela = pasta src/screens/DashboardPage/index.tsx (default export
+DashboardPage); blocos específicos do painel vão em src/components/DashboardPage/<Nome>.tsx
+(ex.: SectionHeader, DueSoonCard); reaproveite Card/Badge/Monogram/EmptyState/ListSkeleton de
+src/components/ui/. NÃO edite a rota src/app/(tabs)/index.tsx.
+
 LEIA: RF-09 + CAs; docs/architecture/screens-and-navigation.md → T1; src/hooks/use-{subjects,
 activities,assessments}.ts; src/domain/progress.ts; docs/design/visual-identity.md §2 (métricas
-grandes por escala tipográfica, sem cor).
+grandes por escala tipográfica, sem cor); src/screens/SubjectsPage/index.tsx (padrão de tela).
 
 CONTRATO — crie src/hooks/use-dashboard.ts:
 interface UseDashboard {
@@ -659,11 +719,10 @@ interface UseDashboard {
 }
 — usa os 3 repositórios + notifier (mesmo padrão dos hooks de coleção).
 
-T1 — edite src/screens/dashboard.tsx: ScrollView (poucos itens) com SafeAreaView, padding lateral
-Spacing.four:
-1. 'Pendências' (seção: rótulo Typography.section uppercase + valor grande Typography.metric '{n}') +
-   botão ghost 'Ver atividades' -> `router.push('/activities')` (em Expo Router, rotas dentro do grupo
-   `(tabs)` têm URL sem o nome do grupo: `/activities`, `/subjects`, `/assessments`). Lista compacta:
+T1 — edite src/screens/DashboardPage/index.tsx: ScrollView (poucos itens), padding lateral 24:
+1. 'Pendências' (seção: rótulo text-section font-semibold uppercase tracking-section text-text-secondary
+   + valor grande text-metric font-bold '{n}') + botão ghost 'Ver atividades' ->
+   `router.push('/activities')` (rotas do grupo (tabs) têm URL sem o nome do grupo). Lista compacta:
    até 3 Card com {title, monograma+matéria, Badge relativeLabelBR do prazo}; vazio:
    'Nada vencendo nesta semana.'.
 2. 'Próximas avaliações' seção + até 3 ListItems {titulo, matéria, data relativa}; botão ghost
@@ -674,7 +733,7 @@ Spacing.four:
 4. TODA a tela sem dados (3 coleções vazias): o EmptyState de boas-vindas do placeholder atual, com
    ação '+ Nova matéria' -> /subject-form. Os blocos não devem renderizar NaN/0 confuso — quando há
    dados, renderize os blocos; se total===0 a barra fica 0% (ok).
-- error: EmptyState 'Deu errado' + Tentar de novo (padrão). loading: 3 Card placeholder estáticos.
+- error: EmptyState 'Deu errado' + Tentar de novo (padrão). loading: <ListSkeleton height={96} />.
 
 NÃO adicione saudação com hora, gráficos, nem widgets.
 
@@ -683,7 +742,8 @@ concluir atividade na aba Atividades e VOLTAR ao painel -> atualizado; modo avi�
 carrega (local).
 
 COMMIT:
-git add src/hooks/use-dashboard.ts src/screens/dashboard.tsx
+git add src/hooks/use-dashboard.ts src/screens/DashboardPage
+git add src/components/DashboardPage 2>/dev/null || true
 git commit -m "feat(dashboard): painel inicial com pendências, avaliações e progresso
 
 Refs: docs/specs/2026-10-07-slice-5-dashboard"
@@ -698,7 +758,12 @@ Você vai fechar o Studia (Expo SDK 57, Expo Router, TS strict, branch developme
 verificação do checklist da Etapa 6 do roteiro e README.
 
 FAÇA, nesta ordem:
-1. Grep de conformidade (corrija qualquer violação que encontrar):
+1. Conformidade de estrutura (ADR-0008) — corrija qualquer violação:
+   - ls src/screens: só pastas <Tela>Page/, nenhum arquivo .tsx solto
+   - ls src/components/ui: só kit multi-tela; componentes mono-tela em src/components/<Tela>Page/
+   - src/app/*.tsx (exceto _layout.tsx): todos com exatamente 1 linha de re-export
+   - grep por 'function.*Screen' em src/screens (zero — nomes são <Tela>Page)
+2. Grep de conformidade visual (corrija qualquer violação que encontrar):
    - grep por '#' fora de src/styles/global.css e tailwind.config.js em src/ (nenhum hex; proibido
      bg-[#...]/text-[#...])
    - grep por 'shadow' em src/ (zero)
@@ -707,14 +772,14 @@ FAÇA, nesta ordem:
    - grep por ': any' e '@ts-ignore' (zero)
    - imports de '@react-native-async-storage/async-storage' fora de src/storage/storage.ts (zero)
    - textos de UI em PT (relaxe se algo em inglês sobrou: traduza)
-2. Roteiro Etapa 6 checklist manual (registre cada item no relatório com OK/falha):
+3. Roteiro Etapa 6 checklist manual (registre cada item no relatório com OK/falha):
    app inicia no Expo Go sem erros; as 4 abas abrem; navegação abas->form->voltar ok; botões agem;
    formulários validam (testar os 3); listas apresentam dados; storage sobrevive a fechar/reabrir;
    interface legível (dark + light: forçar via config do sistema).
-3. README.md (raiz): substitua a seção 'Status' por 'Implementado (MVP)'; garanta que os comandos de
+4. README.md (raiz): substitua a seção 'Status' por 'Implementado (MVP)'; garanta que os comandos de
    execução batem com package.json; nada mais.
-4. CHANGELOG.md: em [Unreleased] > Added, liste os 6 slices com 1 linha cada; Added da Etapa 1 continua.
-5. Gates finais: npx tsc --noEmit && npx expo lint. Corrija tudo que quebrar.
+5. CHANGELOG.md: em [Unreleased] > Added, liste os 6 slices com 1 linha cada; Added da Etapa 1 continua.
+6. Gates finais: npx tsc --noEmit && npx expo lint. Corrija tudo que quebrar.
 
 COMMIT (último):
 git add CHANGELOG.md README.md

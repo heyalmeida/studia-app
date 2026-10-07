@@ -41,17 +41,27 @@ src/
 │   ├── _layout.tsx           # providers globais (tema) + Stack de modais
 │   ├── (tabs)/
 │   │   ├── _layout.tsx       # bottom tabs (Painel, Matérias, Atividades, Avaliações)
-│   │   ├── index.tsx         # → screens/dashboard (T1)
-│   │   ├── subjects.tsx      # → screens/subjects (T2)
-│   │   ├── activities.tsx    # → screens/activities (T3)
-│   │   └── assessments.tsx   # → screens/assessments (T4)
-│   ├── subject-form.tsx      # → screens/subject-form (T5)
-│   ├── activity-form.tsx     # → screens/activity-form (T6)
-│   └── assessment-form.tsx   # → screens/assessment-form (T7)
-├── screens/                  # IMPLEMENTAÇÃO das telas — uma por arquivo, nome explícito
-├── components/               # UI reutilizável (≥3 exigidos pelo roteiro)
-│   └── ui/                   # Button, Input, Card, ListItem, EmptyState, Badge, Divider,
-│                             # ScreenHeader, ProgressBar, Monogram
+│   │   ├── index.tsx         # → screens/DashboardPage (T1)
+│   │   ├── subjects.tsx      # → screens/SubjectsPage (T2)
+│   │   ├── activities.tsx    # → screens/ActivitiesPage (T3)
+│   │   └── assessments.tsx   # → screens/AssessmentsPage (T4)
+│   ├── subject-form.tsx      # → screens/SubjectFormPage (T5)
+│   ├── activity-form.tsx     # → screens/ActivityFormPage (T6)
+│   └── assessment-form.tsx   # → screens/AssessmentFormPage (T7)
+├── screens/                  # UMA PASTA POR TELA — <Tela>Page/index.tsx (ADR-0008)
+│   ├── DashboardPage/index.tsx
+│   ├── SubjectsPage/index.tsx
+│   ├── ActivitiesPage/index.tsx
+│   ├── AssessmentsPage/index.tsx
+│   ├── SubjectFormPage/index.tsx
+│   ├── ActivityFormPage/index.tsx
+│   └── AssessmentFormPage/index.tsx
+├── components/               # componentes por tela (≥3 reutilizáveis exigidos pelo roteiro)
+│   ├── ui/                   # kit usado em ≥2 telas: Button, Input, Card, ListItem, EmptyState,
+│   │                         # Badge, Divider, ScreenHeader, ProgressBar, Monogram, ChoiceChip,
+│   │                         # ListSkeleton
+│   ├── SubjectsPage/         # SubjectCard
+│   └── ActivitiesPage/       # ActivityRow, SegmentedFilter
 ├── hooks/                    # use-subjects, use-activities (+ use-dashboard no P5)
 ├── domain/                   # regras puras, sem React
 │   ├── models.ts             # Subject, Activity, Assessment + tipos auxiliares
@@ -73,7 +83,8 @@ src/
 
 | Camada sugerida | Decisão | Justificativa |
 |---|---|---|
-| `screens/` | **adotada (ADR-0008)** | Implementação das telas em `src/screens/`, com `src/app/` guardando só rotas finas (re-export). Satisfaz o roteiro e mantém o Expo Router feliz: a rota é a URL, a tela é o código. |
+| `screens/` | **adotada (ADR-0008)** | Uma PASTA por tela (`<Tela>Page/index.tsx`), com `src/app/` guardando só rotas finas (re-export). Fica explícito quais são as telas e cada uma tem lugar para seus helpers. Satisfaz o roteiro e mantém o Expo Router feliz: a rota é a URL, a tela é o código. |
+| `components/` | **subpastas por tela (ADR-0008)** | `components/ui/` = kit reutilizável (≥2 telas); `components/<Tela>Page/` = específico de uma tela. Sem subcomponente desenhado dentro do `index.tsx` da tela. |
 | `storage/` | **adotada (ADR-0008)** | Nome literal do roteiro; abriga wrapper AsyncStorage + repositórios. (A renomeação anterior para `data/` foi revertida: custo zero, ganho de leitura na avaliação.) |
 | `styles/` | **adotada (ADR-0008)** | `src/styles/global.css` (tokens NativeWind). `constants/theme.ts` permanece para valores numéricos usados em runtime (safe-area, dimensões dinâmicas). |
 | `repositories/` | **dividida: interface em `domain/`, implementação em `storage/`** | A interface é contrato de negócio (porto); a implementação é detalhe técnico (adaptador). DIP sem pasta extra decorativa. |

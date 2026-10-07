@@ -17,15 +17,33 @@ divergência de nomes custa ponto sem ganho técnico.
 
 ## Decisão
 
-1. **`src/screens/`** — implementação de TODAS as telas (dashboard, subjects, activities,
-   assessments, subject-form, activity-form, assessment-form). Um arquivo = uma tela, nome claro.
-2. **`src/app/`** — só o Expo Router precisa: `_layout.tsx` (raiz e tabs) + **arquivos-finos de
-   rota** (`export { default } from '@/screens/x'`, 1 linha). A rota é a URL; a tela é o código.
-3. **`src/storage/`** — o que era `src/data/` (wrapper AsyncStorage, repositórios, notifier).
-4. **`src/styles/global.css`** — tokens CSS do NativeWind (era `src/global.css`).
-5. `services/` continua não criada (sem API — roteiro diz "pelo menos uma das opções: API **ou**
+1. **`src/screens/<Tela>Page/index.tsx`** — cada tela é uma **pasta** em PascalCase com sufixo
+   `Page`, e a implementação fica no `index.tsx` dela (ex.: `src/screens/SubjectsPage/index.tsx`,
+   `src/screens/ActivityFormPage/index.tsx`). Componente default nomeado igual à pasta
+   (`export default function SubjectsPage()`). Uma pasta por tela deixa óbvio "quais são as telas"
+   e dá um lugar natural para helpers exclusivos daquela tela.
+2. **`src/components/<Tela>Page/<Componente>.tsx`** — componentes **específicos de uma tela** vivem
+   na subpasta com o MESMO nome da tela (ex.: `src/components/SubjectsPage/SubjectCard.tsx`,
+   `src/components/ActivitiesPage/ActivityRow.tsx`). **`src/components/ui/`** guarda só o kit
+   genuinamente reutilizável (usado em ≥2 telas): Button, Input, Card, ListItem, EmptyState, Badge,
+   Divider, ScreenHeader, ProgressBar, Monogram, ChoiceChip, ListSkeleton.
+3. **`src/app/`** — só o Expo Router precisa: `_layout.tsx` (raiz e tabs) + **arquivos-finos de
+   rota** (`export { default } from '@/screens/<Tela>Page'`, 1 linha). A rota é a URL; a tela é o código.
+4. **`src/storage/`** — o que era `src/data/` (wrapper AsyncStorage, repositórios, notifier).
+5. **`src/styles/global.css`** — tokens CSS do NativeWind (era `src/global.css`).
+6. `services/` continua não criada (sem API — roteiro diz "pelo menos uma das opções: API **ou**
    armazenamento local"; a estrutura do roteiro é exemplo, não mandatória quanto a `services/`).
    Registrar na apresentação: `domain/` é a camada equivalente a "services" (regras de negócio).
+
+### Regra anti-arquivo-solto (o que evita a repetição do problema)
+
+- **Proibido** criar `src/screens/<tela>.tsx` solto — sempre `src/screens/<Tela>Page/index.tsx`.
+- **Proibido** definir subcomponente de tela dentro do `index.tsx` da tela quando ele tem mais de
+  ~15 linhas de JSX próprio (ex.: um Card/Row/Filter). Vai para
+  `src/components/<Tela>Page/<Componente>.tsx`. O `index.tsx` da tela orquestra; não desenha peças.
+- **Proibido** criar componente em `src/components/ui/` que só UMA tela usa — esse vai para
+  `src/components/<Tela>Page/`. Promove-se a `ui/` apenas quando um segundo consumidor aparece.
+- Componente novo: um arquivo por componente, PascalCase, `export function <Nome>`.
 
 ## Consequências
 

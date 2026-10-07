@@ -6,6 +6,22 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Changed — Estrutura por tela em pastas + componentes por tela (2026-10-07, ADR-0008 revisado)
+
+- **`src/screens/<Tela>Page/index.tsx`**: cada tela agora é uma pasta (DashboardPage, SubjectsPage,
+  ActivitiesPage, AssessmentsPage, SubjectFormPage, ActivityFormPage, AssessmentFormPage) — as telas
+  ficam autoevidentes para leitura/apresentação; default export renomeado para `<Tela>Page`.
+- **`src/components/<Tela>Page/`**: SubjectCard (SubjectsPage), ActivityRow + SegmentedFilter
+  (ActivitiesPage) extraídos dos `index.tsx` das telas.
+- **Kit `ui/` promovido**: `ChoiceChip` (chips de seleção, usado em 2+ formulários) e `ListSkeleton`
+  (skeleton de loading, usado em 3 listas) saíram da duplicação por tela para `src/components/ui/`.
+- **Domínio**: máscara de data `maskDDMMYYYY` movida para `src/domain/date.ts` (era função local
+  duplicada na tela).
+- **Anti-repetição**: convenção codificada em ADR-0008 (seção "Regra anti-arquivo-solto"),
+  `.clinerules` Regra 4.2/4.2b, árvore de `architecture.md` e regras transversais dos prompts; P4/P5
+  reescritos para a nova estrutura; P6 ganha checagem de conformidade estrutural.
+- Gates: tsc, expo lint e `expo export --platform web` limpos.
+
 ### Changed — Estrutura de pastas alinhada ao roteiro (2026-10-07, ADR-0008)
 
 - **`src/screens/`** criado: implementação das 7 telas (dashboard, subjects, activities, assessments,

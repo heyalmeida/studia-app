@@ -155,9 +155,15 @@ código. Nunca o inverso.
 
 1. **Uma camada, uma responsabilidade.** Toda pasta tem papel documentado; não misture responsabilidades.
 2. **Rotas em `src/app/`, telas em `src/screens/`** (ADR-0008). `src/app/` contém apenas `_layout.tsx`
-   e arquivos-finos de rota (`export { default } from '@/screens/x'`). A implementação da tela vive em
-   `src/screens/<nome>.tsx`. Componentes, hooks, repositórios, modelos e utils ficam **fora** de
-   `src/app/`.
+   e arquivos-finos de rota (`export { default } from '@/screens/<Tela>Page'`). Cada tela é uma PASTA:
+   `src/screens/<Tela>Page/index.tsx` (ex.: `src/screens/SubjectsPage/index.tsx`), com o componente
+   default nomeado igual à pasta (`export default function SubjectsPage()`). Proibido tela-solta
+   `src/screens/<tela>.tsx`.
+2b. **Componentes por tela.** O que é específico de UMA tela vive em `src/components/<Tela>Page/`
+   (ex.: `src/components/SubjectsPage/SubjectCard.tsx`, `src/components/ActivitiesPage/ActivityRow.tsx`).
+   `src/components/ui/` guarda SÓ o kit reutilizável em ≥2 telas (Button, Input, Card, ListItem,
+   EmptyState, Badge, Divider, ScreenHeader, ProgressBar, Monogram, ChoiceChip, ListSkeleton).
+   Nunca definir um Card/Row/Filter com JSX próprio dentro do `index.tsx` da tela — extrair.
 3. **UI não conhece persistência.** Telas e componentes consumem **hooks**; hooks dependem de
    **repositórios** via interface, nunca de SQLite/AsyncStorage diretamente (Regra SOLID DIP).
 4. **Regra de negócio não conhece React.** Domínio e validação são funções puras testáveis sem render.
