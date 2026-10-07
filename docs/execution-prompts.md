@@ -496,7 +496,7 @@ persiste; excluir com filhos não é possível ainda (sem atividades) -> sem fil
 some; fechar o app no Expo Go e reabrir -> matérias intactas.
 
 COMMIT:
-git add src/hooks/use-subjects.ts src/app/\(tabs\)/subjects.tsx src/app/subject-form.tsx
+git add src/hooks/use-subjects.ts "src/app/(tabs)/subjects.tsx" src/app/subject-form.tsx
 git commit -m "feat(subjects): CRUD de matérias com validação e lista
 
 Refs: docs/specs/2026-10-07-slice-2-subjects"
@@ -579,7 +579,7 @@ lista -> risco + badge some + contagem da matéria (T2) atualiza sem sair da aba
 reabrir app -> situação intacta.
 
 COMMIT:
-git add src/hooks/use-activities.ts src/app/\(tabs\)/activities.tsx src/app/activity-form.tsx
+git add src/hooks/use-activities.ts "src/app/(tabs)/activities.tsx" src/app/activity-form.tsx
 git commit -m "feat(activities): lista com filtros, conclusão e formulário de atividades
 
 Refs: docs/specs/2026-10-07-slice-3-activities"
@@ -619,7 +619,7 @@ VERIFICAÇÃO: gates + manual: criar sem data -> 'Informe a data...'; com data v
 (agendadas primeiro); toggle realizada -> esmaece e move p/ fim; fechar/reabrir -> intacta.
 
 COMMIT:
-git add src/hooks/use-assessments.ts src/app/\(tabs\)/assessments.tsx src/app/assessment-form.tsx
+git add src/hooks/use-assessments.ts "src/app/(tabs)/assessments.tsx" src/app/assessment-form.tsx
 git commit -m "feat(assessments): lista e formulário de avaliações
 
 Refs: docs/specs/2026-10-07-slice-4-assessments"
@@ -670,7 +670,7 @@ concluir atividade na aba Atividades e VOLTAR ao painel -> atualizado; modo avi�
 carrega (local).
 
 COMMIT:
-git add src/hooks/use-dashboard.ts src/app/\(tabs\)/index.tsx
+git add src/hooks/use-dashboard.ts "src/app/(tabs)/index.tsx"
 git commit -m "feat(dashboard): painel inicial com pendências, avaliações e progresso
 
 Refs: docs/specs/2026-10-07-slice-5-dashboard"
