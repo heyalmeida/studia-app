@@ -6,6 +6,17 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Added — Implementação (slices executados)
+
+- Slice 0 — fundação: `src/domain/` (models, id, date, monogram, progress, validation, sorting,
+  repositórios-porto) e `src/data/` (storage AsyncStorage defensivo, notifier pub/sub, 3 repositórios).
+  `npx expo install @react-native-async-storage/async-storage`. (commit `ad751e8`)
+- Slice 1 — navegação + UI Kit: rotas definitivas (`(tabs)` com 4 abas text-only, Stack raiz com 3
+  modais de formulário), tokens monocromáticos completos em `theme.ts` (Colors/Radius/Typography), 10
+  componentes `src/components/ui/`, remoção dos artefatos de demo do scaffold. (commit `12b79d2`)
+- Revisão do planejador nos dois slices: tsc + expo lint limpos, zero hex fora do tema, zero shadow,
+  contrato de modelos respeitado (sem `color`/`grade`).
+
 ### Added — Decisões de escopo/design + plano de execução (2026-10-07, 2ª rodada)
 
 - Decisões do dono registradas: nome **Studia** definitivo; **MVP acadêmico autocontido** (sem fase
