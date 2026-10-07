@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { activityRepository } from '@/data/activity.repository';
-import { assessmentRepository } from '@/data/assessment.repository';
-import { subscribe } from '@/data/notifier';
-import { subjectRepository } from '@/data/subject.repository';
+import { activityRepository } from '@/storage/activity.repository';
+import { assessmentRepository } from '@/storage/assessment.repository';
+import { subscribe } from '@/storage/notifier';
+import { subjectRepository } from '@/storage/subject.repository';
 import { genId } from '@/domain/id';
 import type { Activity, Assessment, Subject } from '@/domain/models';
 import { subjectProgress } from '@/domain/progress';

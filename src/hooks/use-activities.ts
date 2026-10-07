@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { activityRepository } from '@/data/activity.repository';
-import { subscribe } from '@/data/notifier';
-import { subjectRepository } from '@/data/subject.repository';
+import { activityRepository } from '@/storage/activity.repository';
+import { subscribe } from '@/storage/notifier';
+import { subjectRepository } from '@/storage/subject.repository';
 import { parseDDMMYYYY } from '@/domain/date';
 import { genId } from '@/domain/id';
 import type { Activity, ActivityType, Subject } from '@/domain/models';

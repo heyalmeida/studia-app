@@ -1,7 +1,7 @@
 import type { Assessment } from '@/domain/models';
 import type { Repository } from '@/domain/repositories';
-import { emit } from '@/data/notifier';
-import { STORAGE_KEYS, readCollection, writeCollection } from '@/data/storage';
+import { emit } from '@/storage/notifier';
+import { STORAGE_KEYS, readCollection, writeCollection } from '@/storage/storage';
 
 async function getAll(): Promise<Assessment[]> {
   return readCollection<Assessment>(STORAGE_KEYS.assessments);
