@@ -1,0 +1,35 @@
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { useColorScheme } from 'react-native';
+
+import { Colors } from '@/constants/theme';
+
+export default function TabsLayout() {
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+
+  return (
+    <NativeTabs
+      backgroundColor={colors.background}
+      indicatorColor={colors.backgroundSelected}
+      labelStyle={{
+        default: { color: colors.textSecondary },
+        selected: { color: colors.text },
+      }}>
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>Painel</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="subjects">
+        <NativeTabs.Trigger.Label>Matérias</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="activities">
+        <NativeTabs.Trigger.Label>Atividades</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="assessments">
+        <NativeTabs.Trigger.Label>Avaliações</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  );
+}
