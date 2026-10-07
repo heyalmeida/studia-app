@@ -1,56 +1,64 @@
-# Welcome to your Expo app 👋
+# Studia 📚
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile de **organização de estudos**: matérias, atividades com prazo, avaliações e o progresso
+de tudo — em um único lugar, **offline por padrão**.
 
-## Get started
+Projeto Final da disciplina *Desenvolvimento de Sistemas para Dispositivos Móveis* (UEM/Cept) e projeto de
+portfólio conduzido com **Spec-Driven Development**: a documentação em [`docs/`](./docs/README.md) é a
+fonte de verdade; o código a implementa.
 
-1. Install dependencies
+## O que o app faz (resumo)
 
-   ```bash
-   npm install
-   ```
+- Cadastra e organiza **matérias**;
+- Registra **atividades** por matéria, com prazo, conclusão e filtros;
+- Acompanha **avaliações/provas** por data;
+- Mostra no **painel inicial** o que vence primeiro, o que falta e o progresso geral.
 
-2. Start the app
+Requisitos completos: [`docs/requirements/`](./docs/requirements/functional-requirements.md) ·
+Telas e fluxo: [`docs/architecture/screens-and-navigation.md`](./docs/architecture/screens-and-navigation.md) ·
+Modelo de dados: [`docs/architecture/domain-model.md`](./docs/architecture/domain-model.md).
 
-   ```bash
-   npx expo start
-   ```
+## Stack
 
-In the output, you'll find options to open the app in a
+[Expo](https://expo.dev) SDK 57 · React Native 0.86 · TypeScript (strict) · Expo Router · AsyncStorage.
+Decisões registradas em [`docs/adr/`](./docs/adr/README.md).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Executando
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Abra no dispositivo com o app **Expo Go** (QR do terminal) — no MVP, todas as dependências rodam no Expo Go
+sem development build.
 
-### Other setup steps
+```bash
+npx tsc --noEmit   # typecheck
+npx expo lint      # lint
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Estrutura do repositório
 
-## Learn more
+```
+docs/            # fonte de verdade: product brief, requisitos, specs, features, ADRs, arquitetura
+src/
+├── app/         # telas (Expo Router — file-based)
+├── components/  # UI reutilizável
+├── hooks/       # hooks de dados
+├── domain/      # entidades, regras e validações puras
+├── data/        # persistência (repositórios sobre AsyncStorage)
+└── constants/   # tokens de tema
+assets/          # imagens/ícones
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Regras de desenvolvimento (humanos e IA): [`.clinerules`](./.clinerules) e [`AGENTS.md`](./AGENTS.md).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Status
 
-## Join the community
+**Etapa 1 — Planejamento e documentação.** Nenhum código de produto implementado; specs de feature ainda
+não escritas. Questões em aberto: [`docs/requirements/open-questions.md`](./docs/requirements/open-questions.md).
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+*Projeto em dupla — integrantes, turma e professor: [OQ-07](./docs/requirements/open-questions.md).*

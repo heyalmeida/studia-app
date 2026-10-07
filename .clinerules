@@ -1,0 +1,361 @@
+# STUDIA — REGRAS OBRIGATÓRIAS PARA IA (Cline / Codex / ZCode)
+
+> **AVISO CRÍTICO:** este arquivo é carregado automaticamente pelo Cline (como `.clinerules`) e serve
+> como livro de regras de **processo** do projeto em TODA sessão. As regras abaixo são **obrigatórias e
+> não negociáveis** e têm prioridade sobre qualquer preferência padrão da IA.
+>
+> As regras de **stack** (Expo, React Native, TypeScript, comandos, navegação) vivem em
+> [`AGENTS.md`](./AGENTS.md) e são **complementares** a estas — não alternativas. Um agente que respeite
+> apenas uma das metades está em violação. Nenhuma das duas pode enfraquecer a outra.
+>
+> O uso de tokens é deliberado e **otimizado para cache**: leia o necessário, com profundidade e critério.
+> **Volume não é qualidade.** Ler 100% de tudo é, às vezes, desperdício; folhear o que importa é negligência.
+
+---
+
+## REGRA 0 — PRINCÍPIO SUPREMO
+
+**A documentação é a fonte de verdade.** Código que contradiz a documentação é um bug — de um dos dois.
+Se detectar divergência, pare e corrija o lado errado (ou abra a questão) antes de continuar.
+
+**Não implemente o que ainda não está especificado.** Requisito existe → spec existe → então (e somente então)
+código existe. Fora dessa ordem, é violação da Regra 3.
+
+### Hierarquia de autoridade do workspace
+
+1. [`AGENTS.md`](./AGENTS.md) — regras técnicas de stack (Expo/RN/TS, comandos, roteamento). **Inegociável.**
+2. Estas regras de processo (`.clinerules`).
+3. ADRs em `docs/adr/` — decisões arquiteturais aprovadas. Uma spec não pode contradizer um ADR sem
+   registrar um novo ADR que o substitua explicitamente.
+4. `docs/requirements/` — requisitos (RF/RNF). É a origem do escopo; alterar requisito exige justificativa
+   registrada.
+5. `docs/product-brief.md` — visão, escopo aprovado e lista de fora-de-escopo definitivo (o Studia não
+   tem fase pós-MVP; ver decisão de escopo em `docs/requirements/open-questions.md`).
+6. Spec ativa da feature em `docs/features/<feature>/spec.md`.
+7. `docs/architecture/` — modelo de domínio, telas/navegação, camadas e SOLID.
+8. `README.md` e documentação voltada ao usuário.
+9. Exemplos, tutoriais e código externo.
+
+Uma camada inferior **nunca** relaxa segurança, qualidade, stack ou processo definidos acima. Agentes não
+re-perguntam escolhas já documentadas nem trocam a stack por preferência genérica. Devem interromper
+apenas diante de conflito real, informação decisiva ausente ou expansão material de escopo.
+
+### Vocabulário obrigatório de classificação
+
+Ao escrever ou falar sobre o projeto, o agente deve sempre marcar a natureza de cada afirmação, usando
+explicitamente uma destas cinco palavras:
+
+| Termo | Significado | Exemplo |
+|---|---|---|
+| **requisito** | derivado do roteiro ou do cliente; obriga | "RF04 — editar atividade" |
+| **decisão** | escolha tomada e registrada (ADR, spec) | "ADR-0002: AsyncStorage" |
+| **hipótese** | suposição não confirmada; deve virar questão | "o usuário estuda offline" |
+| **sugestão** | ideia do agente, sem força de obrigação | "convém um EmptyState" |
+| **implementação** | código/entregável real | `src/data/storage.ts` |
+
+Nunca apresente uma **sugestão** ou **hipótese** como se fosse **requisito** ou **decisão**.
+
+---
+
+## REGRA 1 — LEITURA OBRIGATÓRIA DE CONTEXTO (antes de QUALQUER tarefa)
+
+**Leia de forma otimizada e seletiva — nunca superficial no que importa, nunca exaustivo no que não importa.**
+
+Antes de escrever qualquer linha de código, editar qualquer arquivo ou responder a qualquer pergunta
+técnica, você **DEVE** ler:
+
+1. **Núcleo obrigatório (toda sessão, toda tarefa — leitura completa):**
+   - [`AGENTS.md`](./AGENTS.md) — regras de stack. Especialmente a seção "Expo has changed — do not trust
+     your training data": confira a versão do pacote `expo` em `package.json` e busque a documentação
+     versionada correspondente antes de tocar qualquer API de Expo/RN.
+   - [`docs/README.md`](docs/README.md) — índice e hierarquia documental.
+   - `docs/requirements/functional-requirements.md` e `docs/requirements/non-functional-requirements.md` —
+     os RF/RNF em jogo.
+   - A **spec ativa** da feature a ser implementada, se existir.
+
+2. **Leitura por relevância (leia as seções pertinentes por extenso; pule apenas o que genuinamente não se aplica):**
+   - `docs/product-brief.md` — antes de decidir escopo ou prioridade.
+   - `docs/architecture/domain-model.md` — antes de mexer em entidades, campos ou relacionamentos.
+   - `docs/architecture/screens-and-navigation.md` — antes de criar/alterar telas ou rotas.
+   - `docs/architecture/architecture.md` — antes de qualquer decisão estrutural, de camada ou de pasta.
+   - `docs/adr/` — os ADRs pertinentes ao tema (0001 no mínimo).
+   - `docs/requirements/open-questions.md` — antes de assumir algo não decidido.
+
+3. **Otimização permitida (e encorajada):**
+   - Use **busca direcionada** (grep/seções específicas) para localizar o trecho exato dentro de um
+     documento longo, em vez de reler o arquivo inteiro.
+   - Se um documento foi lido **nesta mesma sessão** e não mudou desde então, não o releia.
+   - Priorize profundidade nos documentos que governam a decisão em questão.
+
+4. **Eficiência de cache de prompt:** provedores LLM cobram muito menos por tokens **em cache**. Para
+   maximizar acertos de cache:
+   - **Leia cedo, leia uma vez** — o contexto lido no início fica no prefixo estável e é reaproveitado.
+   - **Agrupe leituras independentes numa única chamada**, em ordem estável.
+   - **Conteúdo estável primeiro, volátil por último** — documentação no início da conversa; iterações de
+     código no fim.
+   - **Edições cirúrgicas, nunca reescritas completas.**
+   - **Não rotacione contexto desnecessariamente** — termine tarefas relacionadas na mesma sessão.
+   - **Ordem de leitura estável** entre tarefas consecutivas.
+
+5. **Regra de ouro:** se a informação necessária para decidir corretamente ainda não foi lida, você **não
+   está autorizado** a implementar. Não presuma, não invente: consulte a documentação (ou pergunte). O que
+   jamais é aceitável é decidir por suposição para "economizar" tokens.
+
+---
+
+## REGRA 2 — SINCRONIZAÇÃO OBRIGATÓRIA DE DOCUMENTAÇÃO (após QUALQUER mudança)
+
+**Nenhuma tarefa está completa até a documentação refletir a realidade.**
+
+| Tipo de mudança | Ação obrigatória |
+|---|---|
+| Qualquer mudança em código ou docs | Nova entrada em `CHANGELOG.md` (Keep a Changelog, seção `[Unreleased]`) |
+| Novo comportamento, escopo ou requisito | Atualizar `docs/requirements/` (RF/RNF) com justificativa |
+| Nova decisão arquitetural ou técnica | Criar ADR em `docs/adr/NNNN-nome.md` (numeração sequencial) ou substituir um ADR existente declarando `Substitui ADR-xxxx` |
+| Mudança em entidade, campo ou cardinalidade | Atualizar `docs/architecture/domain-model.md` |
+| Nova tela, rota ou mudança de fluxo | Atualizar `docs/architecture/screens-and-navigation.md` |
+| Mudança de camada, pasta ou responsabilidade de módulo | Atualizar `docs/architecture/architecture.md` |
+| Novo termo de domínio | Atualizar `docs/glossary.md` |
+| Feature implementada | Criar/atualizar `docs/features/<feature>/spec.md` + linha em `docs/features/README.md` (Regra 7) |
+| Decisão aprovada que muda comportamento | Registrar a resolução em `docs/requirements/open-questions.md` |
+| Mudança que altera o documento académico único | Sincronizar `docs/entrega/` (derivado dos arquivos canônicos) |
+
+**Consistência cruzada:** ao mudar qualquer documento, verifique se outros documentos referenciam a
+informação alterada. Links relativos devem permanecer válidos.
+
+**Derivados nunca são canônicos.** `docs/entrega/` (o documento único exigido pelo roteiro) é gerado a
+partir dos arquivos acima, jamais editado à mão como fonte.
+
+---
+
+## REGRA 3 — DESENVOLVIMENTO DIRIGIDO POR SPEC (SDD)
+
+**Todo trabalho de implementação nasce de uma spec. Sem spec, sem código.** O fluxo está em
+[`docs/specs/README.md`](docs/specs/README.md) e deve ser seguido à letra:
+
+1. **SPEC** — escreva `docs/specs/YYYY-MM-DD-nome/spec.md` (o QUÊ: requisitos e critérios de aceitação) a
+   partir do template em `docs/specs/_templates/`
+2. **PLAN** — escreva `plan.md` (o COMO: abordagem técnica, arquivos impactados, decisões, risco)
+3. **TASKS** — escreva `tasks.md` (o FAZER: tarefas pequenas, verificáveis, rastreáveis aos CAs)
+4. **IMPLEMENT** — execute, marcando `- [x]` em `tasks.md` a cada tarefa verificada
+5. **VERIFY** — valide cada critério de aceitação com evidência registrada
+6. **DOCS SYNC** — Regra 2 + registro de feature em `docs/features/` (Regra 7)
+
+**Exceções permitidas (sem spec):** correção trivial de erro de digitação; ajustes puramente editoriais de
+documentação. Na dúvida, crie a spec — specs pequenas e focadas são o padrão, não a exceção.
+
+**Mudança de escopo durante a implementação:** atualize primeiro o `spec.md` (com justificativa), depois o
+código. Nunca o inverso.
+
+---
+
+## REGRA 4 — ORGANIZAÇÃO DO CÓDIGO (src/)
+
+**Convenções estruturais do Studia** — detalhadas em `docs/architecture/architecture.md`:
+
+1. **Uma camada, uma responsabilidade.** Toda pasta tem papel documentado; não misture responsabilidades.
+2. **Rotas apenas em `src/app/`.** Com Expo Router, todo arquivo em `src/app/` é uma tela. Componentes,
+   hooks, serviços, repositórios, modelos e utils ficam **fora** de `src/app/`.
+3. **UI não conhece persistência.** Telas e componentes consumem **hooks**; hooks dependem de
+   **repositórios** via interface, nunca de SQLite/AsyncStorage diretamente (Regra SOLID DIP).
+4. **Regra de negócio não conhece React.** Domínio e validação são funções puras testáveis sem render.
+5. **Regra de negócio não conhece UI.** Validação e cálculo retornam dados; a tela decide como exibir.
+6. **Acesso a dados centralizado em `src/data/`** — implementações de persistência (storage +
+   repositórios). Mais de um módulo abrindo/gravando a base é um bug de arquitetura. Interfaces de
+   repositório vivem em `src/domain/` (porto); implementações em `src/data/` (adaptador).
+7. **`App.tsx`/`_layout.tsx` nunca acumulam lógica** — apenas composição de providers e navegadores.
+8. **Nomenclatura:** componentes `PascalCase.tsx`; hooks `use-*.ts`; repositórios `*.repository.ts`;
+   tipos de domínio em `src/domain/models.ts`; constantes em `UPPER_SNAKE_CASE`; camelCase em
+   variáveis/funções.
+9. **Imports sempre pelo alias `@/`** já configurado em `tsconfig.json` (`@/*` → `./src/*`).
+10. **Estilo com `StyleSheet.create` + Flexbox**, tokens monocromáticos reunidos em
+    `src/constants/theme.ts` — proibido literal de cor fora do tema, proibido cor saturada, proibido
+    shadow (ADR-0006; RNF-01).
+
+---
+
+## REGRA 5 — QUALIDADE DE DOCUMENTAÇÃO (Mermaid e Markdown)
+
+Ao criar ou editar qualquer bloco Mermaid:
+
+- **Rótulos com parênteses, colchetes ou vírgulas DEVEM usar aspas duplas:**
+  `A["Matéria (Subject)"]` — nunca `A[Matéria (Subject)]`
+- **Quebras de linha em rótulos:** use `<br/>`, nunca `\n`
+- Verifique se o bloco faz parse (sintaxe válida) antes de encerrar a tarefa
+
+Ao criar ou editar tabelas Markdown: garanta o mesmo número de colunas em todas as linhas. Links relativos
+devem apontar para arquivos existentes. **Documentos do Studia são escritos em português** (é a língua do
+produto, do cliente e do curso); código, identificadores e nomes de arquivo ficam em inglês, exceto os
+termos de domínio do glossário.
+
+---
+
+## REGRA 6 — QUALIDADE DE CÓDIGO E SEGURANÇA (SHIFT LEFT)
+
+**Qualidade é condição de implementação, não revisão opcional no fim.** O Studia é um app que **armazena
+dados pessoais do usuário localmente** e **valida entrada de formulários** — a superfície de ameaças é
+diferente da de um CLI, mas existe. Todo mudança segue os portões abaixo.
+
+### 6.1 Antes de editar
+
+1. Classifique o risco como **baixo, médio ou alto** conforme `docs/requirements/non-functional-requirements.md`
+   (RNF-04 tratamento de erros, RNF-06 persistência). Na dúvida, use o nível mais alto.
+2. Inspecione quem importa o módulo, o que ele importa e os consumidores do contrato alterado. Atualize os
+   consumidores na mesma tarefa.
+3. Mapeie, quando aplicável: escrita no storage (JSON por coleção), parsing de entrada do usuário,
+   datas/timezone, IDs e referências quebradas (integridade FK sobre chave-JSON).
+4. Para risco alto (escrita em lista inteira, exclusão, cálculo de progresso), registre os testes
+   negativos na spec/plan **antes** do código.
+
+### 6.2 Durante a implementação
+
+- Prefira a solução mais simples que cumpra a spec; não crie abstração, flag, dependência ou configuração
+  "para o futuro".
+- **Trate toda entrada de usuário como não confiável:** texto de formulários, datas e números devem ser
+  validados na **camada de domínio** antes de tocar o storage — nunca apenas no componente.
+- **JSON é dado não confiável:** o que vem do storage passa por normalização/defesa na leitura
+  (`storage.ts`): shape inesperado → coleção vazia com aviso, nunca crash.
+- **Nada de segredos** (chaves de API, tokens) em código, fixtures, logs ou no repositório — o app é
+  100% local por decisão de escopo (2026-10-07) e não consome nenhuma API; se isso mudasse, a chave iria
+  em `.env*.local` (já ignorado), jamais no repositório.
+- **LGPD básico:** o app guarda dados de estudo do próprio usuário no dispositivo. Não registre telemetria,
+  não sincronize com serviço externo sem uma spec + ADR, não exponha dados em logs.
+- Preserve mudanças do usuário e evite alterações não relacionadas; achados fora de escopo devem ser
+  **reportados**, não "consertados de passagem".
+
+### 6.3 Testes e portões proporcionais
+
+Descubra os scripts reais do projeto antes de rodar portões (`package.json`). Um verificador que reporta
+"nenhuma ferramenta configurada" **não** conta como portão aprovado.
+
+- **Toda mudança de código:** `npx tsc --noEmit` + `npx expo lint` nos arquivos tocados.
+- **Mudança de contrato/comportamento:** script manual documentado em `tasks.md` (passos + esperado +
+  obtido), incluindo caminhos de erro e bordas.
+- **Domínio puro** (validação, monograma, cálculo de progresso, ordenação por prazo, parse de data):
+  teste unitário com Jest quando houver lógica não trivial — `domain/` roda sem render (RNF-03).
+- **Persistência:** teste o ciclo escrever → fechar app → reabrir → dados intactos; teste a leitura de
+  JSON corrompido (chave com valor inválido) — deve degradar para vazio + aviso, nunca crash.
+- **UI:** verifique render em largura estreita, dark/light mode (`userInterfaceStyle: automatic` já está no
+  `app.json`), estados vazio/carregando/erro, e sem vazamento de layout em `Text` longo.
+- **Nova dependência:** justificação, origem oficial, manutenção/licença revisadas, lockfile registrado.
+  Use **`npx expo install <pacote>`**, nunca `npm add` (Regra de stack no `AGENTS.md`).
+
+### 6.4 Tratamento de resultado
+
+- Leia a saída completa; separe erro real, aviso, limitação e falso positivo; registre arquivo/linha/impacto
+  quando disponível.
+- Conserte falhas causadas pela mudança e repita o portão. Falhas pré-existentes ou fora de escopo devem ser
+  apresentadas com evidência exata; jamais omitidas nem declaradas como aprovação.
+- **Crítico/Alto** — perda de dados do usuário, JSON persistido sem validação de shape, bypass de
+  validação — **bloqueia** a conclusão.
+- Supressão só é aceita com regra afetada, motivo, risco residual, mitigação, dono e prazo/issue.
+- O handoff final reporta comandos executados, resultados e verificações não executadas com o motivo. É
+  proibido afirmar "seguro", "testado" ou "sem vulnerabilidades" sem evidência compatível.
+
+---
+
+## REGRA 7 — REGISTRO OBRIGATÓRIO DE FEATURES (`docs/features/`)
+
+**Cada feature implementada DEVE gerar registro em `docs/features/<feature>/`, no mesmo ato de encerrar a
+tarefa.** Sem registro, a feature oficialmente não existe.
+
+**Regras:**
+
+1. **Nome:** kebab-case em inglês — `docs/features/subjects/`, `docs/features/activities/`
+2. **Template obrigatório:** use `docs/features/_template-spec.md` (copie, não edite o template)
+3. **Conteúdo mínimo:** problema resolvido, quem usa, comportamento esperado, regras de negócio, estados,
+   validações, critérios de aceitação, dependências, impacto em dados, impacto na UI, casos de erro
+4. **Ao mudar uma feature existente:** atualize a spec e a seção "Histórico de mudanças" — não crie um novo
+   arquivo para uma melhoria da mesma feature
+5. **Ao remover uma feature:** marque `Status: removida` no cabeçalho e registre no CHANGELOG — nunca
+   apague o arquivo
+6. **Índice:** adicione/atualize a linha correspondente na tabela de `docs/features/README.md`, ligando-a
+   aos RFs atendidos
+
+---
+
+## REGRA 8 — FLUXO GIT (branch de desenvolvimento única)
+
+**Todo trabalho em andamento acontece diretamente em `development`. Não crie, alterne, faça merge, rebase
+ou use worktrees de branches de feature, correção, documentação ou release, salvo pedido explícito do
+usuário.** `main` permanece a branch protegida de release/integração.
+
+### 8.1 Branch de trabalho
+
+Antes de iniciar uma tarefa, confirme que a branch atual é `development` e inspecione `git status`.
+Preserve toda mudança existente do usuário.
+
+1. Não rode `git switch`, `git checkout`, `git pull`, `git merge`, `git rebase`, `git reset`, `git clean`,
+   `git stash` nem crie worktree como passo de rotina.
+2. Se a branch atual não for `development`, pare e pergunte antes de alternar.
+3. Código, specs, documentação, registros de feature e CHANGELOG são todos feitos e commitados em
+   `development`.
+4. Pull request ou release branch são opcionais e criados apenas sob pedido explícito do usuário.
+
+### 8.2 Disciplina de commit
+
+- **Commit assim que uma unidade coerente estiver pronta** — não acumule a feature inteira num commit gigante
+  no fim.
+- **Stageie APENAS os arquivos relacionados àquela mudança coerente.** Use caminhos explícitos:
+  `git add src/domain/validation.ts src/data/subject.repository.ts`. **NUNCA use `git add .` ou `git add -A`.**
+- **Antes de cada commit:** `git status` para revisar a árvore e, após stagear, `git diff --cached --stat`
+  para verificar o conjunto; se algo não relacionado estiver stageado, remova com
+  `git restore --staged <caminho>`.
+- **Mensagem de commit:** Conventional Commits `tipo(escopo): descrição curta`, com referência à spec no corpo:
+  ```
+  feat(subjects): validar nome obrigatório no cadastro
+
+  Refs: docs/specs/2026-10-15-subjects-mvp
+  ```
+- **Mudanças não relacionadas encontradas durante o trabalho:** NÃO comitze junto. Reporte ou trate depois
+  como commit separado em `development`.
+- **Documentação** (`README.md`, `docs/`, `CHANGELOG.md`, regras de processo) é commitada em `development`,
+  junto com a implementação que documenta ou em commit próprio de escopo documental.
+- **Ao final da tarefa:** deixe `development` apenas com as mudanças pretendidas. Não faça merge, não apague
+  branches, não altere estado remoto sem pedido.
+
+> **Nota de avaliação:** o roteiro exige que os commits "demonstrem o desenvolvimento do projeto ao longo das
+> etapas". Commits pequenos, frequentes e semanticamente claros são requisito de entrega, não estilo.
+
+---
+
+## REGRA 9 — DECISÕES EM ABERTO E CONTROLE DE ESCOPO
+
+Este projeto é construído com auxílio intensivo de IA. A documentação deve ser precisa o bastante para
+impedir que agentes diferentes interpretem o produto de maneiras diferentes.
+
+1. **Nunca tome decisão silenciosa.** Toda escolha relevante vira **ADR** (decisão arquitetural) ou
+   **questão registrada** em `docs/requirements/open-questions.md`.
+2. **Havendo decisão ainda não tomada, registre-a como questão em aberto em vez de inventar uma resposta.**
+3. **Não crie funcionalidades apenas porque parecem úteis** nem adicione requisitos artificialmente para
+   atingir um número mínimo.
+4. **O escopo é autocontido:** não existe "pós-MVP" no Studia (decisão 2026-10-07,
+   `docs/requirements/open-questions.md`). Toda ideia nova é **dentro do escopo aprovado** ou
+   **fora do escopo — definitivamente** (`docs/product-brief.md` §8). Funcionalidade fora do escopo não é
+   implementada — ponto.
+5. **Aponte conflitos entre documentação e código** ao detectá-los — inclusive os criados por você mesmo.
+6. **Não altere requisitos sem justificativa registrada.**
+7. **O projeto deve permanecer pequeno o suficiente para ser concluído e apresentado** (40 pontos, disciplina
+   única, semestre letivo). Escopo extra é a principal causa de fracasso deste tipo de projeto.
+
+---
+
+## REGRA 10 — VERIFICAÇÃO FINAL (antes de fechar QUALQUER tarefa)
+
+Checklist obrigatório de fechamento:
+
+- [ ] A mudança cumpre a spec / o pedido original?
+- [ ] Os critérios de aceitação (se houver spec) foram verificados?
+- [ ] O risco foi classificado e as superfícies de falha tratadas?
+- [ ] Entrada de usuário, escrita em banco, migrações e integridade de FK foram revisadas quando aplicável?
+- [ ] `npx tsc --noEmit` e `npx expo lint` rodaram e passaram?
+- [ ] A Regra 2 foi executada (toda documentação pertinente atualizada)?
+- [ ] Se é uma nova feature: `docs/features/<feature>/` criado e índice `docs/features/README.md` atualizado (Regra 7)?
+- [ ] `CHANGELOG.md` recebeu a entrada da mudança?
+- [ ] Decisões novas viraram ADR, e não suposição implícita (Regra 9)?
+- [ ] Nenhum requisito novo ou funcionalidade fora do escopo entrou escondido?
+- [ ] Os diagramas Mermaid tocados continuam válidos (Regra 5)?
+- [ ] O trabalho foi commitado em `development` com APENAS os arquivos daquela mudança coerente (Regra 8)?
+- [ ] Nenhum portão foi desativado e nenhuma limitação relevante foi escondida no handoff?
+
+**Se qualquer item falhar, a tarefa NÃO está completa — mesmo que o código funcione.**

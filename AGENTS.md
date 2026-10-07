@@ -1,4 +1,15 @@
+# IMPORTANT: EVERY READ THE .clinerules
+
+.clinerules
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+
+> **Two rule sources, both mandatory.** This file (`AGENTS.md`) holds the **stack rules** (Expo, React
+> Native, TypeScript, commands, routing, builds). Process rules — Spec-Driven Development, documentation
+> sync, ADR discipline, git workflow, scope control, final verification — live in
+> [`.clinerules`](./.clinerules) and are equally non-negotiable. Neither file relaxes the other.
+> Read [`.clinerules`](./.clinerules) Rule 0 for the authority hierarchy and
+> [`docs/README.md`](./docs/README.md) for the documentation index before starting any task.
 
 ## Expo has changed — do not trust your training data
 
