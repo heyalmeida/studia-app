@@ -51,7 +51,7 @@ explicitamente uma destas cinco palavras:
 | **decisão** | escolha tomada e registrada (ADR, spec) | "ADR-0002: AsyncStorage" |
 | **hipótese** | suposição não confirmada; deve virar questão | "o usuário estuda offline" |
 | **sugestão** | ideia do agente, sem força de obrigação | "convém um EmptyState" |
-| **implementação** | código/entregável real | `src/data/storage.ts` |
+| **implementação** | código/entregável real | `src/storage/storage.ts` |
 
 Nunca apresente uma **sugestão** ou **hipótese** como se fosse **requisito** ou **decisão**.
 
@@ -154,22 +154,24 @@ código. Nunca o inverso.
 **Convenções estruturais do Studia** — detalhadas em `docs/architecture/architecture.md`:
 
 1. **Uma camada, uma responsabilidade.** Toda pasta tem papel documentado; não misture responsabilidades.
-2. **Rotas apenas em `src/app/`.** Com Expo Router, todo arquivo em `src/app/` é uma tela. Componentes,
-   hooks, serviços, repositórios, modelos e utils ficam **fora** de `src/app/`.
+2. **Rotas em `src/app/`, telas em `src/screens/`** (ADR-0008). `src/app/` contém apenas `_layout.tsx`
+   e arquivos-finos de rota (`export { default } from '@/screens/x'`). A implementação da tela vive em
+   `src/screens/<nome>.tsx`. Componentes, hooks, repositórios, modelos e utils ficam **fora** de
+   `src/app/`.
 3. **UI não conhece persistência.** Telas e componentes consumem **hooks**; hooks dependem de
    **repositórios** via interface, nunca de SQLite/AsyncStorage diretamente (Regra SOLID DIP).
 4. **Regra de negócio não conhece React.** Domínio e validação são funções puras testáveis sem render.
 5. **Regra de negócio não conhece UI.** Validação e cálculo retornam dados; a tela decide como exibir.
-6. **Acesso a dados centralizado em `src/data/`** — implementações de persistência (storage +
+6. **Acesso a dados centralizado em `src/storage/`** — implementações de persistência (storage +
    repositórios). Mais de um módulo abrindo/gravando a base é um bug de arquitetura. Interfaces de
-   repositório vivem em `src/domain/` (porto); implementações em `src/data/` (adaptador).
+   repositório vivem em `src/domain/` (porto); implementações em `src/storage/` (adaptador).
 7. **`App.tsx`/`_layout.tsx` nunca acumulam lógica** — apenas composição de providers e navegadores.
 8. **Nomenclatura:** componentes `PascalCase.tsx`; hooks `use-*.ts`; repositórios `*.repository.ts`;
    tipos de domínio em `src/domain/models.ts`; constantes em `UPPER_SNAKE_CASE`; camelCase em
    variáveis/funções.
 9. **Imports sempre pelo alias `@/`** já configurado em `tsconfig.json` (`@/*` → `./src/*`).
 10. **Estilo com NativeWind (Tailwind)** — classes utilitárias via `className`, tokens definidos em
-    `tailwind.config.js` + `src/global.css` (ADR-0007). Proibido: literal de cor fora do tema
+    `tailwind.config.js` + `src/styles/global.css` (ADR-0007). Proibido: literal de cor fora do tema
     (nada de `bg-[#...]`/`text-[#...]` arbitrários), cor saturada, `shadow*` (ADR-0006; RNF-01).
     Exceções StyleSheet: `hairlineWidth`, alturas/larguras dinâmicas calculadas em runtime.
 
@@ -298,7 +300,7 @@ Preserve toda mudança existente do usuário.
 - **Commit assim que uma unidade coerente estiver pronta** — não acumule a feature inteira num commit gigante
   no fim.
 - **Stageie APENAS os arquivos relacionados àquela mudança coerente.** Use caminhos explícitos:
-  `git add src/domain/validation.ts src/data/subject.repository.ts`. **NUNCA use `git add .` ou `git add -A`.**
+  `git add src/domain/validation.ts src/storage/subject.repository.ts`. **NUNCA use `git add .` ou `git add -A`.**
 - **Antes de cada commit:** `git status` para revisar a árvore e, após stagear, `git diff --cached --stat`
   para verificar o conjunto; se algo não relacionado estiver stageado, remova com
   `git restore --staged <caminho>`.

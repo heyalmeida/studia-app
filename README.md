@@ -43,11 +43,13 @@ npx expo lint      # lint
 ```
 docs/            # fonte de verdade: product brief, requisitos, specs, features, ADRs, arquitetura
 src/
-├── app/         # telas (Expo Router — file-based)
+├── app/         # rotas Expo Router (layouts + re-exports finos das telas)
+├── screens/     # implementação das telas (uma por arquivo)
 ├── components/  # UI reutilizável
 ├── hooks/       # hooks de dados
 ├── domain/      # entidades, regras e validações puras
-├── data/        # persistência (repositórios sobre AsyncStorage)
+├── storage/     # persistência (repositórios sobre AsyncStorage)
+├── styles/      # tokens CSS do NativeWind (global.css)
 └── constants/   # tokens de tema
 assets/          # imagens/ícones
 ```

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Aceito (escopo aprovado 2026-10-07) |
+| **Status** | Aceito (escopo aprovado 2026-10-07) — **nomes de pastas parcialmente substituídos pelo [ADR-0008](ADR-0008-estrutura-roteiro.md)** (`data/`→`storage/`; telas em `screens/`; `styles/global.css`). O grafo de camadas e o DIP deste ADR permanecem válidos. |
 | **Data** | 2026-10-07 |
 
 ## Contexto

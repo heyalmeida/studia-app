@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Aprovado (decisão do dono em 2026-10-07) |
 | **Decisão-mãe** | [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md) · escrita em NativeWind por [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
-| **Fonte de tokens** | `tailwind.config.js` + `src/global.css` (código) — este documento é a especificação |
+| **Fonte de tokens** | `tailwind.config.js` + `src/styles/global.css` (código) — este documento é a especificação |
 
 > **Direção:** minimalismo monocromático — preto-e-branco, e vice-versa no tema escuro. A hierarquia é
 > construída **apenas** com tipografia, peso, espaço, borda e preenchimento. Nenhuma cor saturada em lugar
@@ -45,7 +45,7 @@ export const Colors = {
 } as const;
 ```
 
-Os valores acima vivem em `src/global.css` como CSS variables (`--color-*`) com bloco
+Os valores acima vivem em `src/styles/global.css` como CSS variables (`--color-*`) com bloco
 `@media (prefers-color-scheme: dark)`, e são expostos ao Tailwind em `tailwind.config.js` como
 `text`, `text-secondary`, `text-tertiary`, `background`, `surface`, `surface-selected`, `border`,
 `border-strong`, `inverse`, `on-inverse`.
@@ -131,7 +131,7 @@ já embutem as regras destiladas acima — o implementador **não depende** da p
 
 ## 7. Checklist de conformidade (para review/verificação)
 
-- [ ] Zero hex fora de `src/global.css` e `tailwind.config.js` (proibido `bg-[#...]`/`text-[#...]`)
+- [ ] Zero hex fora de `src/styles/global.css` e `tailwind.config.js` (proibido `bg-[#...]`/`text-[#...]`)
 - [ ] `Text`/`View` estilizados por `className` com tokens do tema (ADR-0007)
 - [ ] Estados (atrasada/concluída/erro) legíveis em **escala de cinza** imprimível
 - [ ] Contraste texto/fundo ≥ 4.5:1 nos dois temas

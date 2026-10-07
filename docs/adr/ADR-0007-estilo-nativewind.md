@@ -26,7 +26,7 @@ markup de estilo mais expressivo.
 1. **NativeWind v4 + tailwindcss v3** (versões resolvidas por `npx expo install`), com
    `babel.config.js` (`jsxImportSource: 'nativewind'`), `metro.config.js` (`withNativeWind`),
    `tailwind.config.js` (tokens do ADR-0006 como cores/radius/spacing/fonte customizadas) e
-   `src/global.css` (CSS variables `--color-*` em `:root` + `@media (prefers-color-scheme: dark)`).
+   `src/styles/global.css` (CSS variables `--color-*` em `:root` + `@media (prefers-color-scheme: dark)`).
 2. **A identidade visual do ADR-0006 permanece vinculante**: só tokens monocromáticos, sem cor
    saturada, sem sombra. A regra "proibido literal de cor fora do tema" vira "proibido literal de cor
    fora de `global.css`/`tailwind.config.js`" e "proibido `bg-[#...]`/`text-[#...]` arbitrários".

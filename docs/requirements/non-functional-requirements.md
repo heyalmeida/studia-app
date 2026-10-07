@@ -27,8 +27,8 @@ percurso "abrir app → ver o que vence hoje" em ≤2 toques.
 
 ## RNF-02 — Organização do código em camadas
 
-**Descrição.** O código deve estar organizado em pastas por responsabilidade (`app/` rotas, `components/`,
-`domain/`, `data/`, `hooks/`, `constants/` — detalhe em
+**Descrição.** O código deve estar organizado em pastas por responsabilidade (`app/` rotas, `screens/`,
+`components/`, `domain/`, `storage/`, `styles/`, `hooks/`, `constants/` — detalhe em
 [architecture.md](../architecture/architecture.md)), sem concentrar lógica em `App.tsx`/`_layout.tsx`, com
 separação clara entre UI, regras de negócio e persistência. O projeto deve conter ao menos 3 componentes
 reutilizáveis usados em mais de uma tela.

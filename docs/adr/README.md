@@ -9,6 +9,7 @@
 | [ADR-0005](ADR-0005-gerenciamento-de-estado.md) | Gerenciamento de estado: hooks de dados + pub/sub | Aceito | 2026-10-07 |
 | [ADR-0006](ADR-0006-identidade-visual-monocromatica.md) | Identidade visual monocromática (preto-e-branco) | Aceito | 2026-10-07 |
 | [ADR-0007](ADR-0007-estilo-nativewind.md) | Estilo: NativeWind (Tailwind CSS) como sistema de escrita | Aceito | 2026-10-07 |
+| [ADR-0008](ADR-0008-estrutura-roteiro.md) | Estrutura de pastas alinhada ao roteiro (screens/ + storage/ + styles/) | Aceito | 2026-10-07 |
 
 **Critério de existência:** um ADR só é escrito quando há (a) decisão relevante, (b) alternativa real
 rejeitada com motivo, (c) consequência duradoura. Ideias que não passaram nesse teste foram deliberadamente

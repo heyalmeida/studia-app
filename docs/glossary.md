@@ -10,7 +10,7 @@
 | Situação | `status` | Estado de ciclo de vida da entidade (Atividade: pendente/concluída; Avaliação: agendada/realizada). |
 | Painel | `dashboard` | Tela inicial T1 com agregados da rotina. |
 | UI Kit | — | Camada de componentes reutilizáveis (`src/components/ui/` + `domain/`). |
-| Repositório (software) | `Repository<T>` | Interface de acesso a dados definida no domínio (porto); implementação em `src/data/` (adaptador). Não confundir com repositório Git. |
+| Repositório (software) | `Repository<T>` | Interface de acesso a dados definida no domínio (porto); implementação em `src/storage/` (adaptador). Não confundir com repositório Git. |
 | SDD | — | Spec-Driven Development: sem spec aprovada, não há código. |
 | ADR | — | Architecture Decision Record: decisão arquitetural registrada com alternativas e consequências. |
 | RF / RNF | — | Requisito Funcional / Não Funcional (ver `docs/requirements/`). |

@@ -46,7 +46,7 @@ de "≤2 toques para ação comum".
   escala tipográfica); progresso por matéria (top 3). Sem dados: estado inicial
   "Cadastre sua primeira matéria" (CA-09.2).
 - **Ações/botões:** botão de cadastro rápido de atividade; toques nos blocos navegam; tabs de navegação.
-- **Origem da navegação:** abertura do app (rota `src/app/index.tsx`, tab Início).
+- **Origem da navegação:** abertura do app (rota `(tabs)/index.tsx` → `screens/dashboard`, tab Início).
 - **Destinos:** T3, T4, T2, T6 (via botões/blocos).
 - **Dados utilizados:** leitura agregada das 3 coleções do storage (RF-09, CA-09.4). **Tela de origem do
   requisito "dados em tela" do roteiro item 9.**
@@ -122,5 +122,11 @@ de "≤2 toques para ação comum".
   **As abas usam `Tabs` estável do expo-router com ícones `@expo/vector-icons` (Ionicons
   outline/preenchido) — NÃO `NativeTabs` (unstable): a barra nativa não renderiza no Expo Go
   (aparecia só no navegador). Ver ADR-0003 (revisão de 2026-10-07).**
+- **Telas (ADR-0008):** a implementação de cada tela vive em `src/screens/` (dashboard, subjects,
+  activities, assessments, subject-form, activity-form, assessment-form); os arquivos em `src/app/`
+  são rotas-finas que só re-exportam. As descrições T1–T7 abaixo referem-se aos `src/screens/*`.
+- **Telas (ADR-0008):** a implementação de cada tela vive em `src/screens/` (dashboard, subjects,
+  activities, assessments, subject-form, activity-form, assessment-form); os arquivos em `src/app/`
+  são rotas-finas que só re-exportam. As descrições T1–T7 abaixo referem-se aos `src/screens/*`.
 - **Prazo** usa campo de data com máscara `DD/MM/AAAA` (sem dependência nova; sem DatePicker nativo).
 - Protótipo visual das 7 telas: item do roteiro, ferramenta em OQ-08 — desenhar em P&B (ADR-0006).

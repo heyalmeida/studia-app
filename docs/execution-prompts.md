@@ -29,7 +29,7 @@
   `bg-surface`, `bg-surface-selected`, `border-border`, `border-border-strong`, `bg-inverse`,
   `text-on-inverse`, `rounded-card/field/button/chip/monogram`, `p/half|one|two|three|four|five|six`,
   `text-title|section|body|meta|button|metric`, `tracking-section`). Proibido `#hex` em qualquer lugar
-  fora de `src/global.css`/`tailwind.config.js`; proibido `bg-[#...]`/`text-[#...]` arbitrários; zero
+  fora de `src/styles/global.css`/`tailwind.config.js`; proibido `bg-[#...]`/`text-[#...]` arbitrários; zero
   `shadow*`; zero emoji na UI; texto da UI em português-BR. NÃO use `useTheme()`/`Colors` para estilo
   novo — use `className`. Exceções StyleSheet: `hairlineWidth`, dimensões dinâmicas calculadas.
 - Ícones: `@expo/vector-icons` (Ionicons). Para usar `className` em Ionicons, o arquivo precisa de
@@ -176,7 +176,7 @@ export interface Repository<T extends { id: string }> {
   remove(id: string): Promise<void>;
 }
 
---- 9. src/data/storage.ts --- (ADAPTADOR — único módulo que conhece AsyncStorage)
+--- 9. src/storage/storage.ts --- (ADAPTADOR — único módulo que conhece AsyncStorage)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const STORAGE_KEYS = {
   subjects: 'studia.subjects',
@@ -189,13 +189,13 @@ export async function readCollection<T>(key: string): Promise<T[]>;
 export async function writeCollection<T>(key: string, items: T[]): Promise<void>;
 // setItem JSON.stringify(items). Se lançar, propague (o repositório trata).
 
---- 10. src/data/notifier.ts ---
+--- 10. src/storage/notifier.ts ---
 export type ChangeEvent = 'subjects:changed' | 'activities:changed' | 'assessments:changed';
 export function subscribe(event: ChangeEvent, listener: () => void): () => void; // retorna unsubscribe
 export function emit(event: ChangeEvent): void;
 // Map<ChangeEvent, Set<listener>>. listener que lança: capture e ignore (não quebre os demais).
 
---- 11. src/data/subject.repository.ts / activity.repository.ts / assessment.repository.ts ---
+--- 11. src/storage/subject.repository.ts / activity.repository.ts / assessment.repository.ts ---
 Implementam Repository<Subject> / Repository<Activity> / Repository<Assessment> usando storage.ts +
 notifier.ts. Cada método upsert/remove: lê a coleção, modifica, grava a lista inteira, emite o evento.
 Exporte uma instância única: `export const subjectRepository: Repository<Subject> = ...` (idem
@@ -436,8 +436,8 @@ LEIA ANTES DE CODAR:
 1. docs/requirements/functional-requirements.md → RF-01, RF-02, RF-03 e todos os CAs citados abaixo.
 2. docs/architecture/domain-model.md → Subject (sem campo color!).
 3. src/domain/models.ts, src/domain/validation.ts, src/domain/monogram.ts, src/domain/progress.ts,
-   src/data/subject.repository.ts, src/data/activity.repository.ts, src/data/assessment.repository.ts,
-   src/data/notifier.ts (já existem — CONSUMA, não reimplemente).
+   src/storage/subject.repository.ts, src/storage/activity.repository.ts, src/storage/assessment.repository.ts,
+   src/storage/notifier.ts (já existem — CONSUMA, não reimplemente).
 4. src/components/ui/* (já existem — use: Card, ListItem, Monogram, ProgressBar, Badge, EmptyState,
    ScreenHeader, Input, Button, Divider). src/hooks/use-theme.ts.
 5. docs/design/visual-identity.md — seção 2 (estados sem cor) e 4 (composição).
@@ -522,7 +522,7 @@ CRUD de ATIVIDADES com prazo, filtros e conclusão.
 LEIA ANTES DE CODAR:
 1. docs/requirements/functional-requirements.md → RF-04, RF-05, RF-06, RF-07 + CAs.
 2. docs/architecture/domain-model.md → Activity.
-3. src/domain/{models,validation,date,sorting,progress,monogram,id}.ts, src/data/{activity,subject}.repository.ts, src/data/notifier.ts — CONSUMA, não reimplemente.
+3. src/domain/{models,validation,date,sorting,progress,monogram,id}.ts, src/storage/{activity,subject}.repository.ts, src/storage/notifier.ts — CONSUMA, não reimplemente.
 4. src/components/ui/* e src/hooks/use-theme.ts.
 5. docs/specs/2026-10-07-slice-3-activities/spec.md — ACs.
 
@@ -604,14 +604,15 @@ CRUD de AVALIAÇÕES (provas/seminários) com data obrigatória.
 
 LEIA: RF-08 + CAs (docs/requirements/functional-requirements.md); docs/architecture/domain-model.md
 → Assessment (SEM campo de nota); src/domain/{models,validation,date,sorting}.ts;
-src/data/assessment.repository.ts; src/components/ui/*; specs/2026-10-07-slice-4.
+src/storage/assessment.repository.ts; src/components/ui/*; specs/2026-10-07-slice-4.
 
 CONTRATO — crie src/hooks/use-assessments.ts espelhando use-activities:
 { assessments (sortAssessments), subjects, loading, error, create, update, toggleStatus
 (agendada<->realizada, preservando os demais campos via spread), remove, refresh } —
 validateAssessment; `date` é OBRIGATÓRIA e passa por parseDDMMYYYY (mesma máscara DD/MM/AAAA).
 
-T4 — substitua src/app/(tabs)/assessments.tsx:
+T4 — substitua src/screens/assessments.tsx (a rota src/app/(tabs)/assessments.tsx é só o re-export
+fino — NÃO a edite):
 - Lista de ListItems: título (line-through + textTertiary se realizada) + monograma&matéria na meta
   + à direita: Badge 'agendada' outline com relativeLabelBR da data; realizada: texto 'realizada'
   meta textTertiary sem badge forte. Pressionar item: router.push(`/assessment-form?id=`).
@@ -619,7 +620,7 @@ T4 — substitua src/app/(tabs)/assessments.tsx:
 - Header: ScreenHeader 'Avaliações' + '+ Nova avaliação'. Vazio: 'Nenhuma avaliação ainda.' +
   'Cadastre suas provas para acompanhar as datas.'.
 
-T7 — substitua src/app/assessment-form.tsx:
+T7 — substitua src/screens/assessment-form.tsx (rota src/app/assessment-form.tsx é o re-export fino):
 - Como T6 (padrão idêntico de chips de matéria + ponte para T5 quando não há matérias) mas o campo
   Data é OBRIGATÓRIO ('Data' label, number-pad, máscara DD/MM/AAAA, maxLength 10) e NÃO há campo tipo
   nem descrição. Passado -> 'Aviso: esta data está no passado.' não-bloqueante.
@@ -629,7 +630,7 @@ VERIFICAÇÃO: gates + manual: criar sem data -> 'Informe a data...'; com data v
 (agendadas primeiro); toggle realizada -> esmaece e move p/ fim; fechar/reabrir -> intacta.
 
 COMMIT:
-git add src/hooks/use-assessments.ts "src/app/(tabs)/assessments.tsx" src/app/assessment-form.tsx
+git add src/hooks/use-assessments.ts src/screens/assessments.tsx src/screens/assessment-form.tsx
 git commit -m "feat(assessments): lista e formulário de avaliações
 
 Refs: docs/specs/2026-10-07-slice-4-assessments"
@@ -641,7 +642,8 @@ Refs: docs/specs/2026-10-07-slice-4-assessments"
 
 ```text
 Você vai implementar o Slice 5 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
-o Painel inicial (substituir o placeholder de src/app/(tabs)/index.tsx). Só LEITURA das 3 coleções
+o Painel inicial (substituir o placeholder de src/screens/dashboard.tsx — a rota
+src/app/(tabs)/index.tsx é só o re-export fino). Só LEITURA das 3 coleções
 via hooks existentes — nenhum mutation neste slice.
 
 LEIA: RF-09 + CAs; docs/architecture/screens-and-navigation.md → T1; src/hooks/use-{subjects,
@@ -657,7 +659,8 @@ interface UseDashboard {
 }
 — usa os 3 repositórios + notifier (mesmo padrão dos hooks de coleção).
 
-T1 — tela: ScrollView (poucos itens) com SafeAreaView, padding lateral Spacing.four:
+T1 — edite src/screens/dashboard.tsx: ScrollView (poucos itens) com SafeAreaView, padding lateral
+Spacing.four:
 1. 'Pendências' (seção: rótulo Typography.section uppercase + valor grande Typography.metric '{n}') +
    botão ghost 'Ver atividades' -> `router.push('/activities')` (em Expo Router, rotas dentro do grupo
    `(tabs)` têm URL sem o nome do grupo: `/activities`, `/subjects`, `/assessments`). Lista compacta:
@@ -680,7 +683,7 @@ concluir atividade na aba Atividades e VOLTAR ao painel -> atualizado; modo avi�
 carrega (local).
 
 COMMIT:
-git add src/hooks/use-dashboard.ts "src/app/(tabs)/index.tsx"
+git add src/hooks/use-dashboard.ts src/screens/dashboard.tsx
 git commit -m "feat(dashboard): painel inicial com pendências, avaliações e progresso
 
 Refs: docs/specs/2026-10-07-slice-5-dashboard"
@@ -696,13 +699,13 @@ verificação do checklist da Etapa 6 do roteiro e README.
 
 FAÇA, nesta ordem:
 1. Grep de conformidade (corrija qualquer violação que encontrar):
-   - grep por '#' fora de src/global.css e tailwind.config.js em src/ (nenhum hex; proibido
+   - grep por '#' fora de src/styles/global.css e tailwind.config.js em src/ (nenhum hex; proibido
      bg-[#...]/text-[#...])
    - grep por 'shadow' em src/ (zero)
-   - grep por 'useTheme()' em src/app e src/components (zero — estilo é via className; exceção
-     permitida: src/app/_layout.tsx para o tema do react-navigation)
+   - grep por 'useTheme()' em src/app, src/screens e src/components (zero — estilo é via className;
+     exceção permitida: src/app/_layout.tsx para o tema do react-navigation)
    - grep por ': any' e '@ts-ignore' (zero)
-   - imports de '@react-native-async-storage/async-storage' fora de src/data/storage.ts (zero)
+   - imports de '@react-native-async-storage/async-storage' fora de src/storage/storage.ts (zero)
    - textos de UI em PT (relaxe se algo em inglês sobrou: traduza)
 2. Roteiro Etapa 6 checklist manual (registre cada item no relatório com OK/falha):
    app inicia no Expo Go sem erros; as 4 abas abrem; navegação abas->form->voltar ok; botões agem;

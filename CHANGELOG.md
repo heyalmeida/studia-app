@@ -6,6 +6,19 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Changed — Estrutura de pastas alinhada ao roteiro (2026-10-07, ADR-0008)
+
+- **`src/screens/`** criado: implementação das 7 telas (dashboard, subjects, activities, assessments,
+  subject-form, activity-form, assessment-form). `src/app/` agora contém só layouts + rotas-finas
+  (re-export de 1 linha) — fica explícito "quais são as telas" e a estrutura conversa com o roteiro
+  (Etapa 2, item 5).
+- **`src/data/` → `src/storage/`** (nome literal do roteiro); **`src/global.css` →
+  `src/styles/global.css`**. Imports `@/data/*` atualizados; `metro.config.js` aponta para o novo CSS.
+- ADR-0004 marcado como parcialmente substituído (nomes); grafo de camadas/DIP permanece.
+- Sincronização: architecture.md (árvore + tabela roteiro↔decisão), screens-and-navigation, RNF-02,
+  glossário, `.clinerules` Regra 4.2, README, prompts P4/P5/P6 (novos alvos `src/screens/*`).
+- Gates: tsc, expo lint e `expo export --platform web` limpos após a reorganização.
+
 ### Changed — Estilo: NativeWind + barra de abas flutuante (2026-10-07)
 
 - **ADR-0007:** estilo do app migra de `StyleSheet`/`useTheme()` para **NativeWind v4** (Tailwind
