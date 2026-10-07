@@ -48,7 +48,8 @@ divergência de nomes custa ponto sem ganho técnico.
 ## Consequências
 
 - **Positivas:** estrutura conversa com o roteiro item 5 (avaliação literal); tela e rota separadas
-  — `src/app/(tabs)/index.tsx` de 1 linha vs. `src/screens/dashboard.tsx` de 191; navegação de
+  — `src/app/(tabs)/index.tsx` de 1 linha vs. `src/screens/DashboardPage/index.tsx` com a tela inteira;
+  navegação de
   arquivos no editor espelha o domínio.
 - **Negativas:** um nível de indirection a mais (rota → re-export → tela); `screens/` fora da
   convenção "routes only in app/" do `AGENTS.md` — mitigado: as ROTAS continuam todas em `app/`;

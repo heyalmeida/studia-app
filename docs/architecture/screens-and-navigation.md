@@ -46,7 +46,7 @@ de "≤2 toques para ação comum".
   escala tipográfica); progresso por matéria (top 3). Sem dados: estado inicial
   "Cadastre sua primeira matéria" (CA-09.2).
 - **Ações/botões:** botão de cadastro rápido de atividade; toques nos blocos navegam; tabs de navegação.
-- **Origem da navegação:** abertura do app (rota `(tabs)/index.tsx` → `screens/dashboard`, tab Início).
+- **Origem da navegação:** abertura do app (rota `(tabs)/index.tsx` → `screens/DashboardPage`, tab Início).
 - **Destinos:** T3, T4, T2, T6 (via botões/blocos).
 - **Dados utilizados:** leitura agregada das 3 coleções do storage (RF-09, CA-09.4). **Tela de origem do
   requisito "dados em tela" do roteiro item 9.**
