@@ -6,6 +6,23 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Added — MVP completo: os 6 slices (2026-10-07)
+
+- Slice 0 — fundação: `src/domain/` (models, date, monogram, progress, validation, sorting) e
+  `src/storage/` (AsyncStorage defensivo, notifier pub/sub, 3 repositórios). 100% local (ADR-0002).
+- Slice 1 — navegação + UI Kit: 4 abas em `(tabs)`, 3 formulários modais, tokens monocromáticos
+  light/dark (ADR-0006/0007) e kit `src/components/ui/` (12 componentes reutilizáveis).
+- Slice 2 — matérias (RF-01/02/03): lista de cards com agregados e barra de progresso, formulário com
+  validação de nome obrigatório/único e exclusão bloqueada com filhos.
+- Slice 3 — atividades (RF-04/05/06/07): filtros pendentes/todas/concluídas, ordenação por prazo, conclusão
+  com `completedAt`, prazo opcional com máscara DD/MM/AAAA e aviso não-bloqueante de data passada.
+- Slice 4 — avaliações (RF-08): lista ordenada (agendadas por proximidade, realizadas por data desc),
+  situação agendada↔realizada preservando histórico e **data obrigatória** (sem nota — OQ-04).
+- Slice 5 — painel inicial (RF-09): pendências, próximas avaliações e progresso (geral + top 3 matérias),
+  só leitura das 3 coleções, recomposto via notifier a cada escrita em qualquer aba.
+
+Gates de todos os slices: `npx tsc --noEmit` e `npx expo lint` limpos.
+
 ### Changed — Estrutura por tela em pastas + componentes por tela (2026-10-07, ADR-0008 revisado)
 
 - **`src/screens/<Tela>Page/index.tsx`**: cada tela agora é uma pasta (DashboardPage, SubjectsPage,

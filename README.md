@@ -44,13 +44,13 @@ npx expo lint      # lint
 docs/            # fonte de verdade: product brief, requisitos, specs, features, ADRs, arquitetura
 src/
 ├── app/         # rotas Expo Router (layouts + re-exports finos das telas)
-├── screens/     # implementação das telas (uma por arquivo)
-├── components/  # UI reutilizável
+├── screens/     # implementação das telas (uma pasta <Tela>Page/ por tela, ADR-0008)
+├── components/  # UI: ui/ = kit multi-tela; <Tela>Page/ = componentes de uma tela
 ├── hooks/       # hooks de dados
 ├── domain/      # entidades, regras e validações puras
 ├── storage/     # persistência (repositórios sobre AsyncStorage)
-├── styles/      # tokens CSS do NativeWind (global.css)
-└── constants/   # tokens de tema
+├── styles/      # tokens CSS do NativeWind (global.css) — fonte da cor da UI
+└── constants/   # valores numéricos legados (safe-area, dimensões dinâmicas)
 assets/          # imagens/ícones
 ```
 
@@ -58,8 +58,12 @@ Regras de desenvolvimento (humanos e IA): [`.clinerules`](./.clinerules) e [`AGE
 
 ## Status
 
-**Etapa 1 — Planejamento e documentação.** Nenhum código de produto implementado; specs de feature ainda
-não escritas. Questões em aberto: [`docs/requirements/open-questions.md`](./docs/requirements/open-questions.md).
+**Implementado (MVP).** Escopo autocontido entregue: matérias, atividades, avaliações e painel inicial,
+100% offline (sem back-end). Requisitos em [`docs/requirements/`](./docs/requirements/functional-requirements.md),
+decisões em [`docs/adr/`](./docs/adr/README.md), features em [`docs/features/`](./docs/features/README.md).
+
+Conhecido: os `docs/features/<slug>/spec.md` (registro por feature, Regra 7) ainda não foram escritos — o
+MVP está rastreado pelas specs de execução em [`docs/specs/`](./docs/specs/README.md).
 
 ---
 
