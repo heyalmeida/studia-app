@@ -23,13 +23,18 @@ plugin no `app.json`, `src/app/_layout.tsx` com `AppTabs`, typedRoutes habilitad
 
 Navegação = **Expo Router**, com o layout real do produto:
 
-- **4 abas** (bottom tabs, já existentes no scaffold): Painel, Matérias, Atividades, Avaliações;
-- **3 rotas de pilha/modal** sobre as abas: formulários de Matéria, Atividade e Avaliação, criadas em
-  um grupo `(forms)` ou como rotas push (definir na spec de `ui-kit`).
+- **4 abas** com ícone + label: `Tabs` (layout estável do expo-router, react-navigation embutido)
+  em `src/app/(tabs)/_layout.tsx`; ícones `@expo/vector-icons` (Ionicons outline/preenchido,
+  monocromáticos via tokens);
+- **3 rotas de pilha** sobre as abas: formulários de Matéria, Atividade e Avaliação como modais
+  (`presentation: 'modal'`), com `?id=` para edição.
 
-O fluxo de tela do roteiro (item 4) é implementado em
-[screens-and-navigation.md](../architecture/screens-and-navigation.md); rotas concretas listadas ali em
-"Notas de implementação".
+> **Revisão de 2026-10-07:** a decisão original especificava reaproveitar `NativeTabs`
+> (`expo-router/unstable-native-tabs`) do scaffold. Na prática, **NativeTabs não renderiza a barra
+> no Expo Go** (a API exige módulos nativos de development build; no navegador aparece via fallback
+> JS, o que mascarou o problema). A troca para o `Tabs` estável mantém a decisão-mãe (Expo Router,
+> file-based, abas + pilha) e corrige o mecanismo. Registro em `docs/execution-prompts.md` (P1) e
+> no CHANGELOG.
 
 ## Consequências
 

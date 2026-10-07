@@ -6,6 +6,14 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Fixed — barra de abas invisível no dispositivo (2026-10-07)
+
+- `(tabs)/_layout.tsx` trocado de `NativeTabs` (unstable — só renderiza fallback no navegador; no
+  Expo Go a barra não aparecia) para `Tabs` estável do expo-router com ícones Ionicons
+  outline/preenchido e cores por token (monocromático preservado). Dependência `@expo/vector-icons`
+  instalada via `npx expo install` (já vinha com o Expo). ADR-0003 e screens-and-navigation.md
+  atualizados com a revisão.
+
 ### Added — Implementação (slices executados)
 
 - Slice 0 — fundação: `src/domain/` (models, id, date, monogram, progress, validation, sorting,

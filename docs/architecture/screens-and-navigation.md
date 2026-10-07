@@ -114,14 +114,13 @@ de "≤2 toques para ação comum".
 
 ## Notas de implementação
 
-- **Rotas (padrão Expo Router v57):** `_layout.tsx` da **raiz** passa a ser um `<Stack>` que contém o
-  grupo de abas `(tabs)` e as 3 rotas de formulário apresentadas como modal (`presentation: 'modal'`).
+- **Rotas (implementado — revisão 2026-10-07):** `_layout.tsx` da **raiz** é um `<Stack>` que contém o
+  grupo de abas `(tabs)` e os 3 formulários como modal (`presentation: 'modal'`).
   Abas: `(tabs)/index.tsx` (Painel), `(tabs)/subjects.tsx`, `(tabs)/activities.tsx`,
-  `(tabs)/assessments.tsx`, com `(tabs)/_layout.tsx` reaproveitando o `AppTabs`/`NativeTabs` do scaffold
-  (converter os 2 `Trigger` atuais em 4 e remover Explore). Formulários: `subject-form.tsx`,
-  `activity-form.tsx`, `assessment-form.tsx` na raiz, com parâmetro `?id=` (ausente = criação).
-  TypedRoutes já habilitado. **A API `NativeTabs` é `unstable`: antes de escrever a primeira linha de
-  navegação, confirme a forma correta em https://docs.expo.dev/versions/v57.0.0/ (Regra de stack do
-  `AGENTS.md` — não confiar na memória).**
+  `(tabs)/assessments.tsx`. Formulários: `subject-form.tsx`, `activity-form.tsx`,
+  `assessment-form.tsx` na raiz, com parâmetro `?id=` (ausente = criação). TypedRoutes habilitado.
+  **As abas usam `Tabs` estável do expo-router com ícones `@expo/vector-icons` (Ionicons
+  outline/preenchido) — NÃO `NativeTabs` (unstable): a barra nativa não renderiza no Expo Go
+  (aparecia só no navegador). Ver ADR-0003 (revisão de 2026-10-07).**
 - **Prazo** usa campo de data com máscara `DD/MM/AAAA` (sem dependência nova; sem DatePicker nativo).
 - Protótipo visual das 7 telas: item do roteiro, ferramenta em OQ-08 — desenhar em P&B (ADR-0006).
