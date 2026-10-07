@@ -1,1 +1,1 @@
-export { default } from '@/screens/activity-form';
+export { default } from '@/screens/ActivityFormPage';

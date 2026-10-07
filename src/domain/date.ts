@@ -46,6 +46,18 @@ export function formatDDMMYYYY(iso: string): string {
   return `${pad(Number(match[3]), 2)}/${pad(Number(match[2]), 2)}/${pad(Number(match[1]), 4)}`;
 }
 
+/**
+ * Máscara de digitação DD/MM/AAAA para TextInput: mantém só dígitos (máx. 8) e insere '/'
+ * a cada 2 dígitos ('0710' -> '07/10', '071020' -> '07/10/20'). Pura e idempotente —
+ * tolera backspace porque é derivada sempre do valor atual, nunca do anterior.
+ */
+export function maskDDMMYYYY(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
 /** 'YYYY-MM-DD' de hoje, fuso local do dispositivo. */
 export function todayISO(): string {
   const now = new Date();

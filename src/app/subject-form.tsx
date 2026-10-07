@@ -1,1 +1,1 @@
-export { default } from '@/screens/subject-form';
+export { default } from '@/screens/SubjectFormPage';

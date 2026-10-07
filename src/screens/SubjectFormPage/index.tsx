@@ -13,7 +13,7 @@ import { useSubjects } from '@/hooks/use-subjects';
 // re-render em cascata — enquanto a edição é idempotente.
 type FieldDraft = string | null;
 
-export default function SubjectFormScreen() {
+export default function SubjectFormPage() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { subjects, create, update, remove } = useSubjects();
 

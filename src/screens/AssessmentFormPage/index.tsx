@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
-export default function AssessmentFormScreen() {
+export default function AssessmentFormPage() {
   return (
     <View className="flex-1 bg-background">
       <ScreenHeader title="Nova avaliação" />

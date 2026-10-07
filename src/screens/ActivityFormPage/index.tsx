@@ -1,14 +1,14 @@
-import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { ChoiceChip } from '@/components/ui/ChoiceChip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Monogram } from '@/components/ui/Monogram';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { formatDDMMYYYY } from '@/domain/date';
+import { formatDDMMYYYY, maskDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
 import { validateActivity, type FieldErrors } from '@/domain/validation';
 import { useActivities } from '@/hooks/use-activities';
@@ -20,47 +20,11 @@ const TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
   { value: 'estudo', label: 'Estudo' },
 ];
 
-/** Máscara DD/MM/AAAA: só dígitos, com '/' inserida a cada 2 dígitos ('0710' -> '07/10'). */
-function maskDueDate(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
 // `null` = campo ainda não editado; nesse caso o valor exibido é o da atividade carregada
 // (getAll do hook + find), que chega assincronamente. Evita effect de prefill.
 type Draft = string | null;
 
-function ChoiceChip({
-  selected,
-  onPress,
-  grow = false,
-  children,
-}: {
-  selected: boolean;
-  onPress: () => void;
-  /** Só os chips de tipo (4 iguais na mesma linha) crescem; os de matéria seguem o conteúdo. */
-  grow?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      className={
-        selected
-          ? 'rounded-chip border-[1.5px] border-border-strong bg-background px-two py-two'
-          : 'rounded-chip border border-transparent bg-surface px-two py-two'
-      }
-      style={grow ? { flex: 1 } : styles.chipShrink}>
-      <View className="flex-row items-center justify-center gap-two">{children}</View>
-    </Pressable>
-  );
-}
-
-export default function ActivityFormScreen() {
+export default function ActivityFormPage() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { activities, subjects, loading, create, update, remove } = useActivities();
 
@@ -232,7 +196,7 @@ export default function ActivityFormScreen() {
             label="Prazo (opcional)"
             value={dueDate}
             onChangeText={(text) => {
-              setDueDraft(maskDueDate(text));
+              setDueDraft(maskDDMMYYYY(text));
               clearFieldError('dueDate');
             }}
             keyboardType="number-pad"
@@ -282,9 +246,3 @@ export default function ActivityFormScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  chipShrink: {
-    flexShrink: 0,
-  },
-});

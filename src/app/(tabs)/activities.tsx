@@ -1,1 +1,1 @@
-export { default } from '@/screens/activities';
+export { default } from '@/screens/ActivitiesPage';
