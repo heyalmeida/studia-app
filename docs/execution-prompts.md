@@ -24,8 +24,17 @@
 - Stack: Expo SDK 57, Expo Router, TypeScript strict. **Proibido** adicionar dependências fora das listadas.
 - Proibido criar telas/componentes/funcionalidades não listadas no prompt. Se sentir falta de algo,
   **parar e reportar**, não improvisar.
-- UI: somente monocromático via tokens (`src/constants/theme.ts`). Zero `#hex` fora do tema, zero
-  `shadow*`, zero cor saturada, zero emoji na UI, texto da UI em português-BR.
+- UI: somente monocromático via tokens (ADR-0006) escritos com **NativeWind** (ADR-0007): `className`
+  com as classes do tema (`text-text`, `text-text-secondary`, `text-text-tertiary`, `bg-background`,
+  `bg-surface`, `bg-surface-selected`, `border-border`, `border-border-strong`, `bg-inverse`,
+  `text-on-inverse`, `rounded-card/field/button/chip/monogram`, `p/half|one|two|three|four|five|six`,
+  `text-title|section|body|meta|button|metric`, `tracking-section`). Proibido `#hex` em qualquer lugar
+  fora de `src/global.css`/`tailwind.config.js`; proibido `bg-[#...]`/`text-[#...]` arbitrários; zero
+  `shadow*`; zero emoji na UI; texto da UI em português-BR. NÃO use `useTheme()`/`Colors` para estilo
+  novo — use `className`. Exceções StyleSheet: `hairlineWidth`, dimensões dinâmicas calculadas.
+- Ícones: `@expo/vector-icons` (Ionicons). Para usar `className` em Ionicons, o arquivo precisa de
+  `cssInterop(Ionicons, { className: 'style' })` no topo (veja `src/app/(tabs)/_layout.tsx` como
+  referência).
 - Imports com alias `@/` (`@/* → ./src/*`).
 - Rotas **só** em `src/app/`; componentes/hooks/domínio/dados fora dele.
 - Ao final: commit com a mensagem indicada; `git add` só dos arquivos listados.
@@ -687,8 +696,11 @@ verificação do checklist da Etapa 6 do roteiro e README.
 
 FAÇA, nesta ordem:
 1. Grep de conformidade (corrija qualquer violação que encontrar):
-   - grep por '#' fora de src/constants/theme.ts em src/ (nenhum hex; tolerar: nada)
+   - grep por '#' fora de src/global.css e tailwind.config.js em src/ (nenhum hex; proibido
+     bg-[#...]/text-[#...])
    - grep por 'shadow' em src/ (zero)
+   - grep por 'useTheme()' em src/app e src/components (zero — estilo é via className; exceção
+     permitida: src/app/_layout.tsx para o tema do react-navigation)
    - grep por ': any' e '@ts-ignore' (zero)
    - imports de '@react-native-async-storage/async-storage' fora de src/data/storage.ts (zero)
    - textos de UI em PT (relaxe se algo em inglês sobrou: traduza)

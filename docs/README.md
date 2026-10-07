@@ -29,7 +29,7 @@ flowchart LR
 | [`architecture/screens-and-navigation.md`](architecture/screens-and-navigation.md) | 7 telas: objetivo, dados, navegação e fluxo | **Aprovado como base** (2026-10-07) |
 | [`architecture/architecture.md`](architecture/architecture.md) | Camadas, mapeamento para Expo Router, dados por tela, SOLID pragmático | **Aprovado** (2026-10-07) |
 | [`design/visual-identity.md`](design/visual-identity.md) | Tokens monocromáticos P&B, tipografia, estados sem cor, monograma, regras de composição | **Aprovado** (2026-10-07) |
-| [`adr/`](adr/README.md) | ADR-0001 … ADR-0006 | **Aceitos** |
+| [`adr/`](adr/README.md) | ADR-0001 … ADR-0007 | **Aceitos** |
 | [`features/`](features/README.md) | Divisão em 5 features; especificação por feature ainda não escrita | Proposto |
 | [`specs/`](specs/README.md) | Fluxo SDD por mudança (spec → plan → tasks) e templates | Ativo |
 | [`execution-prompts.md`](execution-prompts.md) | Prompts de implementação prontos para o agente executor (apodex-1.1-mini) | Ativo |

@@ -61,7 +61,7 @@ src/
 │   ├── subject.repository.ts # implementa Repository<Subject>
 │   ├── activity.repository.ts
 │   └── assessment.repository.ts
-├── constants/theme.ts        # tokens monocromáticos (ADR-0006) — estender per docs/design/visual-identity.md
+├── constants/theme.ts        # tokens numéricos/legado (ADR-0006); estilo via NativeWind (ADR-0007): tailwind.config.js + global.css
 └── utils/                    # datas (formato DD/MM/AAAA, "em 2 dias") — criar só quando necessário
 ```
 
@@ -74,7 +74,7 @@ src/
 | `repositories/` | **dividida: interface em `domain/`, implementação em `data/`** | A interface é contrato de negócio (porto); a implementação é detalhe técnico (adaptador). É assim que DIP funciona em projeto pequeno, sem pasta extra só para "parecer limpa". |
 | `models/` | **fundida em `domain/models.ts`** | Um arquivo de tipos não precisa de diretório; modelos vivem junto das regras que os validam. |
 | `services/` | **não existe — decisão final** | Sem API externa ([ADR-0002](../adr/ADR-0002-estrategia-de-persistencia.md)); o app é 100% local e o escopo não tem fase futura. "Service" viraria sinônimo vago de repository. |
-| `hooks/`, `components/`, `utils/`, `styles/` (→ `constants/theme.ts`) | mantidas | Já presentes no scaffold e com responsabilidade real. Estilos: tokens centrais + `StyleSheet` por componente — sem `styles/` global espelhando componentes. |
+| `hooks/`, `components/`, `utils/`, `styles/` (→ `constants/theme.ts`) | mantidas | Já presentes no scaffold e com responsabilidade real. Estilos: NativeWind (ADR-0007) — `className` com tokens em `tailwind.config.js`/`global.css`; sem `styles/` global espelhando componentes. |
 
 ## SOLID — pragmaticamente
 

@@ -1,72 +1,89 @@
-import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import { cssInterop } from 'nativewind';
+import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Spacing, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Spacing } from '@/constants/theme';
+
+// Ionicons não é componente-core do RN: registra className -> style (color do glifo).
+cssInterop(Ionicons, { className: 'style' });
+
+interface TabRoute {
+  key: string;
+  name: string;
+}
+
+interface TabBarProps {
+  state: { routes: TabRoute[]; index: number };
+  navigation: { navigate: (name: string) => void };
+  descriptors: Record<string, { options: { title?: string } }>;
+}
+
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
+const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> = {
+  index: { active: 'home', inactive: 'home-outline' },
+  subjects: { active: 'book', inactive: 'book-outline' },
+  activities: { active: 'checkbox', inactive: 'checkbox-outline' },
+  assessments: { active: 'calendar', inactive: 'calendar-outline' },
+};
 
 /**
- * Abas com ícone + label (referência: barra inferior minimalista — outline inativa,
- * preenchida ativa). NativeTabs (unstable) não renderiza barra no Expo Go — por isso o
- * Tabs estável do expo-router (react-navigation embutido), que funciona em Expo Go e web.
- * Monocromático: cores vêm dos tokens (ADR-0006); header nativo desligado (cada tela usa
- * ScreenHeader próprio).
+ * Barra flutuante (referência: estilo 3 — ativa = ícone preenchido + label; inativas = outline).
+ * O container externo em fluxo normal garante que o conteúdo das telas nunca fica sob a barra,
+ * e o paddingBottom usa a safe-area inferior — resolve a sobreposição com a barra de gestos
+ * do Android. Monocromático: pills com superfície tonal + hairline (ADR-0006).
  */
-export default function TabsLayout() {
-  const colors = useTheme();
+function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
+  const insets = useSafeAreaInsets();
 
   return (
+    <View
+      className="bg-background px-four"
+      style={{ paddingTop: Spacing.two, paddingBottom: Math.max(insets.bottom, Spacing.two) }}>
+      <View className="flex-row items-stretch justify-around rounded-card border border-border bg-surface px-two py-two">
+        {state.routes.map((route) => {
+          const icons = TAB_ICONS[route.name];
+          if (!icons) return null;
+          const focused = state.routes[state.index]?.key === route.key;
+          const title = descriptors[route.key]?.options.title ?? '';
+
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: focused }}
+              accessibilityLabel={title}
+              onPress={() => navigation.navigate(route.name)}
+              className="flex-1 items-center justify-center py-one active:bg-surface-selected rounded-chip">
+              <Ionicons
+                name={focused ? icons.active : icons.inactive}
+                size={22}
+                className={focused ? 'text-text' : 'text-text-tertiary'}
+              />
+              {focused ? (
+                <Text className="mt-half text-[11px] font-semibold text-text" numberOfLines={1}>
+                  {title}
+                </Text>
+              ) : null}
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export default function TabsLayout() {
+  return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.text,
-        tabBarInactiveTintColor: colors.textTertiary,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-        },
-        tabBarLabelStyle: { ...Typography.meta },
-        tabBarItemStyle: { paddingTop: Spacing.one },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Painel',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="subjects"
-        options={{
-          title: 'Matérias',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={focused ? 'book' : 'book-outline'} size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="activities"
-        options={{
-          title: 'Atividades',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'checkbox' : 'checkbox-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="assessments"
-        options={{
-          title: 'Avaliações',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={size} color={color} />
-          ),
-        }}
-      />
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}>
+      <Tabs.Screen name="index" options={{ title: 'Painel' }} />
+      <Tabs.Screen name="subjects" options={{ title: 'Matérias' }} />
+      <Tabs.Screen name="activities" options={{ title: 'Atividades' }} />
+      <Tabs.Screen name="assessments" options={{ title: 'Avaliações' }} />
     </Tabs>
   );
 }

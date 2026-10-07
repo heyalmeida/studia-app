@@ -6,6 +6,24 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Changed — Estilo: NativeWind + barra de abas flutuante (2026-10-07)
+
+- **ADR-0007:** estilo do app migra de `StyleSheet`/`useTheme()` para **NativeWind v4** (Tailwind
+  CSS), por pedido do dono. Tokens do ADR-0006 agora vivem em `src/global.css` (CSS vars com dark
+  automático) + `tailwind.config.js` (cores/radius/spacing/fontes). Pipeline: `babel.config.js`,
+  `metro.config.js`, `nativewind-env.d.ts`; dependências `nativewind` + `tailwindcss` via
+  `npx expo install`.
+- Migração completa: 10 componentes `src/components/ui/` e as 7 telas/rotas passam a `className`;
+  `StyleSheet` residual apenas para `hairlineWidth` e dimensões dinâmicas.
+- **Barra de navegação redesenhada** (pedido do dono + referência visual estilo 3): `Tabs` com
+  `tabBar` customizada flutuante — pill com superfície tonal + hairline, aba ativa com ícone
+  preenchido + label, inativas outline; `paddingBottom` com safe-area inferior (resolve sobreposição
+  com a barra de gestos do Android); conteúdo das telas nunca fica sob a barra.
+- Gates: tsc, expo lint e `expo export --platform web` limpos. Docs sincronizados: ADR-0006 (regra
+  de cor), visual-identity (fonte de tokens + checklist), architecture, `.clinerules` Regra 4.10,
+  regras transversais dos prompts e checklist de conformidade do P6.
+- **Ao rodar após esta mudança: `npx expo start --clear`.**
+
 ### Fixed — barra de abas invisível no dispositivo (2026-10-07)
 
 - `(tabs)/_layout.tsx` trocado de `NativeTabs` (unstable — só renderiza fallback no navegador; no

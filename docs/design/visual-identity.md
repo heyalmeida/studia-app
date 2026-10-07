@@ -3,8 +3,8 @@
 | Campo | Valor |
 |---|---|
 | **Status** | Aprovado (decisão do dono em 2026-10-07) |
-| **Decisão-mãe** | [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md) |
-| **Fonte de tokens** | `src/constants/theme.ts` (código) — este documento é a especificação |
+| **Decisão-mãe** | [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md) · escrita em NativeWind por [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
+| **Fonte de tokens** | `tailwind.config.js` + `src/global.css` (código) — este documento é a especificação |
 
 > **Direção:** minimalismo monocromático — preto-e-branco, e vice-versa no tema escuro. A hierarquia é
 > construída **apenas** com tipografia, peso, espaço, borda e preenchimento. Nenhuma cor saturada em lugar
@@ -45,8 +45,14 @@ export const Colors = {
 } as const;
 ```
 
-**Regra:** componente consome `Colors[colorScheme][token]` via hook `useTheme()` (já existe no scaffold).
-Proibido `#hex` literal fora de `theme.ts`.
+Os valores acima vivem em `src/global.css` como CSS variables (`--color-*`) com bloco
+`@media (prefers-color-scheme: dark)`, e são expostos ao Tailwind em `tailwind.config.js` como
+`text`, `text-secondary`, `text-tertiary`, `background`, `surface`, `surface-selected`, `border`,
+`border-strong`, `inverse`, `on-inverse`.
+
+**Regra (ADR-0007):** componente estiliza com `className` usando esses tokens — ex.:
+`text-text`, `bg-surface`, `border-border-strong`. Proibido `#hex` literal fora de `global.css` e
+proibido classes arbitrárias `bg-[#...]`/`text-[#...]`.
 
 ## 2. Tipografia
 
@@ -125,8 +131,8 @@ já embutem as regras destiladas acima — o implementador **não depende** da p
 
 ## 7. Checklist de conformidade (para review/verificação)
 
-- [ ] Zero hex saturado em `src/` (busca: `(?!#[Ff]{6}|#[0O]{6}|#[0-9A-Fa-f]{2})` fora de `theme.ts`)
-- [ ] `Text` com `Colors` por token, não literais
+- [ ] Zero hex fora de `src/global.css` e `tailwind.config.js` (proibido `bg-[#...]`/`text-[#...]`)
+- [ ] `Text`/`View` estilizados por `className` com tokens do tema (ADR-0007)
 - [ ] Estados (atrasada/concluída/erro) legíveis em **escala de cinza** imprimível
 - [ ] Contraste texto/fundo ≥ 4.5:1 nos dois temas
 - [ ] Nenhum `shadow*` em StyleSheet

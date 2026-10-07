@@ -168,9 +168,10 @@ código. Nunca o inverso.
    tipos de domínio em `src/domain/models.ts`; constantes em `UPPER_SNAKE_CASE`; camelCase em
    variáveis/funções.
 9. **Imports sempre pelo alias `@/`** já configurado em `tsconfig.json` (`@/*` → `./src/*`).
-10. **Estilo com `StyleSheet.create` + Flexbox**, tokens monocromáticos reunidos em
-    `src/constants/theme.ts` — proibido literal de cor fora do tema, proibido cor saturada, proibido
-    shadow (ADR-0006; RNF-01).
+10. **Estilo com NativeWind (Tailwind)** — classes utilitárias via `className`, tokens definidos em
+    `tailwind.config.js` + `src/global.css` (ADR-0007). Proibido: literal de cor fora do tema
+    (nada de `bg-[#...]`/`text-[#...]` arbitrários), cor saturada, `shadow*` (ADR-0006; RNF-01).
+    Exceções StyleSheet: `hairlineWidth`, alturas/larguras dinâmicas calculadas em runtime.
 
 ---
 
