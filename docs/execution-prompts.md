@@ -599,7 +599,8 @@ src/data/assessment.repository.ts; src/components/ui/*; specs/2026-10-07-slice-4
 
 CONTRATO — crie src/hooks/use-assessments.ts espelhando use-activities:
 { assessments (sortAssessments), subjects, loading, error, create, update, toggleStatus
-(agendada<->realizada), remove, refresh } — validateAssessment; date parseADA/parseDDMMYYYY obrigatório.
+(agendada<->realizada, preservando os demais campos via spread), remove, refresh } —
+validateAssessment; `date` é OBRIGATÓRIA e passa por parseDDMMYYYY (mesma máscara DD/MM/AAAA).
 
 T4 — substitua src/app/(tabs)/assessments.tsx:
 - Lista de ListItems: título (line-through + textTertiary se realizada) + monograma&matéria na meta
