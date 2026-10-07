@@ -18,6 +18,12 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   T2 lista de cards (monograma, métricas, barra de progresso, estados vazio/carregando/erro) e
   T5 formulário com validação inline (RF-01/02/03) com edição via `?id=` e Alert de confirmação.
   (commit `3ec06d2`)
+- Slice 3 — atividades: `hooks/use-activities` (ordenação via `sortActivities`, toggle de conclusão com
+  `completedAt`), T3 lista com filtro pendentes/todas/concluídas (segmented local), checkbox circular
+  aninhado, Badge de prazo (`relativeLabelBR`, atrasada=inverse); T6 formulário com chips de matéria/tipo,
+  máscara DD/MM/AAAA, aviso de prazo passado não-bloqueante e ponte "cadastre matéria" sem matérias
+  (RF-04/05/06/07). Revisão do planejador corrigiu lookup de matéria na linha (CA-05.3) e flex do chip
+  no scroll horizontal. (commit `98a1ef8`)
 - Revisão do planejador nos dois slices: tsc + expo lint limpos, zero hex fora do tema, zero shadow,
   contrato de modelos respeitado (sem `color`/`grade`).
 
