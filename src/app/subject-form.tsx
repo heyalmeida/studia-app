@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Spacing, Typography } from '@/constants/theme';
 import type { FieldErrors } from '@/domain/validation';
 import { useSubjects } from '@/hooks/use-subjects';
-import { useTheme } from '@/hooks/use-theme';
 
 // `null` = campo ainda não editado pelo usuário; nesse caso o valor exibido é o da matéria
 // carregada (getAll + find), que chega assincronamente. Evita effect de prefill — e portanto
@@ -16,7 +14,6 @@ import { useTheme } from '@/hooks/use-theme';
 type FieldDraft = string | null;
 
 export default function SubjectFormScreen() {
-  const colors = useTheme();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { subjects, create, update, remove } = useSubjects();
 
@@ -90,16 +87,12 @@ export default function SubjectFormScreen() {
   const teacherError = submitTried ? errors.teacher : undefined;
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View className="flex-1 bg-background">
       <ScreenHeader title={isEdit ? 'Editar matéria' : 'Nova matéria'} />
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <Input
-          label="Nome"
-          value={name}
-          onChangeText={editName}
-          error={nameError}
-          maxLength={80}
-        />
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 64, gap: 16 }}
+        keyboardShouldPersistTaps="handled">
+        <Input label="Nome" value={name} onChangeText={editName} error={nameError} maxLength={80} />
         <Input
           label="Professor(a) (opcional)"
           value={teacher}
@@ -108,21 +101,23 @@ export default function SubjectFormScreen() {
           maxLength={80}
         />
 
-        <View style={styles.actions}>
-          <View style={styles.fullWidth}>
+        <View className="mt-two gap-two">
+          <View className="w-full">
             <Button label="Salvar" variant="primary" onPress={() => void onSubmit()} />
           </View>
 
           {isEdit ? (
-            <View style={styles.fullWidth}>
+            <View className="w-full">
               <Button label="Excluir" variant="ghost" onPress={onConfirmDelete} />
               {blockMessage !== null ? (
-                <Text style={[styles.block, { color: colors.textSecondary }]}>{blockMessage}</Text>
+                <Text className="pt-one text-center text-meta text-text-secondary">
+                  {blockMessage}
+                </Text>
               ) : null}
             </View>
           ) : null}
 
-          <View style={styles.fullWidth}>
+          <View className="w-full">
             <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
           </View>
         </View>
@@ -130,27 +125,3 @@ export default function SubjectFormScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  body: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.three,
-  },
-  actions: {
-    marginTop: Spacing.two,
-    gap: Spacing.two,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  block: {
-    ...Typography.meta,
-    textAlign: 'center',
-    paddingTop: Spacing.one,
-  },
-});

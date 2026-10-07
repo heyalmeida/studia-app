@@ -1,42 +1,32 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Radius, Spacing, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-
 export interface BadgeProps {
   label: string;
   tone?: 'outline' | 'inverse';
 }
 
 export function Badge({ label, tone = 'outline' }: BadgeProps) {
-  const colors = useTheme();
   const inverse = tone === 'inverse';
 
   return (
     <View
-      style={[
-        styles.badge,
+      className={
         inverse
-          ? { backgroundColor: colors.surfaceInverse }
-          : { backgroundColor: 'transparent', borderColor: colors.borderStrong, borderWidth: 1 },
-      ]}>
+          ? 'self-start rounded-chip bg-inverse px-two py-one'
+          : 'self-start rounded-chip border border-border-strong px-two py-one'
+      }>
       <Text
-        style={[styles.label, { color: inverse ? colors.textOnInverse : colors.text }]}>
+        style={styles.label}
+        className={inverse ? 'text-section text-on-inverse' : 'text-section text-text'}>
         {label}
       </Text>
     </View>
   );
 }
 
+// letterSpacing 0: a classe text-section traz 1.2px; o rótulo do badge já vem pronto (sem uppercase)
 const styles = StyleSheet.create({
-  badge: {
-    alignSelf: 'flex-start',
-    borderRadius: Radius.chip,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-  },
   label: {
-    ...Typography.section,
-    letterSpacing: 0, // seção sem letterSpacing e sem uppercase (rótulo já vem pronto)
+    letterSpacing: 0,
   },
 });

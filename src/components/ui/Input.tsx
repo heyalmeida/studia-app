@@ -1,8 +1,5 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Radius, Spacing, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-
 export interface InputProps {
   value: string;
   onChangeText: (t: string) => void;
@@ -28,37 +25,35 @@ export function Input({
   maxLength,
   autoCapitalize,
 }: InputProps) {
-  const colors = useTheme();
   const hasError = error !== undefined && error.length > 0;
   const hasWarning = !hasError && warning !== undefined && warning.length > 0;
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+      <Text className="text-section font-semibold uppercase tracking-section text-text-secondary">
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={colors.textTertiary}
+        placeholderClassName="text-text-tertiary"
         multiline={multiline}
         keyboardType={keyboardType}
         maxLength={maxLength}
         autoCapitalize={autoCapitalize}
-        style={[
-          styles.field,
-          { backgroundColor: colors.backgroundElement, color: colors.text },
-          multiline && styles.multiline,
-          {
-            borderColor: hasError ? colors.borderStrong : colors.border,
-            borderWidth: hasError ? 1.5 : 1,
-          },
-        ]}
+        className={
+          hasError
+            ? 'bg-surface rounded-field border-[1.5px] border-border-strong px-three py-two text-body text-text'
+            : 'bg-surface rounded-field border border-border px-three py-two text-body text-text'
+        }
+        style={[styles.field, multiline && styles.multiline]}
       />
-      {hasError ? (
-        <Text style={[styles.message, { color: colors.text }]}>{error}</Text>
-      ) : null}
+      {hasError ? <Text style={styles.message} className="text-text">{error}</Text> : null}
       {hasWarning ? (
-        <Text style={[styles.message, { color: colors.textSecondary }]}>Aviso: {warning}</Text>
+        <Text style={styles.message} className="text-text-secondary">
+          Aviso: {warning}
+        </Text>
       ) : null}
     </View>
   );
@@ -66,18 +61,9 @@ export function Input({
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.one,
-  },
-  label: {
-    ...Typography.section,
-    textTransform: 'uppercase',
+    gap: 4,
   },
   field: {
-    ...Typography.body,
-    borderRadius: Radius.field,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
     minHeight: 48,
   },
   multiline: {
@@ -85,6 +71,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   message: {
-    ...Typography.meta,
+    fontSize: 13,
   },
 });

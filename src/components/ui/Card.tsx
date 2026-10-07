@@ -1,8 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-
-import { Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 
 export interface CardProps {
   children: ReactNode;
@@ -11,27 +8,17 @@ export interface CardProps {
 }
 
 export function Card({ children, onPress, style }: CardProps) {
-  const colors = useTheme();
-  const cardStyle: StyleProp<ViewStyle> = [
-    styles.card,
-    { backgroundColor: colors.backgroundElement },
-    style,
-  ];
-
   if (onPress) {
     return (
-      <Pressable onPress={onPress} style={cardStyle}>
+      <Pressable onPress={onPress} className="rounded-card bg-surface p-three" style={style}>
         {children}
       </Pressable>
     );
   }
 
-  return <View style={cardStyle}>{children}</View>;
+  return (
+    <View className="rounded-card bg-surface p-three" style={style}>
+      {children}
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: Radius.card,
-    padding: Spacing.three,
-  },
-});

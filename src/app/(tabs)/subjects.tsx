@@ -1,15 +1,13 @@
 import { router } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Monogram } from '@/components/ui/Monogram';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Spacing, Typography } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 import { useSubjects } from '@/hooks/use-subjects';
-import { useTheme } from '@/hooks/use-theme';
 
 const CREATE_HREF = '/subject-form';
 
@@ -17,13 +15,14 @@ function openCreate() {
   router.push(CREATE_HREF);
 }
 
-// Skeleton de carregamento: 3 cards vazios de altura fixa, sem spinner colorido (seção 2 da
-// identidade visual — estados sem cor).
+// Skeleton de carregamento: 3 cards vazios de altura fixa, sem spinner colorido.
 function PlaceholderList() {
   return (
-    <View style={styles.list}>
+    <View className="flex-1 px-four pb-four">
       {[0, 1, 2].map((index) => (
-        <Card key={index} style={styles.placeholder}>{null}</Card>
+        <Card key={index} style={{ height: 116, marginBottom: 16 }}>
+          {null}
+        </Card>
       ))}
     </View>
   );
@@ -39,27 +38,25 @@ interface SubjectCardProps {
 // Os agregados vêm da tela: um useSubjects() por card abriria/reinscreveria o repositório
 // várias vezes sem motivo.
 function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardProps) {
-  const colors = useTheme();
-
   return (
     <Card
       onPress={() => router.push(`${CREATE_HREF}?id=${encodeURIComponent(subject.id)}`)}
-      style={styles.card}>
-      <View style={styles.row}>
+      style={{ marginBottom: 16, gap: 16 }}>
+      <View className="flex-row items-center gap-three">
         <Monogram name={subject.name} size="md" />
-        <View style={styles.info}>
-          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1} ellipsizeMode="tail">
+        <View className="flex-1 gap-half">
+          <Text className="flex-shrink text-body font-semibold text-text" numberOfLines={1} ellipsizeMode="tail">
             {subject.name}
           </Text>
-          <Text style={[styles.meta, { color: colors.textTertiary }]} numberOfLines={1}>
+          <Text className="text-meta text-text-tertiary" numberOfLines={1}>
             {subject.teacher ?? 'Sem professor'}
           </Text>
         </View>
       </View>
 
-      <View style={styles.metrics}>
-        <Text style={[styles.meta, { color: colors.textSecondary }]}>{pending} pendente(s)</Text>
-        <Text style={[styles.meta, { color: colors.textSecondary }]}>
+      <View className="flex-row flex-wrap justify-between gap-one">
+        <Text className="text-meta text-text-secondary">{pending} pendente(s)</Text>
+        <Text className="text-meta text-text-secondary">
           {scheduled} avaliação(ões) agendada(s)
         </Text>
       </View>
@@ -70,12 +67,11 @@ function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardProps) {
 }
 
 export default function SubjectsScreen() {
-  const colors = useTheme();
   const { subjects, activitiesCount, assessmentsCount, progress, loading, error, refresh } =
     useSubjects();
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View className="flex-1 bg-background">
       <ScreenHeader title="Matérias" action={{ label: '+ Nova matéria', onPress: openCreate }} />
 
       {loading ? <PlaceholderList /> : null}
@@ -96,7 +92,7 @@ export default function SubjectsScreen() {
               ratio={progress[item.id] ?? 0}
             />
           )}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, flexGrow: 1 }}
           ListEmptyComponent={
             <EmptyState
               title="Nenhuma matéria ainda"
@@ -110,43 +106,3 @@ export default function SubjectsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  list: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  card: {
-    marginBottom: Spacing.three,
-    gap: Spacing.three,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  info: {
-    flex: 1,
-    gap: Spacing.half,
-  },
-  name: {
-    ...Typography.bodyStrong,
-  },
-  metrics: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: Spacing.one,
-  },
-  meta: {
-    ...Typography.meta,
-  },
-  placeholder: {
-    height: 116,
-    marginBottom: Spacing.three,
-  },
-});

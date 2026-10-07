@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { monogram } from '@/domain/monogram';
-import { Radius, Spacing, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export interface MonogramProps {
   name: string;
@@ -10,42 +8,17 @@ export interface MonogramProps {
 }
 
 export function Monogram({ name, size = 'md' }: MonogramProps) {
-  const colors = useTheme();
   const dimension = size === 'sm' ? 32 : 40;
 
   return (
     <View
-      style={[
-        styles.box,
-        { width: dimension, height: dimension, borderColor: colors.borderStrong },
-      ]}>
+      className="items-center justify-center rounded-monogram border border-border-strong p-half"
+      style={{ width: dimension, height: dimension }}>
       <Text
-        style={[
-          size === 'sm' ? styles.textSm : styles.textMd,
-          { color: colors.text },
-          styles.text,
-        ]}>
+        className={size === 'sm' ? 'text-meta text-text' : 'text-body font-semibold text-text'}
+        style={{ textAlign: 'center' }}>
         {monogram(name)}
       </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  box: {
-    borderRadius: Radius.monogram,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.half,
-  },
-  text: {
-    textAlign: 'center',
-  },
-  textMd: {
-    ...Typography.bodyStrong,
-  },
-  textSm: {
-    ...Typography.meta,
-  },
-});

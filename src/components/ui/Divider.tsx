@@ -1,14 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/hooks/use-theme';
-
 export function Divider() {
-  const colors = useTheme();
-  return <View style={[styles.divider, { backgroundColor: colors.border }]} />;
+  // altura hairline exige StyleSheet (Tailwind não tem utilitário hairline cross-platform)
+  return <View className="bg-border" style={styles.hairline} />;
 }
 
 const styles = StyleSheet.create({
-  divider: {
+  hairline: {
     height: StyleSheet.hairlineWidth,
   },
 });

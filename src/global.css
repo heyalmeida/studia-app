@@ -1,4 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens monocromáticos (ADR-0006). Light = padrão; dark espelha preto/branco. */
 :root {
+  --color-text: #000000;
+  --color-text-secondary: #60646c;
+  --color-text-tertiary: #8a8f98;
+  --color-background: #ffffff;
+  --color-surface: #f4f4f6;
+  --color-surface-selected: #e7e7eb;
+  --color-border: #e0e0e5;
+  --color-border-strong: #000000;
+  --color-inverse: #000000;
+  --color-on-inverse: #ffffff;
+
   --font-display:
     Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
     Segoe UI Symbol, Noto Color Emoji;
@@ -6,4 +22,19 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #ffffff;
+    --color-text-secondary: #b0b4ba;
+    --color-text-tertiary: #7d828b;
+    --color-background: #000000;
+    --color-surface: #1c1d21;
+    --color-surface-selected: #2a2c31;
+    --color-border: #2a2a2e;
+    --color-border-strong: #ffffff;
+    --color-inverse: #ffffff;
+    --color-on-inverse: #000000;
+  }
 }

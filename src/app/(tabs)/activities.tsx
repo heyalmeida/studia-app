@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { FlatList, Pressable, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -8,11 +8,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ListItem } from '@/components/ui/ListItem';
 import { Monogram } from '@/components/ui/Monogram';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Radius, Spacing, Typography } from '@/constants/theme';
 import { isPast, relativeLabelBR } from '@/domain/date';
 import type { Activity, Subject } from '@/domain/models';
 import { useActivities } from '@/hooks/use-activities';
-import { useTheme } from '@/hooks/use-theme';
 
 type ActivityFilter = 'pendentes' | 'todas' | 'concluidas';
 
@@ -25,7 +23,7 @@ const FILTERS: { key: ActivityFilter; label: string }[] = [
 const EMPTY_STATE: Record<ActivityFilter, { title: string; text: string }> = {
   pendentes: { title: 'Nenhuma atividade pendente.', text: 'Você está em dia.' },
   concluidas: { title: 'Nenhuma atividade concluída ainda.', text: '' },
-  todas: { title: 'Nenhuma atividade ainda. Crie a primeira.', text: '' },
+  todas: { title: 'Nenhuma atividade ainda. \nCrie a primeira.', text: '' },
 };
 
 function openCreate() {
@@ -35,9 +33,11 @@ function openCreate() {
 // Skeleton de carregamento: 3 cards vazios de altura fixa, sem spinner colorido.
 function PlaceholderList() {
   return (
-    <View style={styles.list}>
+    <View className="flex-1 px-four pb-four">
       {[0, 1, 2].map((index) => (
-        <Card key={index} style={styles.placeholder}>{null}</Card>
+        <Card key={index} style={{ height: 96, marginBottom: 16 }}>
+          {null}
+        </Card>
       ))}
     </View>
   );
@@ -51,10 +51,8 @@ function SegmentedFilter({
   value: ActivityFilter;
   onChange: (next: ActivityFilter) => void;
 }) {
-  const colors = useTheme();
-
   return (
-    <View style={styles.filterRow}>
+    <View className="flex-row gap-two">
       {FILTERS.map((option) => {
         const selected = option.key === value;
         return (
@@ -63,19 +61,12 @@ function SegmentedFilter({
             onPress={() => onChange(option.key)}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            style={[
-              styles.filterChip,
-              {
-                backgroundColor: selected ? colors.background : colors.backgroundElement,
-                borderColor: selected ? colors.borderStrong : 'transparent',
-                borderWidth: selected ? 1.5 : 1,
-              },
-            ]}>
-            <Text
-              style={[
-                styles.filterLabel,
-                { color: selected ? colors.text : colors.textSecondary },
-              ]}>
+            className={
+              selected
+                ? 'flex-1 items-center justify-center rounded-chip border-[1.5px] border-border-strong bg-background px-two py-two'
+                : 'flex-1 items-center justify-center rounded-chip border border-transparent bg-surface px-two py-two'
+            }>
+            <Text className={selected ? 'text-meta text-text' : 'text-meta text-text-secondary'}>
               {option.label}
             </Text>
           </Pressable>
@@ -93,41 +84,40 @@ interface ActivityRowProps {
 }
 
 function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRowProps) {
-  const colors = useTheme();
   const done = activity.status === 'concluida';
   const subjectName = subject?.name ?? 'Sem matéria'; // FK órfã não quebra a linha (RNF-04)
 
   return (
     <ListItem onPress={onOpen}>
-      <View style={styles.row}>
+      <View className="flex-row items-center gap-three">
         {/* Pressable aninhado: no RN o mais interno captura o toque, então marcar não abre o editor. */}
         <Pressable
           onPress={onToggle}
-          hitSlop={Spacing.two}
+          hitSlop={8}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: done }}
           accessibilityLabel={done ? 'Reabrir atividade' : 'Concluir atividade'}
-          style={styles.checkboxHit}>
+          className="py-half">
           <View
-            style={[
-              styles.checkbox,
+            className={
               done
-                ? { backgroundColor: colors.surfaceInverse, borderColor: colors.surfaceInverse }
-                : { borderColor: colors.borderStrong },
-            ]}>
-            {done ? <View style={[styles.checkboxMark, { backgroundColor: colors.textOnInverse }]} /> : null}
+                ? 'h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-inverse bg-inverse'
+                : 'h-6 w-6 items-center justify-center rounded-full border-[1.5px] border-border-strong'
+            }>
+            {done ? <View className="h-0.5 w-2.5 rounded-sm bg-on-inverse" /> : null}
           </View>
         </Pressable>
 
-        <View style={styles.info}>
+        <View className="flex-1 gap-one">
           <Text
-            style={[styles.title, done ? styles.titleDone : null, { color: done ? colors.textTertiary : colors.text }]}
+            className={done ? 'text-body font-semibold text-text-tertiary' : 'text-body font-semibold text-text'}
+            style={done ? { textDecorationLine: 'line-through' } : undefined}
             numberOfLines={1}>
             {activity.title}
           </Text>
-          <View style={styles.metaRow}>
+          <View className="flex-row items-center gap-two">
             <Monogram name={subjectName} size="sm" />
-            <Text style={[styles.meta, { color: colors.textSecondary }]} numberOfLines={1}>
+            <Text className="flex-shrink text-meta text-text-secondary" numberOfLines={1}>
               {subjectName}
             </Text>
           </View>
@@ -145,7 +135,6 @@ function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRowProps) 
 }
 
 export default function ActivitiesScreen() {
-  const colors = useTheme();
   const { activities, subjects, loading, error, refresh, toggleStatus } = useActivities();
   const [filter, setFilter] = useState<ActivityFilter>('pendentes');
 
@@ -165,7 +154,7 @@ export default function ActivitiesScreen() {
   const ready = !loading && error === null;
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View className="flex-1 bg-background">
       <ScreenHeader title="Atividades" action={{ label: '+ Nova atividade', onPress: openCreate }} />
 
       {loading ? <PlaceholderList /> : null}
@@ -176,7 +165,7 @@ export default function ActivitiesScreen() {
 
       {ready ? (
         <>
-          <View style={styles.filterBar}>
+          <View className="px-four pb-three">
             <SegmentedFilter value={filter} onChange={setFilter} />
           </View>
           <FlatList
@@ -190,7 +179,7 @@ export default function ActivitiesScreen() {
                 onOpen={() => router.push(`/activity-form?id=${encodeURIComponent(item.id)}`)}
               />
             )}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, flexGrow: 1 }}
             ListEmptyComponent={
               <EmptyState title={EMPTY_STATE[filter].title} text={EMPTY_STATE[filter].text} />
             }
@@ -200,77 +189,3 @@ export default function ActivitiesScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  list: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  placeholder: {
-    height: 96,
-    marginBottom: Spacing.three,
-  },
-  filterBar: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.three,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  filterChip: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.chip,
-  },
-  filterLabel: {
-    ...Typography.meta,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  checkboxHit: {
-    paddingVertical: Spacing.half,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxMark: {
-    width: 10,
-    height: 2,
-    borderRadius: 1,
-  },
-  info: {
-    flex: 1,
-    gap: Spacing.one,
-  },
-  title: {
-    ...Typography.bodyStrong,
-  },
-  titleDone: {
-    textDecorationLine: 'line-through',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  meta: {
-    ...Typography.meta,
-    flexShrink: 1,
-  },
-});

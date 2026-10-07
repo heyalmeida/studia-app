@@ -8,12 +8,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Monogram } from '@/components/ui/Monogram';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Radius, Spacing, Typography } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
 import { validateActivity, type FieldErrors } from '@/domain/validation';
 import { useActivities } from '@/hooks/use-activities';
-import { useTheme } from '@/hooks/use-theme';
 
 const TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
   { value: 'tarefa', label: 'Tarefa' },
@@ -37,34 +35,32 @@ type Draft = string | null;
 function ChoiceChip({
   selected,
   onPress,
+  grow = false,
   children,
 }: {
   selected: boolean;
   onPress: () => void;
+  /** Só os chips de tipo (4 iguais na mesma linha) crescem; os de matéria seguem o conteúdo. */
+  grow?: boolean;
   children: ReactNode;
 }) {
-  const colors = useTheme();
-
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      style={[
-        styles.chip,
-        {
-          backgroundColor: selected ? colors.background : colors.backgroundElement,
-          borderColor: selected ? colors.borderStrong : 'transparent',
-          borderWidth: selected ? 1.5 : 1,
-        },
-      ]}>
-      <View style={styles.chipContent}>{children}</View>
+      className={
+        selected
+          ? 'rounded-chip border-[1.5px] border-border-strong bg-background px-two py-two'
+          : 'rounded-chip border border-transparent bg-surface px-two py-two'
+      }
+      style={grow ? { flex: 1 } : styles.chipShrink}>
+      <View className="flex-row items-center justify-center gap-two">{children}</View>
     </Pressable>
   );
 }
 
 export default function ActivityFormScreen() {
-  const colors = useTheme();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { activities, subjects, loading, create, update, remove } = useActivities();
 
@@ -145,11 +141,13 @@ export default function ActivityFormScreen() {
   const dueError = submitTried ? errors.dueDate : undefined;
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View className="flex-1 bg-background">
       <ScreenHeader title={isEdit ? 'Editar atividade' : 'Nova atividade'} />
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 64, gap: 16 }}
+        keyboardShouldPersistTaps="handled">
         {noSubjects ? (
-          <View style={[styles.bridge, { borderColor: colors.border }]}>
+          <View className="overflow-hidden rounded-card border border-border" style={{ height: 200 }}>
             <EmptyState
               title="Nenhuma matéria cadastrada"
               text="Cadastre uma matéria antes de criar atividades."
@@ -159,7 +157,7 @@ export default function ActivityFormScreen() {
           </View>
         ) : null}
 
-        <View pointerEvents={noSubjects ? 'none' : 'auto'} style={noSubjects ? styles.disabled : null}>
+        <View pointerEvents={noSubjects ? 'none' : 'auto'} style={noSubjects ? { opacity: 0.4 } : undefined}>
           <Input
             label="Título"
             value={title}
@@ -171,13 +169,15 @@ export default function ActivityFormScreen() {
             maxLength={120}
           />
 
-          <View style={styles.field}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Matéria</Text>
+          <View className="gap-one">
+            <Text className="text-section font-semibold uppercase tracking-section text-text-secondary">
+              Matéria
+            </Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.chipRow}>
+              contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingRight: 16 }}>
               {subjects.map((subject) => (
                 <ChoiceChip
                   key={subject.id}
@@ -188,10 +188,11 @@ export default function ActivityFormScreen() {
                   }}>
                   <Monogram name={subject.name} size="sm" />
                   <Text
-                    style={[
-                      styles.chipLabel,
-                      { color: subject.id === subjectId ? colors.text : colors.textSecondary },
-                    ]}
+                    className={
+                      subject.id === subjectId
+                        ? 'flex-shrink text-meta text-text'
+                        : 'flex-shrink text-meta text-text-secondary'
+                    }
                     numberOfLines={1}>
                     {subject.name}
                   </Text>
@@ -199,23 +200,27 @@ export default function ActivityFormScreen() {
               ))}
             </ScrollView>
             {subjectError !== undefined ? (
-              <Text style={[styles.message, { color: colors.text }]}>{subjectError}</Text>
+              <Text className="text-meta text-text">{subjectError}</Text>
             ) : null}
           </View>
 
-          <View style={styles.field}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Tipo</Text>
-            <View style={styles.typeRow}>
+          <View className="gap-one">
+            <Text className="text-section font-semibold uppercase tracking-section text-text-secondary">
+              Tipo
+            </Text>
+            <View className="flex-row gap-two">
               {TYPE_OPTIONS.map((option) => (
                 <ChoiceChip
                   key={option.value}
+                  grow
                   selected={option.value === type}
                   onPress={() => setTypeDraft(option.value)}>
                   <Text
-                    style={[
-                      styles.chipLabel,
-                      { color: option.value === type ? colors.text : colors.textSecondary },
-                    ]}>
+                    className={
+                      option.value === type
+                        ? 'flex-shrink text-meta text-text'
+                        : 'flex-shrink text-meta text-text-secondary'
+                    }>
                     {option.label}
                   </Text>
                 </ChoiceChip>
@@ -248,8 +253,8 @@ export default function ActivityFormScreen() {
           />
         </View>
 
-        <View style={styles.actions}>
-          <View style={styles.fullWidth}>
+        <View className="mt-two gap-two">
+          <View className="w-full">
             <Button
               label="Salvar"
               variant="primary"
@@ -259,15 +264,17 @@ export default function ActivityFormScreen() {
           </View>
 
           {isEdit ? (
-            <View style={styles.fullWidth}>
+            <View className="w-full">
               <Button label="Excluir" variant="ghost" onPress={onConfirmDelete} />
               {blockMessage !== null ? (
-                <Text style={[styles.block, { color: colors.textSecondary }]}>{blockMessage}</Text>
+                <Text className="pt-one text-center text-meta text-text-secondary">
+                  {blockMessage}
+                </Text>
               ) : null}
             </View>
           ) : null}
 
-          <View style={styles.fullWidth}>
+          <View className="w-full">
             <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
           </View>
         </View>
@@ -277,69 +284,7 @@ export default function ActivityFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  body: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.three,
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  bridge: {
-    height: 200,
-    borderWidth: 1,
-    borderRadius: Radius.card,
-    overflow: 'hidden',
-  },
-  field: {
-    gap: Spacing.one,
-  },
-  label: {
-    ...Typography.section,
-    textTransform: 'uppercase',
-  },
-  chipRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    paddingRight: Spacing.three,
-  },
-  typeRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  chip: {
+  chipShrink: {
     flexShrink: 0,
-    borderRadius: Radius.chip,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.two,
-  },
-  chipContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.two,
-  },
-  chipLabel: {
-    ...Typography.meta,
-    flexShrink: 1,
-  },
-  message: {
-    ...Typography.meta,
-  },
-  actions: {
-    marginTop: Spacing.two,
-    gap: Spacing.two,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  block: {
-    ...Typography.meta,
-    textAlign: 'center',
-    paddingTop: Spacing.one,
   },
 });

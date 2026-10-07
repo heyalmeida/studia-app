@@ -1,9 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/Button';
-import { Spacing, Typography } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
 export interface ScreenHeaderProps {
   title: string;
@@ -11,14 +9,10 @@ export interface ScreenHeaderProps {
 }
 
 export function ScreenHeader({ title, action }: ScreenHeaderProps) {
-  const colors = useTheme();
-
   return (
-    <SafeAreaView
-      edges={['top']}
-      style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <View style={styles.row}>
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+    <SafeAreaView edges={['top']} className="w-full bg-background">
+      <View className="flex-row items-center justify-between gap-two px-four pt-two pb-three">
+        <Text className="flex-shrink text-title font-bold text-text" numberOfLines={1}>
           {title}
         </Text>
         {action ? <Button variant="ghost" label={action.label} onPress={action.onPress} /> : null}
@@ -26,22 +20,3 @@ export function ScreenHeader({ title, action }: ScreenHeaderProps) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    width: '100%',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-    paddingBottom: Spacing.three,
-  },
-  title: {
-    ...Typography.title,
-    flexShrink: 1,
-  },
-});
