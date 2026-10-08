@@ -75,8 +75,8 @@ src/
 │   ├── subject.repository.ts # implementa Repository<Subject>
 │   ├── activity.repository.ts
 │   └── assessment.repository.ts
-├── styles/global.css         # tokens CSS do NativeWind (ADR-0007) — nome do roteiro
-└── constants/theme.ts        # tokens numéricos legados (Spacing etc. para casos dinâmicos)
+├── styles/global.css         # espelho dos tokens em CSS variables (ADR-0010) — nome do roteiro
+└── constants/theme.ts        # fonte única dos tokens: cores, espaçamento, tipografia e medidas
 ```
 
 ### O que o roteiro/enunciado sugere vs. o que ficou — e por quê
@@ -86,7 +86,7 @@ src/
 | `screens/` | **adotada (ADR-0008)** | Uma PASTA por tela (`<Tela>Page/index.tsx`), com `src/app/` guardando só rotas finas (re-export). Fica explícito quais são as telas e cada uma tem lugar para seus helpers. Satisfaz o roteiro e mantém o Expo Router feliz: a rota é a URL, a tela é o código. |
 | `components/` | **subpastas por tela (ADR-0008)** | `components/ui/` = kit reutilizável (≥2 telas); `components/<Tela>Page/` = específico de uma tela. Sem subcomponente desenhado dentro do `index.tsx` da tela. |
 | `storage/` | **adotada (ADR-0008)** | Nome literal do roteiro; abriga wrapper AsyncStorage + repositórios. (A renomeação anterior para `data/` foi revertida: custo zero, ganho de leitura na avaliação.) |
-| `styles/` | **adotada (ADR-0008)** | `src/styles/global.css` (tokens NativeWind). `constants/theme.ts` permanece para valores numéricos usados em runtime (safe-area, dimensões dinâmicas). |
+| `styles/` | **adotada (ADR-0008)** | `src/styles/global.css` permanece como espelho dos tokens em CSS variables (ADR-0010 §2), sem estar no caminho de execução. `constants/theme.ts` é a fonte única do estilo. |
 | `repositories/` | **dividida: interface em `domain/`, implementação em `storage/`** | A interface é contrato de negócio (porto); a implementação é detalhe técnico (adaptador). DIP sem pasta extra decorativa. |
 | `models/` | **fundida em `domain/models.ts`** | Um arquivo de tipos não precisa de diretório; modelos vivem junto das regras que os validam. |
 | `services/` | **não existe — decisão final** | Sem API externa ([ADR-0002](../adr/ADR-0002-estrategia-de-persistencia.md)); o app é 100% local. Na apresentação: `domain/` é a camada equivalente (regras de negócio). |
@@ -116,7 +116,9 @@ dependências do diagrama acima: rota → tela → hook → domínio, e o domín
 - Camadas + DIP → [ADR-0004](../adr/ADR-0004-organizacao-arquitetural.md)
 - Estado global vs hooks de dados locais → [ADR-0005](../adr/ADR-0005-gerenciamento-de-estado.md)
 - Identidade monocromática → [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md)
-- NativeWind/Tailwind → [ADR-0007](../adr/ADR-0007-estilo-nativewind.md)
+- NativeWind/Tailwind → [ADR-0007](../adr/ADR-0007-estilo-nativewind.md), substituído pelo
+  [ADR-0010](../adr/ADR-0010-estilo-stylesheet-expo-go.md) (`StyleSheet`, por rodar no Expo Go)
 - Nomes de pastas do roteiro → [ADR-0008](../adr/ADR-0008-estrutura-roteiro.md)
+- Identidade visual escura com destaque → [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md)
 - Nomes de rotas concretas, estados de loading, detalhes de componentes → **spec de cada feature**
   (`docs/features/`), não aqui.

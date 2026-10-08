@@ -6,6 +6,47 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Fixed — Layout e espaçamento no Expo Go: `StyleSheet` no lugar de `className` (2026-10-08)
+
+O `className` do NativeWind **não é aplicado no Expo Go** — o `react-native-css-interop` é módulo
+nativo e exige dev build —, então todo o espaçamento das telas aparecia colapsado. A entrega converte a
+camada de apresentação para `StyleSheet` com valores numéricos, mantendo a mesma identidade visual
+(ADR-0009) e a mesma fonte de tokens. Decisão registrada no
+[ADR-0010](docs/adr/ADR-0010-estilo-stylesheet-expo-go.md), que **substitui** o
+[ADR-0007](docs/adr/ADR-0007-estilo-nativewind.md). Spec:
+[2026-10-08-expo-go-layout](docs/specs/2026-10-08-expo-go-layout/spec.md).
+**Nenhuma regra de domínio, persistência ou dado mudou** — nenhum arquivo em `src/domain`,
+`src/storage` ou `src/hooks` foi tocado.
+
+- **FAB** (`src/components/ui/FAB.tsx`): `position: absolute`, `right: 20` e
+  `bottom = TAB_BAR_HEIGHT + insets.bottom + 16`. A tela do React Navigation é `absoluteFill` dentro
+  do `Tabs`, então ela passa **por baixo** da barra flutuante e o botão ficava escondido atrás dela.
+  Círculo 56/raio 28, `Plus` 24 branco e `elevation: 6` — **exceção única** à regra "sem sombras" do
+  ADR-0009, registrada no ADR-0010 §3.
+- **Listas** (`SubjectsPage`, `ActivitiesPage`, `AssessmentsPage`): `paddingBottom` de
+  `listBottomInset(insets.bottom)` (tab bar + folga + FAB + folga), então a última linha não fica sob
+  o botão. `DashboardPage` usa `contentBottomInset(insets.bottom)`, que não tem FAB.
+- **Rodapé dos formulários** (`FormFooter`): `position: absolute` nas três bordas inferiores, com
+  Salvar em largura total e **Cancelar** e **Excluir** lado a lado embaixo; as telas compensam com
+  `insets.bottom + FORM_FOOTER_HEIGHT` no `paddingBottom` do `ScrollView`.
+- **Botão "+ Nova …"** (`src/components/ui/CreateButton.tsx`, novo): `Plus` 18 + rótulo 16/600. No
+  header, na mesma linha do título; no estado vazio, em versão grande.
+- **`ScreenHeader`**: linha única, título 28 bold e prop `onBack` com botão 44/raio 22; `actions` saiu
+  por não ter consumidor.
+- **Data** (`DateField` + `DatePicker`): campo ao lado de um botão de calendário 52×52; o calendário
+  virou **folha inferior** (raio 24 no topo, safe area inferior, ações Limpar/Hoje/Fechar).
+- **Inputs** (`Input`, `FormField`, `IconPicker`, `ColorPicker`): 52px de altura, raio 12, texto 16,
+  placeholder visível, foco na cor de destaque, descrição multilinha com 110px.
+- **Tokens** (`src/constants/theme.ts`): `SAFE_GAP`, `TAB_BAR_HEIGHT`, `FORM_FOOTER_HEIGHT`, helpers
+  `listBottomInset()`/`contentBottomInset()`, escala 16px (`Typography.field`/`button`), `Radius.button`
+  14, `Typography.metric`/`day` e `Palette.shadow` (espelhados em `tailwind.config.js`).
+- **Tab bar** (`src/app/(tabs)/_layout.tsx`): `StyleSheet` explícito para a altura bar casar com
+  `TAB_BAR_HEIGHT`, de onde sai o `bottom` do FAB.
+- **`Card` e `Touchable`**: `className`/`contentClassName` substituídos por `style`/`contentStyle`;
+  `Touchable` passou a aplicar opacidade 0.7 + escala 0.97 em **todo** alvo tocável.
+- Gates: `npx tsc --noEmit` e `npx expo lint` limpos. Validação visual no Expo Go **não executada**
+  (depende de dispositivo).
+
 ### Changed — Identidade visual escura com destaque + UI kit unificado (2026-10-08)
 
 Direção **Linear/Things**: fundo `#0B0B0F`, superfícies em tom, **uma** cor de destaque (índigo
@@ -13,6 +54,9 @@ Direção **Linear/Things**: fundo `#0B0B0F`, superfícies em tom, **uma** cor d
 registrados em [ADR-0009](docs/adr/ADR-0009-identidade-visual-escura-com-destaque.md), que **substitui**
 o [ADR-0006](docs/adr/ADR-0006-identidade-visual-monocromatica.md) (monocromático, "sem FAB"), por decisão
 do dono. Spec: [2026-10-08-visual-refresh](docs/specs/2026-10-08-visual-refresh/spec.md).
+> A camada de estilo foi depois portada para `StyleSheet` por causa do Expo Go — ver
+> [ADR-0010](docs/adr/ADR-0010-estilo-stylesheet-expo-go.md) e a entrada "Layout e espaçamento no
+> Expo Go" acima.
 
 - **Tokens em arquivo único** (`src/constants/theme.ts` + `global.css` + `tailwind.config.js`):
   escala de espaçamento de 4, raio 16/12, tipografia 28/17/15/12 com no máximo 3 pesos, alvos de toque

@@ -2,9 +2,15 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Aceito (decisão do dono do projeto, 2026-10-07) |
+| **Status** | **Superado pelo [ADR-0010](ADR-0010-estilo-stylesheet-expo-go.md)** (decisão do dono do projeto, 2026-10-07) |
 | **Data** | 2026-10-07 |
+| **Substitui** | — |
+| **Substituído por** | ADR-0010 — `StyleSheet` como sistema de escrita, porque o `react-native-css-interop` é módulo nativo e não roda no Expo Go |
 | **Não altera** | ADR-0006 (identidade monocromática) — NativeWind é o *como*, o ADR-0006 é o *quê* |
+
+> **Nota (2026-10-08):** esta decisão foi validada apenas com `npx expo export --platform web`, onde o
+> Tailwind funciona. No **Expo Go** — o ambiente real de execução do projeto (ADR-0009 §7) — o
+> `className` é silenciosamente ignorado e todo o espaçamento colapsa. A correção está no ADR-0010.
 
 ## Contexto
 

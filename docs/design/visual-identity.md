@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | **Status** | Aprovado (decisão do dono em 2026-10-08) |
-| **Decisão-mãe** | [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md) — substitui o [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md); escrita em NativeWind por [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
+| **Decisão-mãe** | [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md) — substitui o [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md); escrita em `StyleSheet` por [ADR-0010](../adr/ADR-0010-estilo-stylesheet-expo-go.md), que substitui o [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
 | **Fonte de tokens** | `src/constants/theme.ts` (fonte única) + `src/styles/global.css` (CSS variables) + `tailwind.config.js` |
 
 > **Direção:** escuro profundo, minimalista e premium (referências de layout: **Linear** e **Things**).
@@ -12,8 +12,9 @@
 
 ## 1. Tokens de cor
 
-Fonte única: `src/constants/theme.ts` (TypeScript, para tudo que é calculado em runtime) espelhada em
-`src/styles/global.css` (CSS variables do NativeWind) e `tailwind.config.js`.
+Fonte única: `src/constants/theme.ts` (TypeScript — é de lá que sai **todo** o estilo, já que o
+componente escreve `StyleSheet`, ADR-0010) espelhada em `src/styles/global.css` (CSS variables) e
+`tailwind.config.js`.
 
 | Token | Valor | Uso |
 |---|---|---|
@@ -89,18 +90,20 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
 - Escala de 4: **4, 8, 12, 16, 24, 32**; **padding lateral de tela 20**; gap entre cards 12–16;
   20 entre grupos de formulário; 8 entre rótulo e campo.
 - **Raio:** card 16, campo/botão 12, chip/bloco de data 12, bolinha 999.
-- **Hairline:** `border` de 1 px (Tailwind) e `StyleSheet.hairlineWidth` nos separadores de lista.
-- **Sem sombra** (RNF-01): profundidade = tom de superfície + hairline. A FAB também não usa sombra —
-  a separação vem do tamanho e da borda.
+- **Hairline:** `border` de 1 px e `StyleSheet.hairlineWidth` nos separadores de lista.
+- **Sem sombra** (RNF-01): profundidade = tom de superfície + hairline. **Exceção única:** a FAB usa
+  `elevation: 6` preto, porque é o único elemento sobreposto ao conteúdo que passa por baixo dele
+  (ADR-0010 §3). Nenhuma outra superfície usa sombra.
 - **Alvo de toque mínimo 44×44** em todo pressable; feedback de escala 0.97 + opacidade (primitivo
   `Touchable`), e 0.9–0.92 em alvos pequenos (ícone do header, checkbox).
 
 ## 4. Composição das telas
 
 - **Header (`ScreenHeader`):** título à esquerda, ações à direita **na mesma linha** (ícone 20 px, sem
-  círculo de fundo, alvo 44). A criação de item **não** fica no header — vai para a FAB.
+  círculo de fundo, alvo 44). A criação de item aparece **também** aqui, em texto com ícone `Plus`
+  (`CreateButton`), e na FAB — o mesmo rótulo, o mesmo destino.
 - **FAB:** círculo de 56 na cor de destaque, canto inferior direito, acima da tab bar. Listas usam
-  `paddingBottom: LIST_BOTTOM_INSET` (96) para o conteúdo não ficar sob ela.
+  `listBottomInset(insets.bottom)` para o conteúdo não ficar sob ela.
 - **Cards:** 1 item por card em matérias e avaliações; listas de atividade usam linha única com
   separador hairline (padrão iOS settings / Linear).
 - **Estado vazio:** ícone lucide 40 px em `text-tertiary`, título, **uma** frase de apoio e botão
@@ -114,9 +117,10 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
 ## 5. Checklist de conformidade
 
 - [ ] Zero hex fora de `src/constants/theme.ts`, `src/styles/global.css` e `tailwind.config.js`
-- [ ] `View`/`Text`/`Pressable` estilizados por `className` com tokens do tema
+- [ ] `View`/`Text`/`Pressable` estilizados por `StyleSheet` com valores de `constants/theme.ts`
+- [ ] Nenhum `className` em `src/` (o Expo Go não aplica) — ADR-0010 §1
 - [ ] Estados sempre com rótulo textual junto da cor
 - [ ] Contraste ≥ 4.5:1 nos pares listados em §1
-- [ ] Nenhum `shadow*`/`elevation` em StyleSheet
+- [ ] `shadow*`/`elevation` apenas no FAB (exceção do ADR-0010 §3)
 - [ ] Nenhum alvo tocável abaixo de 44×44
 - [ ] `Subject.color` sempre vindo de `SUBJECT_COLORS`

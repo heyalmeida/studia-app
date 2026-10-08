@@ -7,6 +7,13 @@
 | **Branch** | `development` |
 | **Paralelo** | specs de execução: `docs/specs/2026-10-07-slice-*/spec.md` (o QUÊ); este arquivo é o COMO executável |
 
+> **Nota de vigência (2026-10-08):** este arquivo é o contrato histórico dos slices P0–P6 e **não** foi
+> reescrito. Duas das regras transversais foram superadas e valem hoje: o monocromático (ADR-0006) pelo
+> [ADR-0009](adr/ADR-0009-identidade-visual-escura-com-destaque.md) e o NativeWind/`className`
+> (ADR-0007) pelo [ADR-0010](adr/ADR-0010-estilo-stylesheet-expo-go.md) — hoje o estilo é `StyleSheet`
+> com tokens de `src/constants/theme.ts`. Para trabalho novo, siga os ADRs; use este arquivo para
+> entender o histórico de implementação.
+
 ## Como usar
 
 1. Cole o prompt inteiro na sessão do executor. Nada além é necessário — o prompt embute todos os

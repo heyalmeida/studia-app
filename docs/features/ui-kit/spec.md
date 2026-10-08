@@ -6,9 +6,9 @@
 | **Status** | Implementada (2026-10-08) |
 | **RF/RNF atendidos** | RNF-01, RNF-02, RNF-03, RNF-05 (e a camada de apresentação de RF-01…RF-09) |
 | **Depende de** | subjects, activities, assessments, dashboard |
-| **ADRs pertinentes** | [ADR-0009](../../adr/ADR-0009-identidade-visual-escura-com-destaque.md) (substitui ADR-0006), [ADR-0007](../../adr/ADR-0007-estilo-nativewind.md), [ADR-0008](../../adr/ADR-0008-estrutura-roteiro.md) |
+| **ADRs pertinentes** | [ADR-0009](../../adr/ADR-0009-identidade-visual-escura-com-destaque.md) (substitui ADR-0006), [ADR-0010](../../adr/ADR-0010-estilo-stylesheet-expo-go.md) (substitui ADR-0007), [ADR-0008](../../adr/ADR-0008-estrutura-roteiro.md) |
 | **Data** | 2026-10-08 |
-| **Spec de execução** | [docs/specs/2026-10-08-visual-refresh](../../specs/2026-10-08-visual-refresh/spec.md) |
+| **Spec de execução** | [docs/specs/2026-10-08-visual-refresh](../../specs/2026-10-08-visual-refresh/spec.md), [docs/specs/2026-10-08-expo-go-layout](../../specs/2026-10-08-expo-go-layout/spec.md) |
 
 ## 1. Qual problema resolve
 
@@ -55,8 +55,9 @@ atalho de 1 toque.
 | RN-2 | Valor de cor fora da paleta lido do storage vira `null` (nunca hex arbitrário na UI) | RNF-04, RNF-06 |
 | RN-3 | Cor não substitui texto: prazo sempre rotulado ("hoje", "em 12 dias", "atrasada 3 dias") | RNF-01, RNF-04 |
 | RN-4 | Alvo de toque ≥ 44×44 e feedback de escala/opacidade em todo pressable | RNF-01 |
-| RN-5 | Sem `shadow*`/`elevation`: profundidade por tom de superfície + hairline | RNF-01 |
-| RN-6 | Nenhum literal de cor fora de `constants/theme.ts`, `styles/global.css` e `tailwind.config.js` | ADR-0007, Regra 4.10 |
+| RN-5 | Sem `shadow*`/`elevation`: profundidade por tom de superfície + hairline. **Exceção única:** o FAB usa `elevation: 6` preto, por ser sobreposto ao conteúdo | RNF-01, ADR-0010 §3 |
+| RN-6 | Nenhum literal de cor fora de `constants/theme.ts`, `styles/global.css` e `tailwind.config.js` | ADR-0010 §2, Regra 4.10 |
+| RN-7 | Nenhum componente escreve `className`: o estilo vem de `StyleSheet` com valores de `constants/theme.ts` | ADR-0010 §1 |
 
 ## 6. Estados
 
@@ -115,6 +116,7 @@ atalho de 1 toque.
 | AC-V.8 | Atividades agrupadas Atrasadas → Hoje → Esta semana → Depois | manual |
 | AC-V.9 | Picker abre ao tocar e atalhos funcionam | manual |
 | AC-V.10 | `npx tsc --noEmit`, `npx expo lint` e export web limpos | automático (executado) |
+| AC-V.11 | Nenhum `className` em `src/` — layout correto no Expo Go | automático (busca textual) + manual |
 
 ## 11. Casos de erro
 
@@ -135,3 +137,4 @@ gráfico no painel (gráfico de linha removido), cores por atividade, upload de 
 | Data | Mudança | Justificativa |
 |---|---|---|
 | 2026-10-08 | Feature implementada: identidade escura com destaque, cor por matéria, FAB, kit de 26 componentes | Pedido do dono (2026-10-08); substitui o ADR-0006 pelo ADR-0009 |
+| 2026-10-08 | Kit migrado de `className` para `StyleSheet`; ação "+ Nova …" (`CreateButton`), rodapé dos formulários com Salvar/Cancelar/Excluir, `ScreenHeader` com voltar e `createAction`, insets inferiores por tela | No Expo Go o `className` do NativeWind não é aplicado e todo o espaçamento colapsava; decisão registrada no ADR-0010, que substitui o ADR-0007 |
