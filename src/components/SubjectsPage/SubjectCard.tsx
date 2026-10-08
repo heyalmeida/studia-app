@@ -6,6 +6,7 @@ import { Monogram } from '@/components/ui/Monogram';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { renderIcon } from '@/components/ui/IconPicker';
 import type { Subject } from '@/domain/models';
+import { useTheme } from '@/hooks/use-theme';
 
 export interface SubjectCardProps {
   subject: Subject;
@@ -20,6 +21,7 @@ export interface SubjectCardProps {
  * reinscreveria o repositório várias vezes sem motivo.
  */
 export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardProps) {
+  const theme = useTheme();
   const hasIcon = subject.icon !== null && subject.icon !== '' && renderIcon(subject.icon) !== null;
   return (
     <Card
@@ -30,7 +32,7 @@ export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardP
           <View
             className="items-center justify-center rounded-monogram border border-border-strong p-half text-text"
             style={{ width: 40, height: 40 }}>
-            {renderIcon(subject.icon, 20)}
+            {renderIcon(subject.icon, 20, theme.text)}
           </View>
         ) : (
           <Monogram name={subject.name} size="md" />

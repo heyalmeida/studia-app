@@ -1,17 +1,19 @@
 import { Text, View } from 'react-native';
 import { Circle, Svg } from 'react-native-svg';
 
+import { useTheme } from '@/hooks/use-theme';
+
 export interface DonutChartProps {
   ratio: number;
   size?: 'sm' | 'md';
 }
 
 /**
- * Rosca de conclusão monocromática (ADR-0006): traço `text-text` (= inverso do fundo)
- * sobre trilha `text-surface-selected`. stroke="currentColor" herda o `color` do View
- * (NativeWind aplica a variável CSS do token).
+ * Rosca de conclusão monocromática (ADR-0006): traço no tom de `text`
+ * (= inverso do fundo) sobre trilha `backgroundSelected`.
  */
 export function DonutChart({ ratio, size = 'md' }: DonutChartProps) {
+  const theme = useTheme();
   const dimension = size === 'sm' ? 64 : 96;
   const strokeWidth = 8;
   const radius = (dimension - strokeWidth) / 2;
@@ -21,25 +23,25 @@ export function DonutChart({ ratio, size = 'md' }: DonutChartProps) {
 
   return (
     <View style={{ width: dimension, height: dimension }}>
-      <View className="absolute inset-0 text-surface-selected">
+      <View className="absolute inset-0">
         <Svg width={dimension} height={dimension}>
           <Circle
             cx={dimension / 2}
             cy={dimension / 2}
             r={radius}
-            stroke="currentColor"
+            stroke={theme.backgroundSelected}
             strokeWidth={strokeWidth}
             fill="none"
           />
         </Svg>
       </View>
-      <View className="absolute inset-0 text-text">
+      <View className="absolute inset-0">
         <Svg width={dimension} height={dimension}>
           <Circle
             cx={dimension / 2}
             cy={dimension / 2}
             r={radius}
-            stroke="currentColor"
+            stroke={theme.text}
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={[progress, Math.max(0, circumference - progress)]}

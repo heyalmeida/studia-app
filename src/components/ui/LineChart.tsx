@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { LayoutChangeEvent, Text, View } from 'react-native';
 import { Line, Polyline, Svg } from 'react-native-svg';
 
+import { useTheme } from '@/hooks/use-theme';
+
 export interface LineChartProps {
   data: { label: string; value: number }[];
   height?: number;
@@ -12,6 +14,7 @@ export interface LineChartProps {
  * insuficientes para o gráfico.' (sem eixo desenhado).
  */
 export function LineChart({ data, height = 120 }: LineChartProps) {
+  const theme = useTheme();
   const [width, setWidth] = useState(0);
 
   function onLayout(event: LayoutChangeEvent) {
@@ -39,7 +42,7 @@ export function LineChart({ data, height = 120 }: LineChartProps) {
     <View onLayout={onLayout} style={{ height, width: '100%' }}>
       {width > 0 ? (
         <>
-          <View className="absolute inset-0 text-text">
+          <View className="absolute inset-0">
             <Svg width={width} height={height}>
               {/* eixo Y */}
               <Line
@@ -47,7 +50,7 @@ export function LineChart({ data, height = 120 }: LineChartProps) {
                 y1={paddingTop}
                 x2={paddingLeft}
                 y2={paddingTop + chartHeight}
-                stroke="currentColor"
+                stroke={theme.text}
                 strokeWidth={1}
               />
               {/* eixo X */}
@@ -56,10 +59,10 @@ export function LineChart({ data, height = 120 }: LineChartProps) {
                 y1={paddingTop + chartHeight}
                 x2={paddingLeft + chartWidth}
                 y2={paddingTop + chartHeight}
-                stroke="currentColor"
+                stroke={theme.text}
                 strokeWidth={1}
               />
-              <Polyline points={polyPoints} fill="none" stroke="currentColor" strokeWidth={2} />
+              <Polyline points={polyPoints} fill="none" stroke={theme.text} strokeWidth={2} />
             </Svg>
           </View>
           <View className="absolute inset-0">
