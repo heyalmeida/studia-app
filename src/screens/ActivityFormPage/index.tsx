@@ -1,24 +1,33 @@
 import { useMemo, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
+import BookOpen from 'lucide-react-native/icons/book-open';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import ClipboardList from 'lucide-react-native/icons/clipboard-list';
+import FileText from 'lucide-react-native/icons/file-text';
+import Library from 'lucide-react-native/icons/library';
+import type { LucideIcon } from 'lucide-react-native';
 
-import { Button } from '@/components/ui/Button';
 import { ChoiceChip } from '@/components/ui/ChoiceChip';
-import { DateInput } from '@/components/ui/DateInput';
+import { DateField } from '@/components/ui/DateField';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { FormField } from '@/components/ui/FormField';
+import { FormFooter } from '@/components/ui/FormFooter';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SubjectChip } from '@/components/ui/SubjectChip';
+import { Palette } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
 import { validateActivity, type FieldErrors } from '@/domain/validation';
 import { useActivities } from '@/hooks/use-activities';
+import BookX from 'lucide-react-native/icons/book-x';
 
-const TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
-  { value: 'tarefa', label: 'Tarefa' },
-  { value: 'trabalho', label: 'Trabalho' },
-  { value: 'leitura', label: 'Leitura' },
-  { value: 'estudo', label: 'Estudo' },
+const TYPE_OPTIONS: { value: ActivityType; label: string; Icon: LucideIcon }[] = [
+  { value: 'tarefa', label: 'Tarefa', Icon: ClipboardList },
+  { value: 'trabalho', label: 'Trabalho', Icon: FileText },
+  { value: 'leitura', label: 'Leitura', Icon: BookOpen },
+  { value: 'estudo', label: 'Estudo', Icon: Library },
 ];
 
 // `null` = campo ainda não editado; nesse caso o valor exibido é o da atividade carregada
@@ -53,7 +62,7 @@ export default function ActivityFormPage() {
   // CA-04.4: sem matéria não se salva — o form vira ponte para o cadastro de matérias.
   const noSubjects = !loading && subjects.length === 0;
 
-  // O aviso de prazo passado é não-bloqueante e aparece enquanto se digita (CA-04.3);
+  // O aviso de prazo passado é não-bloqueante e aparece enquanto se escolhe (CA-04.3);
   // a mensagem vem do domínio, não é reescrita aqui.
   const liveWarning = useMemo(
     () => validateActivity({ title, subjectId, dueDate }, subjects.length > 0).dueDateWarning,
@@ -108,15 +117,25 @@ export default function ActivityFormPage() {
 
   return (
     <View className="flex-1 bg-background">
-      <ScreenHeader title={isEdit ? 'Editar atividade' : 'Nova atividade'} />
+      <ScreenHeader
+        title={isEdit ? 'Editar atividade' : 'Nova atividade'}
+        leading={{
+          icon: <ChevronLeft size={20} color={Palette.textSecondary} />,
+          label: 'Fechar',
+          onPress: () => router.back(),
+        }}
+      />
+
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 64, gap: 16 }}
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
         keyboardShouldPersistTaps="handled">
         {noSubjects ? (
-          <View className="overflow-hidden rounded-card border border-border" style={{ height: 200 }}>
+          <View className="overflow-hidden rounded-card border border-border" style={{ height: 220 }}>
             <EmptyState
-              title="Nenhuma matéria cadastrada"
-              text="Cadastre uma matéria antes de criar atividades."
+              icon={<BookX size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+              title="Cadastre uma matéria"
+              text="Atividades sempre pertencem a uma matéria."
               actionLabel="Cadastrar matéria"
               onAction={() => router.push('/subject-form')}
             />
@@ -131,19 +150,17 @@ export default function ActivityFormPage() {
               setTitleDraft(text);
               clearFieldError('title');
             }}
+            placeholder="ex: Lista 3 — exercícios 1 a 10"
             error={titleError}
             maxLength={120}
           />
 
-          <View className="gap-one">
-            <Text className="text-section font-semibold uppercase tracking-section text-text-secondary">
-              Matéria
-            </Text>
+          <FormField label="Matéria" error={subjectError}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingRight: 16 }}>
+              contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingRight: 8 }}>
               {subjects.map((subject) => (
                 <SubjectChip
                   key={subject.id}
@@ -156,43 +173,35 @@ export default function ActivityFormPage() {
                 />
               ))}
             </ScrollView>
-            {subjectError !== undefined ? (
-              <Text className="text-meta text-text">{subjectError}</Text>
-            ) : null}
-          </View>
+          </FormField>
 
-          <View className="gap-one">
-            <Text className="text-section font-semibold uppercase tracking-section text-text-secondary">
-              Tipo
-            </Text>
-            <View className="flex-row gap-two">
+          <FormField label="Tipo">
+            <View className="flex-row flex-wrap gap-2">
               {TYPE_OPTIONS.map((option) => (
                 <ChoiceChip
                   key={option.value}
-                  grow
                   selected={option.value === type}
-                  onPress={() => setTypeDraft(option.value)}>
-                  <Text
-                    className={
-                      option.value === type
-                        ? 'flex-shrink text-meta text-text'
-                        : 'flex-shrink text-meta text-text-secondary'
-                    }>
-                    {option.label}
-                  </Text>
-                </ChoiceChip>
+                  onPress={() => setTypeDraft(option.value)}
+                  icon={
+                    <option.Icon
+                      size={18}
+                      color={option.value === type ? Palette.accent : Palette.textTertiary}
+                      strokeWidth={1.8}
+                    />
+                  }
+                  label={option.label}
+                />
               ))}
             </View>
-          </View>
+          </FormField>
 
-          <DateInput
+          <DateField
             label="Prazo (opcional)"
-            date={dueDateISO}
+            value={dueDateISO}
             onChange={(iso) => {
               setDueDraft(iso === null ? '' : iso);
               clearFieldError('dueDate');
             }}
-            placeholder="DD/MM/AAAA"
             error={dueError}
             warning={liveWarning}
             disabled={noSubjects}
@@ -205,37 +214,21 @@ export default function ActivityFormPage() {
               setDescriptionDraft(text);
               clearFieldError('description');
             }}
+            placeholder="Links, material de apoio, detalhes…"
             multiline
+            minHeight={100}
             maxLength={400}
           />
         </View>
-
-        <View className="mt-two gap-two">
-          <View className="w-full">
-            <Button
-              label="Salvar"
-              variant="primary"
-              disabled={noSubjects}
-              onPress={() => void onSubmit()}
-            />
-          </View>
-
-          {isEdit ? (
-            <View className="w-full">
-              <Button label="Excluir" variant="ghost" onPress={onConfirmDelete} />
-              {blockMessage !== null ? (
-                <Text className="pt-one text-center text-meta text-text-secondary">
-                  {blockMessage}
-                </Text>
-              ) : null}
-            </View>
-          ) : null}
-
-          <View className="w-full">
-            <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
-          </View>
-        </View>
       </ScrollView>
+
+      <FormFooter
+        onSave={() => void onSubmit()}
+        saveDisabled={noSubjects}
+        onDelete={isEdit ? onConfirmDelete : undefined}
+        onCancel={() => router.back()}
+        message={blockMessage}
+      />
     </View>
   );
 }

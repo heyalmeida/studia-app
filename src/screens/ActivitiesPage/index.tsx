@@ -1,19 +1,30 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { View } from 'react-native';
 
-import { ActivityRow } from '@/components/ActivitiesPage/ActivityRow';
-import { SegmentedFilter, type ActivityFilter } from '@/components/ActivitiesPage/SegmentedFilter';
+import { ActivitySectionList } from '@/components/ActivitiesPage/ActivitySectionList';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { FAB } from '@/components/ui/FAB';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { FadeIn, SegmentedControl } from '@/components/ui/SegmentedControl';
+import { Palette } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 import { useActivities } from '@/hooks/use-activities';
+import ListX from 'lucide-react-native/icons/list-x';
+
+type ActivityFilter = 'pendentes' | 'todas' | 'concluidas';
+
+const FILTERS: { key: ActivityFilter; label: string }[] = [
+  { key: 'pendentes', label: 'Pendentes' },
+  { key: 'todas', label: 'Todas' },
+  { key: 'concluidas', label: 'Concluídas' },
+];
 
 const EMPTY_STATE: Record<ActivityFilter, { title: string; text: string }> = {
-  pendentes: { title: 'Nenhuma atividade pendente.', text: 'Você está em dia.' },
-  concluidas: { title: 'Nenhuma atividade concluída ainda.', text: '' },
-  todas: { title: 'Nenhuma atividade ainda.', text: 'Crie a primeira.' },
+  pendentes: { title: 'Nada pendente', text: 'Você está em dia.' },
+  concluidas: { title: 'Nada concluído ainda', text: 'Marque uma atividade para vê-la aqui.' },
+  todas: { title: 'Nenhuma atividade', text: 'Crie a primeira pelo botão flutuante.' },
 };
 
 export default function ActivitiesPage() {
@@ -41,36 +52,42 @@ export default function ActivitiesPage() {
 
   return (
     <View className="flex-1 bg-background">
-      <ScreenHeader title="Atividades" action={{ label: '+ Nova atividade', onPress: openCreate }} />
+      <ScreenHeader title="Atividades" />
 
-      {loading ? <ListSkeleton height={96} /> : null}
+      {loading ? <ListSkeleton height={72} count={4} /> : null}
 
       {!loading && error !== null ? (
-        <EmptyState title="Deu errado" text={error} actionLabel="Tentar de novo" onAction={refresh} />
+        <EmptyState
+          icon={<ListX size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+          title="Deu errado"
+          text={error}
+          actionLabel="Tentar de novo"
+          onAction={refresh}
+        />
       ) : null}
 
       {ready ? (
         <>
-          <View className="px-four pb-three">
-            <SegmentedFilter value={filter} onChange={setFilter} />
+          <View className="px-5 pb-1 pt-2">
+            <SegmentedControl value={filter} options={FILTERS} onChange={setFilter} />
           </View>
-          <FlatList
-            data={visible}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <ActivityRow
-                activity={item}
-                subject={subjectById[item.subjectId]}
-                onToggle={() => void toggleStatus(item.id)}
-                onOpen={() => router.push(`/activity-form?id=${encodeURIComponent(item.id)}`)}
-              />
-            )}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, flexGrow: 1 }}
-            ListEmptyComponent={
-              <EmptyState title={EMPTY_STATE[filter].title} text={EMPTY_STATE[filter].text} />
-            }
-          />
+
+          {/* key no filtro: a lista re-monta e a opacidade anima a troca (sem atraso). */}
+          <FadeIn key={filter}>
+            <ActivitySectionList
+              activities={visible}
+              subjectById={subjectById}
+              onToggle={(id) => void toggleStatus(id)}
+              onOpen={(id) => router.push(`/activity-form?id=${encodeURIComponent(id)}`)}
+              emptyTitle={EMPTY_STATE[filter].title}
+              emptyText={EMPTY_STATE[filter].text}
+            />
+          </FadeIn>
         </>
+      ) : null}
+
+      {ready ? (
+        <FAB label="Nova atividade" onPress={openCreate} />
       ) : null}
     </View>
   );

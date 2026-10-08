@@ -1,11 +1,11 @@
-import { Modal, Pressable, Text, View } from 'react-native';
 import { useState } from 'react';
-
+import { Modal, Pressable, Text, View } from 'react-native';
 import ChevronLeft from 'lucide-react-native/icons/chevron-left';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
 
+import { Touchable } from '@/components/ui/Touchable';
+import { Palette } from '@/constants/theme';
 import { todayISO } from '@/domain/date';
-import { useTheme } from '@/hooks/use-theme';
 
 /** Meses em PT-BR (o picker é nosso — nada de inglês). */
 const MONTHS = [
@@ -50,12 +50,11 @@ export interface DatePickerProps {
 }
 
 /**
- * Calendário mensal próprio (PT-BR) em Modal nativo: cabeçalho mês/ano com navegação,
- * grade 6×7 e rodapé com as ações. Monocromático (ADR-0006) e com os tokens do app,
- * ao contrário de wrappers de picker de terceiros.
+ * Calendário mensal em `Modal` nativo (ADR-0009): cabeçalho mês/ano com navegação, grade
+ * 6×7 e rodapé com as ações. O dia selecionado usa a cor de destaque; hoje fica marcado
+ * com anel. Sem biblioteca de picker nova — roda igual no Expo Go.
  */
 export function DatePicker({ value, onChange, onClose }: DatePickerProps) {
-  const theme = useTheme();
   const selected = toLocalDate(value);
   const [visible, setVisible] = useState<Date>(
     () => selected ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -84,34 +83,36 @@ export function DatePicker({ value, onChange, onClose }: DatePickerProps) {
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="flex-1 items-center justify-center bg-black/50" onPress={onClose}>
-        <Pressable className="w-full px-four" onPress={() => undefined}>
-          <View className="gap-three rounded-card border border-border bg-background p-three">
+      <Pressable className="flex-1 items-center justify-center bg-black/60" onPress={onClose}>
+        <Pressable className="w-full px-5" onPress={() => undefined}>
+          <View className="gap-4 rounded-card border border-border bg-surface p-4">
             <View className="flex-row items-center justify-between">
-              <Pressable
+              <Touchable
                 accessibilityRole="button"
                 accessibilityLabel="Mês anterior"
                 onPress={() => shiftMonth(-1)}
-                className="rounded-chip border border-border p-two">
-                <ChevronLeft size={18} color={theme.text} />
-              </Pressable>
-              <Text className="text-body font-semibold text-text">
+                style={{ width: 44, height: 44 }}
+                className="items-center justify-center rounded-field active:bg-surface-raised">
+                <ChevronLeft size={20} color={Palette.textSecondary} />
+              </Touchable>
+              <Text className="text-cardTitle font-semibold text-text">
                 {MONTHS[month]} {year}
               </Text>
-              <Pressable
+              <Touchable
                 accessibilityRole="button"
                 accessibilityLabel="Próximo mês"
                 onPress={() => shiftMonth(1)}
-                className="rounded-chip border border-border p-two">
-                <ChevronRight size={18} color={theme.text} />
-              </Pressable>
+                style={{ width: 44, height: 44 }}
+                className="items-center justify-center rounded-field active:bg-surface-raised">
+                <ChevronRight size={20} color={Palette.textSecondary} />
+              </Touchable>
             </View>
 
             <View className="flex-row">
               {WEEKDAYS.map((label, index) => (
                 <Text
                   key={index}
-                  className="flex-1 text-center text-section font-semibold uppercase tracking-section text-text-tertiary">
+                  className="flex-1 text-center text-legend text-text-tertiary">
                   {label}
                 </Text>
               ))}
@@ -120,60 +121,64 @@ export function DatePicker({ value, onChange, onClose }: DatePickerProps) {
             <View className="flex-row flex-wrap">
               {cells.map((day, index) => {
                 if (day === null) {
-                  return <View key={index} style={{ width: `${100 / 7}%`, height: 40 }} />;
+                  return <View key={index} style={{ width: `${100 / 7}%`, height: 44 }} />;
                 }
                 const iso = toISO(new Date(year, month, day));
                 const isSelected = value === iso;
                 const isToday = today === iso;
                 return (
-                  <View key={index} style={{ width: `${100 / 7}%`, height: 40, padding: 2 }}>
-                    <Pressable
+                  <View key={index} style={{ width: `${100 / 7}%`, height: 44, padding: 2 }}>
+                    <Touchable
                       accessibilityRole="button"
                       accessibilityState={{ selected: isSelected }}
                       onPress={() => pick(day)}
+                      pressedScale={0.9}
                       className={
                         isSelected
-                          ? 'h-full w-full items-center justify-center rounded-chip bg-inverse'
+                          ? 'h-full w-full items-center justify-center rounded-chip bg-accent'
                           : 'h-full w-full items-center justify-center rounded-chip'
                       }
-                      style={isToday && !isSelected ? { borderWidth: 1, borderColor: theme.borderStrong } : undefined}>
+                      style={isToday && !isSelected ? { borderWidth: 1, borderColor: Palette.border } : undefined}>
                       <Text
                         className={
-                          isSelected ? 'text-body text-on-inverse' : 'text-body text-text'
+                          isSelected ? 'text-body text-on-accent' : 'text-body text-text'
                         }>
                         {day}
                       </Text>
-                    </Pressable>
+                    </Touchable>
                   </View>
                 );
               })}
             </View>
 
-            <View className="flex-row justify-between gap-two">
-              <Pressable
+            <View className="flex-row gap-2">
+              <Touchable
                 accessibilityRole="button"
                 onPress={() => {
                   onChange(null);
                   onClose();
                 }}
-                className="rounded-field border border-border px-three py-two">
+                style={{ minHeight: 44 }}
+                className="flex-1 items-center justify-center rounded-field bg-surface-raised">
                 <Text className="text-body text-text-secondary">Limpar</Text>
-              </Pressable>
-              <Pressable
+              </Touchable>
+              <Touchable
                 accessibilityRole="button"
                 onPress={() => {
                   onChange(today);
                   onClose();
                 }}
-                className="rounded-field border border-border px-three py-two">
+                style={{ minHeight: 44 }}
+                className="flex-1 items-center justify-center rounded-field bg-surface-raised">
                 <Text className="text-body text-text-secondary">Hoje</Text>
-              </Pressable>
-              <Pressable
+              </Touchable>
+              <Touchable
                 accessibilityRole="button"
                 onPress={onClose}
-                className="rounded-field bg-inverse px-three py-two">
-                <Text className="text-body text-on-inverse">Fechar</Text>
-              </Pressable>
+                style={{ minHeight: 44 }}
+                className="flex-1 items-center justify-center rounded-field bg-accent">
+                <Text className="text-body text-on-accent">Fechar</Text>
+              </Touchable>
             </View>
           </View>
         </Pressable>

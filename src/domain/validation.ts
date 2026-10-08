@@ -1,4 +1,5 @@
 import { isPast, parseDDMMYYYY } from '@/domain/date';
+import { SUBJECT_COLOR_NAMES } from '@/constants/theme';
 
 export interface SubjectFormInput {
   name: string;
@@ -7,6 +8,8 @@ export interface SubjectFormInput {
   hour?: number | null;
   /** Nome do ícone (IconPicker); null/'' = sem ícone. */
   icon?: string | null;
+  /** Tom da paleta de matérias; null/undefined/'' = sem cor. Fora da paleta = erro. */
+  color?: string | null;
 }
 
 export interface FieldErrors {
@@ -56,6 +59,14 @@ export function validateSubject(input: SubjectFormInput, existingNames: string[]
       errors.hour = 'Informe uma carga horária entre 1 e 200 horas.';
     }
   }
+
+  // Cor é livre no formulário (o seletor só oferece a paleta), então a lista branca é a
+  // última linha de defesa: entrada colada/inventada não grava um hex arbitrário (RNF-04).
+  const color = input.color;
+  if (color !== undefined && color !== null && color !== '' && !SUBJECT_COLOR_NAMES.includes(color)) {
+    errors.color = 'Escolha uma cor da paleta.';
+  }
+
   return errors;
 }
 

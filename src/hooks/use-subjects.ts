@@ -70,6 +70,7 @@ async function saveSubject(
       teacher: input.teacher.trim() || null,
       hour: input.hour ?? null,
       icon: input.icon === undefined || input.icon === '' ? null : input.icon,
+      color: input.color === undefined || input.color === '' ? null : input.color,
       createdAt: original?.createdAt ?? new Date().toISOString(),
     });
   } catch {

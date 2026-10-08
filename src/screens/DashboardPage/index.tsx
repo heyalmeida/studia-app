@@ -1,19 +1,21 @@
 import { router } from 'expo-router';
-import { ScrollView, Text, View } from 'react-native';
+import Inbox from 'lucide-react-native/icons/inbox';
+import { useMemo } from 'react';
+import { ScrollView, View } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { DashCard } from '@/components/ui/DashCard';
-import { DonutChart } from '@/components/ui/DonutChart';
+import { Greeting } from '@/components/DashboardPage/Greeting';
+import { NextAssessmentCard } from '@/components/DashboardPage/NextAssessmentCard';
+import { ProgressSummaryCard } from '@/components/DashboardPage/ProgressSummaryCard';
+import { UpcomingList } from '@/components/DashboardPage/UpcomingList';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { LineChart } from '@/components/ui/LineChart';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { LIST_BOTTOM_INSET, Palette } from '@/constants/theme';
+import type { Subject } from '@/domain/models';
 import { useDashboard } from '@/hooks/use-dashboard';
 
 export default function DashboardPage() {
-  const { summary, subjects, loading, error, refresh, weeklyCompleted } = useDashboard();
+  const { summary, subjects, loading, error, refresh } = useDashboard();
 
   // CA-09.2: com as 3 coleções vazias o painel é um convite ao primeiro cadastro, não zeros.
   const isEmpty =
@@ -21,77 +23,65 @@ export default function DashboardPage() {
     summary.progress.total === 0 &&
     summary.nextAssessments.length === 0;
 
-  const weeklyTotal = weeklyCompleted.reduce((sum, day) => sum + day.value, 0);
+  const subjectById = useMemo(() => {
+    const map: Record<string, Subject> = {};
+    for (const subject of subjects) map[subject.id] = subject;
+    return map;
+  }, [subjects]);
+
+  const nextAssessment = summary.nextAssessments[0];
 
   return (
     <View className="flex-1 bg-background">
       <ScreenHeader title="Painel" />
 
-      {loading ? <ListSkeleton height={96} /> : null}
+      {loading ? <ListSkeleton height={120} /> : null}
 
       {!loading && error !== null ? (
-        <EmptyState title="Deu errado" text={error} actionLabel="Tentar de novo" onAction={refresh} />
+        <EmptyState
+          icon={<Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+          title="Deu errado"
+          text={error}
+          actionLabel="Tentar de novo"
+          onAction={refresh}
+        />
       ) : null}
 
       {!loading && error === null && isEmpty ? (
         <EmptyState
-          title="Bem-vindo ao Studia"
-          text="Cadastre sua primeira matéria para começar."
-          actionLabel="+ Nova matéria"
+          icon={<Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+          title="Comece pela matéria"
+          text="Cadastre uma matéria para registrar atividades e avaliações."
+          actionLabel="Nova matéria"
           onAction={() => router.push('/subject-form')}
         />
       ) : null}
 
       {!loading && error === null && !isEmpty ? (
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, gap: 16 }}>
-          {/* (a) Progresso geral: rosca + barra full-width. */}
-          <DashCard
-            title="Progresso geral"
-            value={`Concluídas ${summary.progress.done}/${summary.progress.total}`}>
-            <View className="flex-row items-center gap-four">
-              <DonutChart ratio={summary.progress.ratio} size="md" />
-              <View className="flex-1 gap-two">
-                <Text className="text-meta text-text-secondary">
-                  {summary.progress.total - summary.progress.done} pendente(s) de {summary.progress.total}
-                </Text>
-                <ProgressBar ratio={summary.progress.ratio} />
-              </View>
-            </View>
-          </DashCard>
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingTop: 8,
+            paddingBottom: LIST_BOTTOM_INSET,
+            gap: 12,
+          }}>
+          <Greeting />
 
-          {/* (b) Linha semanal de atividades concluídas (7 dias). */}
-          <DashCard title="Tarefas concluídas (7 dias)" value={weeklyTotal}>
-            {weeklyTotal === 0 ? (
-              <Text className="text-meta text-text-secondary">
-                Sem atividades concluídas nesta semana.
-              </Text>
-            ) : (
-              <LineChart data={weeklyCompleted} height={120} />
-            )}
-          </DashCard>
+          <ProgressSummaryCard
+            ratio={summary.progress.ratio}
+            done={summary.progress.done}
+            total={summary.progress.total}
+            dueThisWeek={summary.dueThisWeek}
+          />
 
-          {/* (c) Pendências: valor grande + atalho (sem lista longa). */}
-          <DashCard
-            title="Pendências"
-            value={summary.pendingTotal}
-            subtitle="atividade(s) sem prazo ou vencendo">
-            <View className="gap-two">
-              <Badge label={summary.dueSoon.length > 0 ? 'Atenção: há prazos próximos' : 'Sem prazos urgentes'} />
-              <Button label="Ver todas" variant="secondary" onPress={() => router.push('/activities')} />
-            </View>
-          </DashCard>
+          <UpcomingList activities={summary.upcoming} subjectById={subjectById} />
 
-          {/* (d) Próximas avaliações: valor + atalho (sem lista longa). */}
-          <DashCard
-            title="Próximas avaliações"
-            value={summary.nextAssessments.length}
-            subtitle="avaliação(ões) agendada(s)">
-            <Button
-              label="Ver avaliações"
-              variant="secondary"
-              onPress={() => router.push('/assessments')}
+          {nextAssessment !== undefined ? (
+            <NextAssessmentCard
+              assessment={nextAssessment}
+              subject={subjectById[nextAssessment.subjectId]}
             />
-          </DashCard>
+          ) : null}
         </ScrollView>
       ) : null}
     </View>

@@ -64,6 +64,18 @@ export function todayISO(): string {
   return `${pad(now.getFullYear(), 4)}-${pad(now.getMonth() + 1, 2)}-${pad(now.getDate(), 2)}`;
 }
 
+/**
+ * 'YYYY-MM-DD' deslocada em N dias (a partir de hoje quando `iso` é omitido).
+ * Constrói `new Date(y, m, d)` local, então atravessa virada de mês/ano sem aritmética
+ * de string. Iso inválida -> '' (o chamador trata como ausente; nunca lança).
+ */
+export function addDaysISO(iso: string | undefined, days: number): string {
+  const base = iso === undefined ? new Date() : toLocalDate(iso);
+  if (base === null) return '';
+  const moved = new Date(base.getFullYear(), base.getMonth(), base.getDate() + days);
+  return `${pad(moved.getFullYear(), 4)}-${pad(moved.getMonth() + 1, 2)}-${pad(moved.getDate(), 2)}`;
+}
+
 /** Diferença em dias (positivo = futuro). Comparação via Date local; inválida -> 0. */
 export function daysUntil(iso: string, today?: string): number {
   const target = toLocalDate(iso);

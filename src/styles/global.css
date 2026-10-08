@@ -2,19 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tokens monocromáticos (ADR-0006). Light = padrão; dark espelha preto/branco. */
+/*
+ * Tokens da identidade escura (ADR-0009) — espelho de `src/constants/theme.ts`.
+ * Tema único: o app é escuro por decisão de produto (`userInterfaceStyle: "dark"`),
+ * então não existe bloco `prefers-color-scheme`.
+ */
 :root {
-  --color-text: #000000;
-  --color-text-secondary: #60646c;
-  --color-text-tertiary: #8a8f98;
-  --color-background: #ffffff;
-  --color-background-element: #f4f4f6;
-  --color-surface: #f4f4f6;
-  --color-surface-selected: #e7e7eb;
-  --color-border: #e0e0e5;
-  --color-border-strong: #000000;
-  --color-inverse: #000000;
-  --color-on-inverse: #ffffff;
+  --color-background: #0b0b0f;
+  --color-surface: #15151b;
+  --color-surface-raised: #1c1c24;
+  --color-border: #23232c;
+  --color-text: #f5f5f7;
+  --color-text-secondary: #a1a1aa;
+  --color-text-tertiary: #6b6b76;
+  --color-accent: #6366f1;
+  --color-accent-soft: rgba(99, 102, 241, 0.16);
+  --color-on-accent: #ffffff;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
 
   --font-display:
     Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
@@ -23,20 +29,4 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-text: #ffffff;
-    --color-text-secondary: #b0b4ba;
-    --color-text-tertiary: #7d828b;
-    --color-background: #000000;
-    --color-background-element: #1c1d21;
-    --color-surface: #1c1d21;
-    --color-surface-selected: #2a2c31;
-    --color-border: #2a2a2e;
-    --color-border-strong: #ffffff;
-    --color-inverse: #ffffff;
-    --color-on-inverse: #000000;
-  }
 }

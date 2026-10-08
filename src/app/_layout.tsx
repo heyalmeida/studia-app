@@ -1,33 +1,37 @@
 import '../styles/global.css';
 
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Palette } from '@/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  // RN 0.86 tipa useColorScheme() como 'light' | 'dark' | 'unspecified' (nulo não existe);
-  // 'unspecified' cai no claro, igual ao resto do scaffold (useTheme / app-tabs).
-  const colorScheme = useColorScheme();
-  const scheme = colorScheme === 'dark' ? 'dark' : 'light';
+// Tema único escuro (ADR-0009): `userInterfaceStyle: "dark"` no app.json + tokens de
+// `Palette`. O DarkTheme do React Navigation só é usado como base estrutural; as cores
+// que o app pinça (background/card/text/border/primary) vêm da identidade do Studia.
+const navigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: Palette.background,
+    card: Palette.surface,
+    text: Palette.text,
+    border: Palette.border,
+    primary: Palette.accent,
+    notification: Palette.accent,
+  },
+};
 
+export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
 
-  const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
-  const theme = {
-    ...base,
-    colors: { ...base.colors, background: Colors[scheme].background },
-  };
-
   return (
-    <ThemeProvider value={theme}>
-      <Stack screenOptions={{ headerShown: false }}>
+    <ThemeProvider value={navigationTheme}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Palette.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="subject-form" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen

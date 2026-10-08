@@ -6,7 +6,7 @@ import { subscribe } from '@/storage/notifier';
 import { subjectRepository } from '@/storage/subject.repository';
 import { daysUntil, formatDDMMYYYY, parseDDMMYYYY } from '@/domain/date';
 import type { Activity, Assessment, Subject } from '@/domain/models';
-import { progressSummary, subjectProgress, type SubjectProgress } from '@/domain/progress';
+import { progressSummary } from '@/domain/progress';
 import { sortActivities, sortAssessments } from '@/domain/sorting';
 
 const LOAD_ERROR = 'Falha ao carregar seus dados.';
@@ -17,40 +17,30 @@ const DUE_SOON_WINDOW_DAYS = 7;
 const PREVIEW_LIMIT = 3;
 
 export interface DashboardSummary {
-  /** Total de atividades pendentes (independente do prazo). */
-  pendingTotal: number;
-  /** Pendentes com dueDate dentro da janela de 7 dias, ordenadas por sortActivities. */
-  dueSoon: Activity[];
+  /**
+   * Próximas atividades pendentes (até 3) em `sortActivities` — a lista "Próximos prazos"
+   * do painel. Inclui as sem prazo no fim, que é a ordem da lista principal.
+   */
+  upcoming: Activity[];
+  /** Pendentes que vencem na janela de 7 dias, **sem** o corte de exibição. */
+  dueThisWeek: number;
   /** Agendadas mais próximas, por data asc. */
   nextAssessments: Assessment[];
   /** Agregado geral de atividades (domain/progress.ts). */
   progress: { total: number; done: number; ratio: number };
 }
 
-export interface SubjectProgressEntry {
-  subject: Subject;
-  progress: SubjectProgress;
-}
-
 export interface UseDashboard {
   summary: DashboardSummary;
-  /** Até 3 matérias com atividades, da maior para a menor razão de conclusão. */
-  subjectProgress: SubjectProgressEntry[];
   /**
    * Matérias em ordem alfabética, para a tela resolver `subjectId` das linhas de atividade e
-   * avaliação (monograma + nome). Não é derivação do painel: é a lista completa, o mesmo
+   * avaliação (bolinha da cor + nome). Não é derivação do painel: é a lista completa, o mesmo
    * critério de ordenação de `use-subjects`.
    */
   subjects: Subject[];
   loading: boolean;
   error: string | null;
   refresh(): void;
-  /**
-   * Atividades concluídas por dia nos últimos 7 dias (hoje incluso), para o LineChart
-   * do painel. Computado aqui porque só o hook enxerga as 3 coleções sem que a tela
-   * toque em storage (ADR-0004).
-   */
-  weeklyCompleted: { label: string; value: number }[];
 }
 
 interface Snapshot {
@@ -79,31 +69,6 @@ function readSnapshot(): Promise<Snapshot> {
  */
 function isRealDate(iso: string): boolean {
   return parseDDMMYYYY(formatDDMMYYYY(iso)) === iso;
-}
-
-/** Rótulos curtos PT-BR; o índice casa com Date.getDay(). */
-const WEEKDAY_LABELS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-
-/** Slice 6: série de 7 dias (label 'seg'..'dom', value = concluídas no dia). */
-function computeWeeklyCompleted(activities: Activity[]): { label: string; value: number }[] {
-  const series: { label: string; value: number; key: string }[] = [];
-  const now = new Date();
-  for (let offset = 6; offset >= 0; offset -= 1) {
-    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset);
-    const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-    series.push({ label: WEEKDAY_LABELS[day.getDay()], value: 0, key });
-  }
-  const indexByKey = new Map(series.map((entry, index) => [entry.key, index]));
-  for (const activity of activities) {
-    if (activity.status !== 'concluida') continue;
-    const stamp = activity.completedAt ?? activity.createdAt;
-    const date = new Date(stamp);
-    if (Number.isNaN(date.getTime())) continue;
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const index = indexByKey.get(key);
-    if (index !== undefined) series[index].value += 1;
-  }
-  return series.map(({ label, value }) => ({ label, value }));
 }
 
 /** Painel inicial (RF-09): só leitura das 3 coleções, agregações derivadas no domínio. */
@@ -161,57 +126,34 @@ export function useDashboard(): UseDashboard {
 
   const summary = useMemo<DashboardSummary>(() => {
     const pending = activities.filter((activity) => activity.status === 'pendente');
+    const sortedPending = sortActivities(pending);
 
-    // sortActivities já põe pendentes com prazo antes; aqui só cortamos a janela de 7 dias.
-    const dueSoon = sortActivities(pending)
-      .filter(
-        (activity) =>
-          activity.dueDate !== null &&
-          isRealDate(activity.dueDate) &&
-          daysUntil(activity.dueDate) <= DUE_SOON_WINDOW_DAYS,
-      )
-      .slice(0, PREVIEW_LIMIT);
+    // Data de verdade (não string qualquer) dentro da janela de 7 dias.
+    const withinWindow = (activity: Activity): boolean =>
+      activity.dueDate !== null &&
+      isRealDate(activity.dueDate) &&
+      daysUntil(activity.dueDate) <= DUE_SOON_WINDOW_DAYS;
+
+    // "Próximos prazos": as 3 primeiras pendentes na ordem da lista principal.
+    const upcoming = sortedPending.slice(0, PREVIEW_LIMIT);
 
     const nextAssessments = sortAssessments(assessments)
       .filter((assessment) => assessment.status === 'agendada')
       .slice(0, PREVIEW_LIMIT);
 
     return {
-      pendingTotal: pending.length,
-      dueSoon,
+      upcoming,
+      dueThisWeek: sortedPending.filter(withinWindow).length,
       nextAssessments,
       progress: progressSummary(activities),
     };
   }, [activities, assessments]);
 
-  // Nome local ≠ `subjectProgress` do domínio: mesmo nome aqui esconderia a função importada.
-  const rankedSubjects = useMemo<SubjectProgressEntry[]>(() => {
-    const entries: SubjectProgressEntry[] = [];
-    for (const subject of subjects) {
-      const progress = subjectProgress(subject.id, activities);
-      // Matéria sem atividade não tem barra que signifique algo no painel.
-      if (progress.total === 0) continue;
-      entries.push({ subject, progress });
-    }
-    // Empate vai para o nome: a lista do painel precisa ser estável entre renders.
-    return entries
-      .sort((a, b) =>
-        b.progress.ratio === a.progress.ratio
-          ? a.subject.name.localeCompare(b.subject.name, 'pt-BR', { sensitivity: 'base' })
-          : b.progress.ratio - a.progress.ratio,
-      )
-      .slice(0, PREVIEW_LIMIT);
-  }, [subjects, activities]);
-
-  const weeklyCompleted = useMemo(() => computeWeeklyCompleted(activities), [activities]);
-
   return {
     summary,
-    subjectProgress: rankedSubjects,
     subjects: sortedSubjects,
     loading,
     error,
     refresh,
-    weeklyCompleted,
   };
 }

@@ -1,30 +1,30 @@
-import { Pressable, Text } from 'react-native';
-
+import { subjectTone } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
+
+import { ChoiceChip } from '@/components/ui/ChoiceChip';
 
 export interface SubjectChipProps {
   subject: Subject;
   selected: boolean;
   onPress: () => void;
+  /** Rótulo próprio (o painel usa "Cálculo I · 3"). */
+  label?: string;
 }
 
-/** Chip horizontal de seleção de matéria — apenas o nome (sem monograma/resumo). */
-export function SubjectChip({ subject, selected, onPress }: SubjectChipProps) {
+/**
+ * Chip de matéria (ADR-0009): nome com a **bolinha da cor da matéria** à esquerda — é o
+ * que amarra card, lista de atividades, avaliação e formulário ao mesmo código de cor.
+ * Matéria sem cor (registro legado) fica sem bolinha, sem inventar um tom.
+ */
+export function SubjectChip({ subject, selected, onPress, label }: SubjectChipProps) {
+  const tone = subjectTone(subject.color);
+
   return (
-    <Pressable
+    <ChoiceChip
+      selected={selected}
       onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      className={
-        selected
-          ? 'rounded-chip border border-border bg-surface px-two py-two'
-          : 'rounded-chip border border-border-strong bg-backgroundElement px-two py-two'
-      }>
-      <Text
-        className={selected ? 'text-body text-text' : 'text-body text-text-secondary'}
-        numberOfLines={1}>
-        {subject.name}
-      </Text>
-    </Pressable>
+      dotColor={tone?.value}
+      label={label ?? subject.name}
+    />
   );
 }

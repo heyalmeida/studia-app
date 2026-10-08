@@ -1,10 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { cssInterop } from 'nativewind';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-import { Spacing } from '@/constants/theme';
+import { Touchable } from '@/components/ui/Touchable';
+import { Palette, Spacing } from '@/constants/theme';
 
 // Ionicons não é componente-core do RN: registra className -> style (color do glifo).
 cssInterop(Ionicons, { className: 'style' });
@@ -25,24 +26,24 @@ type IoniconName = keyof typeof Ionicons.glyphMap;
 const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> = {
   index: { active: 'home', inactive: 'home-outline' },
   subjects: { active: 'book', inactive: 'book-outline' },
-  activities: { active: 'checkbox', inactive: 'checkbox-outline' },
+  activities: { active: 'checkmark-circle', inactive: 'checkmark-circle-outline' },
   assessments: { active: 'calendar', inactive: 'calendar-outline' },
 };
 
 /**
- * Barra flutuante (referência: estilo 3 — ativa = ícone preenchido + label; inativas = outline).
- * O container externo em fluxo normal garante que o conteúdo das telas nunca fica sob a barra,
- * e o paddingBottom usa a safe-area inferior — resolve a sobreposição com a barra de gestos
- * do Android. Monocromático: pills com superfície tonal + hairline (ADR-0006).
+ * Barra de abas flutuante (ADR-0009): fundo `surface`, hairline de 1px, item **ativo** na
+ * cor de destaque (ícone + label) e inativos em `text-tertiary`. O container externo fica
+ * em fluxo normal, então o conteúdo das telas nunca passa por baixo da barra; o
+ * paddingBottom usa a safe-area inferior (barra de gestos do Android).
  */
 function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View
-      className="bg-background px-four"
+      className="bg-background px-5"
       style={{ paddingTop: Spacing.two, paddingBottom: Math.max(insets.bottom, Spacing.two) }}>
-      <View className="flex-row items-stretch justify-around rounded-card border border-border bg-surface px-two py-two">
+      <View className="flex-row items-stretch justify-around rounded-card border border-border bg-surface px-1 py-1">
         {state.routes.map((route) => {
           const icons = TAB_ICONS[route.name];
           if (!icons) return null;
@@ -50,24 +51,28 @@ function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
           const title = descriptors[route.key]?.options.title ?? '';
 
           return (
-            <Pressable
+            <Touchable
               key={route.key}
               accessibilityRole="tab"
               accessibilityState={{ selected: focused }}
               accessibilityLabel={title}
               onPress={() => navigation.navigate(route.name)}
-              className="flex-1 items-center justify-center py-one active:bg-surface-selected rounded-chip">
+              pressedScale={0.94}
+              pressedOpacity={0.7}
+              style={{ flex: 1 }}
+              className="min-h-[48px] items-center justify-center gap-1 rounded-chip px-1 py-1">
               <Ionicons
                 name={focused ? icons.active : icons.inactive}
-                size={22}
-                className={focused ? 'text-text' : 'text-text-tertiary'}
+                size={20}
+                className={focused ? 'text-accent' : 'text-text-tertiary'}
               />
-              {focused ? (
-                <Text className="mt-half text-[11px] font-semibold text-text" numberOfLines={1}>
-                  {title}
-                </Text>
-              ) : null}
-            </Pressable>
+              <Text
+                className="text-legend"
+                style={{ color: focused ? Palette.accent : Palette.textTertiary }}
+                numberOfLines={1}>
+                {title}
+              </Text>
+            </Touchable>
           );
         })}
       </View>

@@ -8,6 +8,8 @@ export interface Subject {
   teacher: string | null;
   hour: number | null; // horas por semana; null = não informado
   icon: string | null; // nome do ícone do IconPicker (ex: 'BookOpen') ou ''; '' tratado como null
+  /** Tom da paleta de 8 (SUBJECT_COLORS) ou null = sem cor escolhida (ADR-0009). */
+  color: string | null;
   createdAt: string; // ISO 8601 completo
 }
 

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
 
-import { Button } from '@/components/ui/Button';
+import { ColorPicker } from '@/components/ui/ColorPicker';
+import { FormFooter } from '@/components/ui/FormFooter';
 import { IconPicker } from '@/components/ui/IconPicker';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Palette } from '@/constants/theme';
 import type { FieldErrors } from '@/domain/validation';
 import { useSubjects } from '@/hooks/use-subjects';
 
@@ -25,6 +28,7 @@ export default function SubjectFormPage() {
   const [teacherDraft, setTeacherDraft] = useState<FieldDraft>(null);
   const [hourDraft, setHourDraft] = useState<FieldDraft>(null);
   const [iconDraft, setIconDraft] = useState<FieldDraft>(null);
+  const [colorDraft, setColorDraft] = useState<FieldDraft>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitTried, setSubmitTried] = useState(false);
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
@@ -35,33 +39,13 @@ export default function SubjectFormPage() {
     ? ''
     : String(original.hour));
   const icon = iconDraft ?? original?.icon ?? '';
+  const color = colorDraft ?? original?.color ?? null;
 
-  function editName(text: string) {
-    setNameDraft(text);
+  function clearFieldError(field: string) {
     setErrors((previous) => {
-      if (previous.name === undefined) return previous;
+      if (previous[field] === undefined) return previous;
       const next = { ...previous };
-      delete next.name;
-      return next;
-    });
-  }
-
-  function editTeacher(text: string) {
-    setTeacherDraft(text);
-    setErrors((previous) => {
-      if (previous.teacher === undefined) return previous;
-      const next = { ...previous };
-      delete next.teacher;
-      return next;
-    });
-  }
-
-  function editHour(text: string) {
-    setHourDraft(text);
-    setErrors((previous) => {
-      if (previous.hour === undefined) return previous;
-      const next = { ...previous };
-      delete next.hour;
+      delete next[field];
       return next;
     });
   }
@@ -71,7 +55,13 @@ export default function SubjectFormPage() {
     setBlockMessage(null);
     const trimmed = hourText.trim().replace(',', '.');
     const parsedHour = trimmed === '' ? null : Number(trimmed);
-    const input = { name, teacher, hour: parsedHour, icon: icon === '' ? null : icon };
+    const input = {
+      name,
+      teacher,
+      hour: parsedHour,
+      icon: icon === '' ? null : icon,
+      color: color === '' ? null : color,
+    };
     const result = isEdit ? await update(id, input) : await create(input);
     if (result.ok) {
       router.back();
@@ -105,53 +95,78 @@ export default function SubjectFormPage() {
   const nameError = submitTried ? errors.name : undefined;
   const teacherError = submitTried ? errors.teacher : undefined;
   const hourError = submitTried ? errors.hour : undefined;
+  const colorError = submitTried ? errors.color : undefined;
 
   return (
     <View className="flex-1 bg-background">
-      <ScreenHeader title={isEdit ? 'Editar matéria' : 'Nova matéria'} />
+      <ScreenHeader
+        title={isEdit ? 'Editar matéria' : 'Nova matéria'}
+        leading={{
+          icon: <ChevronLeft size={20} color={Palette.textSecondary} />,
+          label: 'Fechar',
+          onPress: () => router.back(),
+        }}
+      />
+
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 64, gap: 16 }}
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
         keyboardShouldPersistTaps="handled">
-        <Input label="Nome" value={name} onChangeText={editName} error={nameError} maxLength={80} />
+        <Input
+          label="Nome"
+          value={name}
+          onChangeText={(text) => {
+            setNameDraft(text);
+            clearFieldError('name');
+          }}
+          placeholder="ex: Cálculo I"
+          error={nameError}
+          maxLength={80}
+        />
+
         <Input
           label="Professor(a) (opcional)"
           value={teacher}
-          onChangeText={editTeacher}
+          onChangeText={(text) => {
+            setTeacherDraft(text);
+            clearFieldError('teacher');
+          }}
+          placeholder="ex: Marina Alves"
           error={teacherError}
           maxLength={80}
         />
+
         <Input
-          label="Carga Horária (horas/semana, opcional)"
+          label="Carga horária (opcional)"
           value={hourText}
-          onChangeText={editHour}
+          onChangeText={(text) => {
+            setHourDraft(text);
+            clearFieldError('hour');
+          }}
+          placeholder="ex: 60"
           error={hourError}
           keyboardType="number-pad"
           maxLength={5}
-          placeholder="ex: 60"
         />
+
         <IconPicker selected={icon} onChange={setIconDraft} />
 
-        <View className="mt-two gap-two">
-          <View className="w-full">
-            <Button label="Salvar" variant="primary" onPress={() => void onSubmit()} />
-          </View>
-
-          {isEdit ? (
-            <View className="w-full">
-              <Button label="Excluir" variant="ghost" onPress={onConfirmDelete} />
-              {blockMessage !== null ? (
-                <Text className="pt-one text-center text-meta text-text-secondary">
-                  {blockMessage}
-                </Text>
-              ) : null}
-            </View>
-          ) : null}
-
-          <View className="w-full">
-            <Button label="Cancelar" variant="ghost" onPress={() => router.back()} />
-          </View>
-        </View>
+        <ColorPicker
+          value={color}
+          onChange={(next) => {
+            setColorDraft(next);
+            clearFieldError('color');
+          }}
+          error={colorError}
+        />
       </ScrollView>
+
+      <FormFooter
+        onSave={() => void onSubmit()}
+        onDelete={isEdit ? onConfirmDelete : undefined}
+        onCancel={() => router.back()}
+        message={blockMessage}
+      />
     </View>
   );
 }

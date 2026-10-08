@@ -2,11 +2,10 @@ import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
-import { Monogram } from '@/components/ui/Monogram';
+import { IconTile } from '@/components/ui/IconTile';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { renderIcon } from '@/components/ui/IconPicker';
+import { subjectTone, Palette } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
-import { useTheme } from '@/hooks/use-theme';
 
 export interface SubjectCardProps {
   subject: Subject;
@@ -16,41 +15,38 @@ export interface SubjectCardProps {
 }
 
 /**
- * Card de matéria na lista (T2): monograma + nome + professor(a), métricas agregadas
- * e barra de progresso. Os agregados vêm da tela como props — um useSubjects() por card
- * reinscreveria o repositório várias vezes sem motivo.
+ * Card de matéria na lista (T2, ADR-0009): ícone em quadrado 44 com fundo tingido na cor
+ * da matéria, nome, professor, "N pendentes · N avaliações" e barra de progresso na mesma
+ * cor. O card inteiro é o alvo — abre a edição.
  */
 export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardProps) {
-  const theme = useTheme();
-  const hasIcon = subject.icon !== null && subject.icon !== '' && renderIcon(subject.icon) !== null;
+  const tone = subjectTone(subject.color);
+  const barColor = tone?.value ?? Palette.accent;
+
   return (
     <Card
       onPress={() => router.push(`/subject-form?id=${encodeURIComponent(subject.id)}`)}
-      style={{ marginBottom: 16, gap: 16 }}>
-      <View className="flex-row items-center gap-three">
-          <View
-            className="items-center justify-center rounded-monogram p-half text-text"
-            style={{ width: 40, height: 40 }}>
-            {renderIcon(subject.icon, 20, theme.text)}
-          </View>
-        <View className="flex-1 gap-half">
-          <Text className="flex-shrink text-body font-semibold text-text" numberOfLines={1} ellipsizeMode="tail">
+      className="gap-4">
+      <View className="flex-row items-center gap-3">
+        <IconTile subject={subject} size={44} />
+
+        <View className="flex-1 gap-1">
+          <Text className="text-cardTitle font-semibold text-text" numberOfLines={2}>
             {subject.name}
           </Text>
-          <Text className="text-meta text-text-tertiary" numberOfLines={1}>
+          <Text className="text-legend text-text-tertiary" numberOfLines={1}>
             {subject.teacher ?? 'Sem professor'}
           </Text>
         </View>
       </View>
 
-      <View className="flex-row flex-wrap justify-between gap-one">
-        <Text className="text-meta text-text-secondary">{pending} pendente(s)</Text>
-        <Text className="text-meta text-text-secondary">
-          {scheduled} avaliação(ões) agendada(s)
+      <View style={{ gap: 8 }}>
+        <Text className="text-legend text-text-secondary">
+          {pending} {pending === 1 ? 'pendente' : 'pendentes'} · {scheduled}{' '}
+          {scheduled === 1 ? 'avaliação' : 'avaliações'}
         </Text>
+        <ProgressBar ratio={ratio} color={barColor} />
       </View>
-
-      <ProgressBar ratio={ratio} />
     </Card>
   );
 }
