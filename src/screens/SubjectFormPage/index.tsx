@@ -28,7 +28,9 @@ export default function SubjectFormPage() {
   const [teacherDraft, setTeacherDraft] = useState<FieldDraft>(null);
   const [hourDraft, setHourDraft] = useState<FieldDraft>(null);
   const [iconDraft, setIconDraft] = useState<FieldDraft>(null);
-  const [colorDraft, setColorDraft] = useState<FieldDraft>(null);
+  // `undefined` = intacto; `null` = usuário tirou a cor. Por isso o estado é triestado:
+  // com `??` um "sem cor" escolhido cairia de volta na cor original da matéria.
+  const [colorDraft, setColorDraft] = useState<string | null | undefined>(undefined);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitTried, setSubmitTried] = useState(false);
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export default function SubjectFormPage() {
     ? ''
     : String(original.hour));
   const icon = iconDraft ?? original?.icon ?? '';
-  const color = colorDraft ?? original?.color ?? null;
+  const color = colorDraft !== undefined ? colorDraft : (original?.color ?? null);
 
   function clearFieldError(field: string) {
     setErrors((previous) => {
@@ -60,7 +62,7 @@ export default function SubjectFormPage() {
       teacher,
       hour: parsedHour,
       icon: icon === '' ? null : icon,
-      color: color === '' ? null : color,
+      color,
     };
     const result = isEdit ? await update(id, input) : await create(input);
     if (result.ok) {

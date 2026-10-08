@@ -86,7 +86,8 @@ export function IconPicker({ selected, onChange, label = 'Ícone' }: IconPickerP
                   isSelected
                     ? 'items-center justify-center rounded-field bg-accent-soft'
                     : 'items-center justify-center rounded-field bg-surface-raised'
-                }>
+                }
+                contentClassName="w-full items-center justify-center py-2">
                 <Icon
                   size={22}
                   color={isSelected ? Tokens.accent : Tokens.textSecondary}
@@ -110,7 +111,8 @@ export function IconPicker({ selected, onChange, label = 'Ícone' }: IconPickerP
               !hasSelection
                 ? 'items-center justify-center rounded-field bg-accent-soft'
                 : 'items-center justify-center rounded-field bg-surface-raised'
-            }>
+            }
+            contentClassName="w-full items-center justify-center py-2">
             <Text
               className={
                 !hasSelection ? 'text-legend text-accent' : 'text-legend text-text-tertiary'

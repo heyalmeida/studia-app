@@ -3,16 +3,23 @@ import { useState } from 'react';
 import {
   Animated,
   Pressable,
+  StyleSheet,
   type PressableProps,
   type StyleProp,
-  type View,
   type ViewStyle,
 } from 'react-native';
 
 export interface TouchableProps extends Omit<PressableProps, 'style' | 'children'> {
   children: ReactNode;
+  /** Visual do alvo (fundo, borda, raio, tamanho fixo). */
   style?: StyleProp<ViewStyle>;
-  /** Escala do pressionado. `1` desliga a animação (ex.: item de lista sem recuo). */
+  /**
+   * Padding **do Pressable**, não do Animated.View. Sem isso a área de respiro fica fora
+   * da zona tocável e o toque nas bordas de um card/chip "some". Passe aqui o mesmo
+   * padding que estaria no `className`.
+   */
+  contentClassName?: string;
+  /** Escala do pressionado. */
   pressedScale?: number;
   /** Opacidade do pressionado. */
   pressedOpacity?: number;
@@ -20,12 +27,13 @@ export interface TouchableProps extends Omit<PressableProps, 'style' | 'children
 
 /**
  * Pressable do app (ADR-0009): todo alvo tocável tem feedback — encolhe para
- * `pressedScale` e ganha opacidade. Usar `Animated` do RN (sem lib nova) mantém o
+ * `pressedScale` e ganha opacidade. `Animated` do RN (sem lib nova) mantém o
  * comportamento idêntico no Expo Go.
  */
 export function Touchable({
   children,
   style,
+  contentClassName,
   pressedScale = 0.97,
   pressedOpacity = 0.75,
   disabled,
@@ -57,6 +65,10 @@ export function Touchable({
       <Pressable
         {...rest}
         disabled={disabled}
+        // `fill`: quando o alvo tem altura definida (FAB, checkbox, item da tab bar), o
+        // Pressable ocupa o retângulo inteiro em vez de só o conteúdo.
+        style={styles.fill}
+        className={contentClassName}
         onPressIn={() => animate(pressedScale, pressedOpacity)}
         onPressOut={() => animate(1, 1)}>
         {children}
@@ -65,5 +77,8 @@ export function Touchable({
   );
 }
 
-/** Reexportado para quem precisar do tipo do elemento estilizado pelo `Touchable`. */
-export type TouchableView = View;
+const styles = StyleSheet.create({
+  fill: {
+    flexGrow: 1,
+  },
+});

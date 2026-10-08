@@ -25,7 +25,8 @@ export function TextButton({ label, onPress, tone = 'neutral', disabled = false 
       onPress={disabled ? undefined : onPress}
       pressedOpacity={0.6}
       style={{ minHeight: 44 }}
-      className="w-full items-center justify-center px-4 py-2">
+      className="w-full items-center justify-center"
+      contentClassName="w-full items-center justify-center px-4 py-2">
       <Text className={`text-body ${color} ${disabled ? 'opacity-40' : ''}`}>{label}</Text>
     </Touchable>
   );

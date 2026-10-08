@@ -42,7 +42,8 @@ export function SegmentedControl<T extends string>({
               selected
                 ? 'min-h-[38px] items-center justify-center rounded-chip bg-accent-soft'
                 : 'min-h-[38px] items-center justify-center rounded-chip'
-            }>
+            }
+            contentClassName="w-full items-center justify-center">
             <Text
               className={
                 selected

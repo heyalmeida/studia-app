@@ -33,7 +33,8 @@ export function ColorPicker({ value, onChange, label = 'Cor', error }: ColorPick
                 onPress={() => onChange(selected ? null : tone.value)}
                 pressedScale={0.88}
                 style={{ width: 44, height: 44 }}
-                className="items-center justify-center rounded-full border border-border bg-surface-raised">
+                className="items-center justify-center rounded-full border border-border bg-surface-raised"
+                contentClassName="w-full items-center justify-center">
                 <View
                   className="h-6 w-6 items-center justify-center rounded-full"
                   style={{ backgroundColor: tone.value }}>

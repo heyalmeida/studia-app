@@ -29,7 +29,8 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
           onPress={() => router.push('/activities')}
           pressedOpacity={0.6}
           style={{ minHeight: 44 }}
-          className="justify-center px-1">
+          className="justify-center px-1"
+          contentClassName="w-full justify-center px-1 py-2">
           <Text className="text-legend text-accent">Ver todas</Text>
         </Touchable>
       </View>
@@ -51,7 +52,8 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
               onPress={() => router.push(`/activity-form?id=${encodeURIComponent(activity.id)}`)}
               pressedOpacity={0.7}
               style={index === activities.length - 1 ? undefined : styles.divider}
-              className="flex-row items-center gap-3 py-3">
+              className="flex-row items-center"
+              contentClassName="w-full flex-row items-center gap-3 py-3">
               {tone !== null ? (
                 <View
                   className="h-2 w-2 shrink-0 rounded-full"

@@ -56,9 +56,10 @@ export function DateField({
         onPress={() => setPickerOpen(true)}
         pressedOpacity={0.85}
         style={{ minHeight: 52 }}
-        className={`flex-row items-center gap-3 rounded-field border bg-surface-raised px-4 ${
+        className={`flex-row items-center rounded-field border bg-surface-raised ${
           disabled ? 'opacity-40' : ''
-        } ${field}`}>
+        } ${field}`}
+        contentClassName="w-full flex-row items-center gap-3 px-4 py-2">
         <CalendarDays
           size={20}
           color={hasError ? Palette.danger : Palette.textSecondary}
@@ -71,7 +72,7 @@ export function DateField({
         </Text>
       </Touchable>
 
-      {shortcuts ? (
+      {shortcuts && !disabled ? (
         <View className="flex-row gap-2">
           <ChoiceChip
             label="Hoje"

@@ -26,6 +26,7 @@ export function PrimaryButton({ label, onPress, disabled = false }: PrimaryButto
           ? 'w-full items-center justify-center rounded-button bg-accent opacity-40'
           : 'w-full items-center justify-center rounded-button bg-accent'
       }
+      contentClassName="w-full items-center justify-center px-4 py-2"
       style={{ minHeight: FIELD_HEIGHT }}>
       <Text className="text-bodyStrong font-semibold text-on-accent">{label}</Text>
     </Touchable>

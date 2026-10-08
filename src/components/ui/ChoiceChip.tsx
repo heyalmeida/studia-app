@@ -6,8 +6,6 @@ import { Touchable } from '@/components/ui/Touchable';
 export interface ChoiceChipProps {
   selected: boolean;
   onPress: () => void;
-  /** Ocupa a linha toda (usar só em linhas fixas, nunca em ScrollView horizontal). */
-  grow?: boolean;
   /** Cor da bolinha antes do rótulo (matéria). */
   dotColor?: string;
   /** Ícone antes do rótulo (tipo de atividade). */
@@ -20,26 +18,20 @@ export interface ChoiceChipProps {
  * destaque; não selecionado = superfície elevada e texto secundário. É o único lugar
  * do app onde o índigo aparece em "modo desligado" — a ação/seleção do usuário.
  */
-export function ChoiceChip({
-  selected,
-  onPress,
-  grow = false,
-  dotColor,
-  icon,
-  label,
-}: ChoiceChipProps) {
+export function ChoiceChip({ selected, onPress, dotColor, icon, label }: ChoiceChipProps) {
   return (
     <Touchable
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
       pressedOpacity={0.8}
-      style={grow ? { flex: 1 } : { flexShrink: 0 }}
+      style={{ flexShrink: 0 }}
       className={
         selected
-          ? 'min-h-[44px] items-center justify-center rounded-chip bg-accent-soft px-3 py-2'
-          : 'min-h-[44px] items-center justify-center rounded-chip bg-surface-raised px-3 py-2'
-      }>
+          ? 'min-h-[44px] items-center justify-center rounded-chip bg-accent-soft'
+          : 'min-h-[44px] items-center justify-center rounded-chip bg-surface-raised'
+      }
+      contentClassName="w-full px-3 py-2">
       <View className="flex-row items-center justify-center gap-1.5">
         {dotColor !== undefined ? (
           <View className="h-2 w-2 rounded-full" style={{ backgroundColor: dotColor }} />

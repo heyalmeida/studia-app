@@ -9,8 +9,6 @@ export interface ProgressRingProps {
   strokeWidth?: number;
   /** Cor do traço; o painel usa o destaque. */
   color?: string;
-  /** Esconde o rótulo central (quando o número está ao lado). */
-  showLabel?: boolean;
 }
 
 /**
@@ -22,7 +20,6 @@ export function ProgressRing({
   size = 96,
   strokeWidth = 8,
   color = Palette.accent,
-  showLabel = true,
 }: ProgressRingProps) {
   const clamped = Number.isFinite(ratio) ? Math.min(1, Math.max(0, ratio)) : 0;
   const radius = (size - strokeWidth) / 2;
@@ -58,11 +55,9 @@ export function ProgressRing({
           />
         </Svg>
       </View>
-      {showLabel ? (
-        <View className="absolute inset-0 items-center justify-center">
-          <Text className="text-metric font-bold text-text">{Math.round(clamped * 100)}%</Text>
-        </View>
-      ) : null}
+      <View className="absolute inset-0 items-center justify-center">
+        <Text className="text-metric font-bold text-text">{Math.round(clamped * 100)}%</Text>
+      </View>
     </View>
   );
 }

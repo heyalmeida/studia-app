@@ -13,19 +13,21 @@ export interface ListItemProps {
 
 /**
  * Linha de lista (ADR-0009): respiro vertical de 14 e separador hairline discreto.
- * Pressionável com o mesmo feedback do resto do app.
+ * Pressionável com o mesmo feedback do resto do app — o respiro fica dentro da zona
+ * tocável, então não existe faixa morta na borda da linha.
  */
 export function ListItem({ children, onPress, divider = true }: ListItemProps) {
-  const content = onPress ? (
+  const content = onPress !== undefined ? (
     <Touchable
       accessibilityRole="button"
       onPress={onPress}
       pressedOpacity={0.7}
-      style={{ paddingVertical: 14 }}>
+      pressedScale={0.99}
+      contentClassName="py-3.5">
       {children}
     </Touchable>
   ) : (
-    <View style={{ paddingVertical: 14 }}>{children}</View>
+    <View className="py-3.5">{children}</View>
   );
 
   return (
