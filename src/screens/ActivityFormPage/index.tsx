@@ -4,11 +4,12 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ChoiceChip } from '@/components/ui/ChoiceChip';
+import { DateInput } from '@/components/ui/DateInput';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { Monogram } from '@/components/ui/Monogram';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { formatDDMMYYYY, maskDDMMYYYY } from '@/domain/date';
+import { SubjectChip } from '@/components/ui/SubjectChip';
+import { formatDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
 import { validateActivity, type FieldErrors } from '@/domain/validation';
 import { useActivities } from '@/hooks/use-activities';
@@ -43,9 +44,10 @@ export default function ActivityFormPage() {
   const title = titleDraft ?? original?.title ?? '';
   const subjectId = subjectDraft ?? original?.subjectId ?? '';
   const type = typeDraft ?? original?.type ?? 'tarefa';
-  const dueDate = dueDraft ?? (original?.dueDate === null || original?.dueDate === undefined
-    ? ''
-    : formatDDMMYYYY(original.dueDate));
+  // Draft em ISO; '' = usuário limpou o campo (não cair no valor original).
+  const dueDateISOValue = dueDraft ?? original?.dueDate ?? null;
+  const dueDateISO = dueDateISOValue === '' ? null : dueDateISOValue;
+  const dueDate = dueDateISO === null ? '' : formatDDMMYYYY(dueDateISO);
   const description = descriptionDraft ?? original?.description ?? '';
 
   // CA-04.4: sem matéria não se salva — o form vira ponte para o cadastro de matérias.
@@ -143,24 +145,15 @@ export default function ActivityFormPage() {
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ flexDirection: 'row', gap: 8, paddingRight: 16 }}>
               {subjects.map((subject) => (
-                <ChoiceChip
+                <SubjectChip
                   key={subject.id}
+                  subject={subject}
                   selected={subject.id === subjectId}
                   onPress={() => {
                     setSubjectDraft(subject.id);
                     clearFieldError('subjectId');
-                  }}>
-                  <Monogram name={subject.name} size="sm" />
-                  <Text
-                    className={
-                      subject.id === subjectId
-                        ? 'flex-shrink text-meta text-text'
-                        : 'flex-shrink text-meta text-text-secondary'
-                    }
-                    numberOfLines={1}>
-                    {subject.name}
-                  </Text>
-                </ChoiceChip>
+                  }}
+                />
               ))}
             </ScrollView>
             {subjectError !== undefined ? (
@@ -192,17 +185,17 @@ export default function ActivityFormPage() {
             </View>
           </View>
 
-          <Input
+          <DateInput
             label="Prazo (opcional)"
-            value={dueDate}
-            onChangeText={(text) => {
-              setDueDraft(maskDDMMYYYY(text));
+            date={dueDateISO}
+            onChange={(iso) => {
+              setDueDraft(iso === null ? '' : iso);
               clearFieldError('dueDate');
             }}
-            keyboardType="number-pad"
-            maxLength={10}
+            placeholder="DD/MM/AAAA"
             error={dueError}
             warning={liveWarning}
+            disabled={noSubjects}
           />
 
           <Input

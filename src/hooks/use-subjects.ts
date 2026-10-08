@@ -68,6 +68,8 @@ async function saveSubject(
       id: id ?? genId(),
       name: input.name.trim(),
       teacher: input.teacher.trim() || null,
+      hour: input.hour ?? null,
+      icon: input.icon === undefined || input.icon === '' ? null : input.icon,
       createdAt: original?.createdAt ?? new Date().toISOString(),
     });
   } catch {

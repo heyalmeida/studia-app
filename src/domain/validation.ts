@@ -3,6 +3,10 @@ import { isPast, parseDDMMYYYY } from '@/domain/date';
 export interface SubjectFormInput {
   name: string;
   teacher: string;
+  /** Horas/semana; null/undefined = não informado. Range válido: 1–200. */
+  hour?: number | null;
+  /** Nome do ícone (IconPicker); null/'' = sem ícone. */
+  icon?: string | null;
 }
 
 export interface FieldErrors {
@@ -42,6 +46,15 @@ export function validateSubject(input: SubjectFormInput, existingNames: string[]
   const duplicated = existingNames.some((existing) => existing.trim().toLowerCase() === normalized);
   if (duplicated) {
     errors.name = 'Já existe uma matéria com esse nome.';
+  }
+
+  if (input.hour !== undefined && input.hour !== null) {
+    const hour = input.hour;
+    const valid =
+      Number.isFinite(hour) && hour >= 1 && hour <= 200 && Math.round(hour * 10) / 10 === hour;
+    if (!valid) {
+      errors.hour = 'Informe uma carga horária entre 1 e 200 horas.';
+    }
   }
   return errors;
 }

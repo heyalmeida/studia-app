@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { IconPicker } from '@/components/ui/IconPicker';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import type { FieldErrors } from '@/domain/validation';
@@ -22,12 +23,18 @@ export default function SubjectFormPage() {
 
   const [nameDraft, setNameDraft] = useState<FieldDraft>(null);
   const [teacherDraft, setTeacherDraft] = useState<FieldDraft>(null);
+  const [hourDraft, setHourDraft] = useState<FieldDraft>(null);
+  const [iconDraft, setIconDraft] = useState<FieldDraft>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitTried, setSubmitTried] = useState(false);
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
 
   const name = nameDraft ?? original?.name ?? '';
   const teacher = teacherDraft ?? original?.teacher ?? '';
+  const hourText = hourDraft ?? (original?.hour === null || original?.hour === undefined
+    ? ''
+    : String(original.hour));
+  const icon = iconDraft ?? original?.icon ?? '';
 
   function editName(text: string) {
     setNameDraft(text);
@@ -49,10 +56,22 @@ export default function SubjectFormPage() {
     });
   }
 
+  function editHour(text: string) {
+    setHourDraft(text);
+    setErrors((previous) => {
+      if (previous.hour === undefined) return previous;
+      const next = { ...previous };
+      delete next.hour;
+      return next;
+    });
+  }
+
   async function onSubmit() {
     setSubmitTried(true);
     setBlockMessage(null);
-    const input = { name, teacher };
+    const trimmed = hourText.trim().replace(',', '.');
+    const parsedHour = trimmed === '' ? null : Number(trimmed);
+    const input = { name, teacher, hour: parsedHour, icon: icon === '' ? null : icon };
     const result = isEdit ? await update(id, input) : await create(input);
     if (result.ok) {
       router.back();
@@ -85,6 +104,7 @@ export default function SubjectFormPage() {
   // `submitTried` guarda o primeiro render: nenhum erro aparece antes do primeiro Salvar.
   const nameError = submitTried ? errors.name : undefined;
   const teacherError = submitTried ? errors.teacher : undefined;
+  const hourError = submitTried ? errors.hour : undefined;
 
   return (
     <View className="flex-1 bg-background">
@@ -100,6 +120,16 @@ export default function SubjectFormPage() {
           error={teacherError}
           maxLength={80}
         />
+        <Input
+          label="Carga Horária (horas/semana, opcional)"
+          value={hourText}
+          onChangeText={editHour}
+          error={hourError}
+          keyboardType="number-pad"
+          maxLength={5}
+          placeholder="ex: 60"
+        />
+        <IconPicker selected={icon} onChange={setIconDraft} />
 
         <View className="mt-two gap-two">
           <View className="w-full">

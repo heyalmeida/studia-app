@@ -45,6 +45,12 @@ export interface UseDashboard {
   loading: boolean;
   error: string | null;
   refresh(): void;
+  /**
+   * Atividades concluídas por dia nos últimos 7 dias (hoje incluso), para o LineChart
+   * do painel. Computado aqui porque só o hook enxerga as 3 coleções sem que a tela
+   * toque em storage (ADR-0004).
+   */
+  weeklyCompleted: { label: string; value: number }[];
 }
 
 interface Snapshot {
@@ -73,6 +79,31 @@ function readSnapshot(): Promise<Snapshot> {
  */
 function isRealDate(iso: string): boolean {
   return parseDDMMYYYY(formatDDMMYYYY(iso)) === iso;
+}
+
+/** Rótulos curtos PT-BR; o índice casa com Date.getDay(). */
+const WEEKDAY_LABELS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+
+/** Slice 6: série de 7 dias (label 'seg'..'dom', value = concluídas no dia). */
+function computeWeeklyCompleted(activities: Activity[]): { label: string; value: number }[] {
+  const series: { label: string; value: number; key: string }[] = [];
+  const now = new Date();
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset);
+    const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+    series.push({ label: WEEKDAY_LABELS[day.getDay()], value: 0, key });
+  }
+  const indexByKey = new Map(series.map((entry, index) => [entry.key, index]));
+  for (const activity of activities) {
+    if (activity.status !== 'concluida') continue;
+    const stamp = activity.completedAt ?? activity.createdAt;
+    const date = new Date(stamp);
+    if (Number.isNaN(date.getTime())) continue;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const index = indexByKey.get(key);
+    if (index !== undefined) series[index].value += 1;
+  }
+  return series.map(({ label, value }) => ({ label, value }));
 }
 
 /** Painel inicial (RF-09): só leitura das 3 coleções, agregações derivadas no domínio. */
@@ -172,6 +203,8 @@ export function useDashboard(): UseDashboard {
       .slice(0, PREVIEW_LIMIT);
   }, [subjects, activities]);
 
+  const weeklyCompleted = useMemo(() => computeWeeklyCompleted(activities), [activities]);
+
   return {
     summary,
     subjectProgress: rankedSubjects,
@@ -179,5 +212,6 @@ export function useDashboard(): UseDashboard {
     loading,
     error,
     refresh,
+    weeklyCompleted,
   };
 }

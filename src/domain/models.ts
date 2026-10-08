@@ -6,6 +6,8 @@ export interface Subject {
   id: string;
   name: string;
   teacher: string | null;
+  hour: number | null; // horas por semana; null = não informado
+  icon: string | null; // nome do ícone do IconPicker (ex: 'BookOpen') ou ''; '' tratado como null
   createdAt: string; // ISO 8601 completo
 }
 

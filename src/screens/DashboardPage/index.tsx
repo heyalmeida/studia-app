@@ -1,35 +1,27 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { DueSoonCard } from '@/components/DashboardPage/DueSoonCard';
-import { NextAssessmentRow } from '@/components/DashboardPage/NextAssessmentRow';
-import { SectionLabel } from '@/components/DashboardPage/SectionLabel';
-import { SubjectProgressRow } from '@/components/DashboardPage/SubjectProgressRow';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { DashCard } from '@/components/ui/DashCard';
+import { DonutChart } from '@/components/ui/DonutChart';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LineChart } from '@/components/ui/LineChart';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import type { Subject } from '@/domain/models';
 import { useDashboard } from '@/hooks/use-dashboard';
 
 export default function DashboardPage() {
-  const { summary, subjectProgress, subjects, loading, error, refresh } = useDashboard();
-
-  // Lookup de matéria para as linhas de atividade/avaliação (nunca usar o id do item).
-  const subjectById = useMemo(() => {
-    const map: Record<string, Subject> = {};
-    for (const subject of subjects) map[subject.id] = subject;
-    return map;
-  }, [subjects]);
+  const { summary, subjects, loading, error, refresh, weeklyCompleted } = useDashboard();
 
   // CA-09.2: com as 3 coleções vazias o painel é um convite ao primeiro cadastro, não zeros.
-  // `progress.total` cobre a coleção inteira de atividades; `nextAssessments` cobre avaliações
-  // agendadas (vazia = nenhuma avaliação agendada; realizadas sozinhas não têm o que mostrar aqui).
   const isEmpty =
     subjects.length === 0 &&
     summary.progress.total === 0 &&
     summary.nextAssessments.length === 0;
+
+  const weeklyTotal = weeklyCompleted.reduce((sum, day) => sum + day.value, 0);
 
   return (
     <View className="flex-1 bg-background">
@@ -51,77 +43,55 @@ export default function DashboardPage() {
       ) : null}
 
       {!loading && error === null && !isEmpty ? (
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, gap: 32 }}>
-          {/* Pendências: total + o que vence nesta semana. */}
-          <View className="gap-three">
-            <SectionLabel
-              title="Pendências"
-              actionLabel="Ver atividades"
-              onAction={() => router.push('/activities')}
-            />
-            <View className="gap-half">
-              <Text className="text-metric font-bold text-text">{summary.pendingTotal}</Text>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24, gap: 16 }}>
+          {/* (a) Progresso geral: rosca + barra full-width. */}
+          <DashCard
+            title="Progresso geral"
+            value={`Concluídas ${summary.progress.done}/${summary.progress.total}`}>
+            <View className="flex-row items-center gap-four">
+              <DonutChart ratio={summary.progress.ratio} size="md" />
+              <View className="flex-1 gap-two">
+                <Text className="text-meta text-text-secondary">
+                  {summary.progress.total - summary.progress.done} pendente(s) de {summary.progress.total}
+                </Text>
+                <ProgressBar ratio={summary.progress.ratio} />
+              </View>
             </View>
-            {summary.dueSoon.length === 0 ? (
-              <Text className="text-body text-text-secondary">Nada vencendo nesta semana.</Text>
-            ) : (
-              summary.dueSoon.map((activity) => (
-                <DueSoonCard
-                  key={activity.id}
-                  activity={activity}
-                  subject={subjectById[activity.subjectId]}
-                />
-              ))
-            )}
-          </View>
+          </DashCard>
 
-          {/* Próximas avaliações. */}
-          <View className="gap-three">
-            <SectionLabel
-              title="Próximas avaliações"
-              actionLabel="Ver avaliações"
-              onAction={() => router.push('/assessments')}
-            />
-            {summary.nextAssessments.length === 0 ? (
-              <Text className="text-body text-text-secondary">Nenhuma avaliação agendada.</Text>
+          {/* (b) Linha semanal de atividades concluídas (7 dias). */}
+          <DashCard title="Tarefas concluídas (7 dias)" value={weeklyTotal}>
+            {weeklyTotal === 0 ? (
+              <Text className="text-meta text-text-secondary">
+                Sem atividades concluídas nesta semana.
+              </Text>
             ) : (
-              summary.nextAssessments.map((assessment) => (
-                <NextAssessmentRow
-                  key={assessment.id}
-                  assessment={assessment}
-                  subject={subjectById[assessment.subjectId]}
-                />
-              ))
+              <LineChart data={weeklyCompleted} height={120} />
             )}
-          </View>
+          </DashCard>
 
-          {/* Progresso: agregado geral + top 3 matérias. */}
-          <View className="gap-three">
-            <SectionLabel
-              title="Progresso"
-              actionLabel="Ver matérias"
-              onAction={() => router.push('/subjects')}
-            />
+          {/* (c) Pendências: valor grande + atalho (sem lista longa). */}
+          <DashCard
+            title="Pendências"
+            value={summary.pendingTotal}
+            subtitle="atividade(s) sem prazo ou vencendo">
             <View className="gap-two">
-              <Text className="text-body text-text-secondary">
-                Concluídas {summary.progress.done}/{summary.progress.total}
-              </Text>
-              <ProgressBar ratio={summary.progress.ratio} />
+              <Badge label={summary.dueSoon.length > 0 ? 'Atenção: há prazos próximos' : 'Sem prazos urgentes'} />
+              <Button label="Ver todas" variant="secondary" onPress={() => router.push('/activities')} />
             </View>
-            {subjectProgress.length === 0 ? (
-              <Text className="text-body text-text-secondary">
-                Nenhuma atividade cadastrada ainda.
-              </Text>
-            ) : (
-              subjectProgress.map((entry) => (
-                <SubjectProgressRow
-                  key={entry.subject.id}
-                  subject={entry.subject}
-                  progress={entry.progress}
-                />
-              ))
-            )}
-          </View>
+          </DashCard>
+
+          {/* (d) Próximas avaliações: valor + atalho (sem lista longa). */}
+          <DashCard
+            title="Próximas avaliações"
+            value={summary.nextAssessments.length}
+            subtitle="avaliação(ões) agendada(s)">
+            <Button
+              label="Ver avaliações"
+              variant="secondary"
+              onPress={() => router.push('/assessments')}
+            />
+          </DashCard>
         </ScrollView>
       ) : null}
     </View>

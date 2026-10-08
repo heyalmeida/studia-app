@@ -13,6 +13,7 @@ module.exports = {
         'surface-selected': 'var(--color-surface-selected)',
         border: 'var(--color-border)',
         'border-strong': 'var(--color-border-strong)',
+        backgroundElement: 'var(--color-background-element)',
         inverse: 'var(--color-inverse)',
         'on-inverse': 'var(--color-on-inverse)',
       },

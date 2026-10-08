@@ -4,11 +4,12 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { ChoiceChip } from '@/components/ui/ChoiceChip';
+import { DateInput } from '@/components/ui/DateInput';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Monogram } from '@/components/ui/Monogram';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { formatDDMMYYYY, maskDDMMYYYY } from '@/domain/date';
+import { formatDDMMYYYY } from '@/domain/date';
 import { validateAssessment, type FieldErrors } from '@/domain/validation';
 import { useAssessments } from '@/hooks/use-assessments';
 
@@ -32,7 +33,10 @@ export default function AssessmentFormPage() {
 
   const title = titleDraft ?? original?.title ?? '';
   const subjectId = subjectDraft ?? original?.subjectId ?? '';
-  const date = dateDraft ?? (original === undefined ? '' : formatDDMMYYYY(original.date));
+  // Draft em ISO; '' = usuário limpou o campo (não cair no valor original).
+  const dateISOValue = dateDraft ?? original?.date ?? null;
+  const dateISO = dateISOValue === '' ? null : dateISOValue;
+  const date = dateISO === null ? '' : formatDDMMYYYY(dateISO);
 
   // CA-08.1: sem matéria não se salva — o form vira ponte para o cadastro de matérias.
   const noSubjects = !loading && subjects.length === 0;
@@ -154,15 +158,14 @@ export default function AssessmentFormPage() {
             ) : null}
           </View>
 
-          <Input
+          <DateInput
             label="Data"
-            value={date}
-            onChangeText={(text) => {
-              setDateDraft(maskDDMMYYYY(text));
+            date={dateISO}
+            onChange={(iso) => {
+              setDateDraft(iso === null ? '' : iso);
               clearFieldError('date');
             }}
-            keyboardType="number-pad"
-            maxLength={10}
+            placeholder="DD/MM/AAAA"
             error={dateError}
             warning={liveWarning}
           />
