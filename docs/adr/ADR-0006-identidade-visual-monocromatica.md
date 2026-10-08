@@ -2,9 +2,14 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Aceito (decisão do dono do projeto, 2026-10-07) |
+| **Status** | **Substituído por [ADR-0009](ADR-0009-identidade-visual-escura-com-destaque.md)** (2026-10-08) — histórico preservado |
 | **Data** | 2026-10-07 |
-| **Detalhe dos tokens** | [docs/design/visual-identity.md](../design/visual-identity.md) |
+| **Detalhe dos tokens** | [docs/design/visual-identity.md](../design/visual-identity.md) (hoje descreve a identidade escura do ADR-0009) |
+
+> **Superado:** a identidade monocromática estrita, a proibição de FAB e a remoção do campo `color` da
+> matéria foram substituídas pelo [ADR-0009](ADR-0009-identidade-visual-escura-com-destaque.md)
+> (decisão do dono em 2026-10-08). Este documento permanece como registro do que foi decidido antes —
+> não é mais a regra vigente para cores, estados ou ação de criação.
 
 ## Contexto
 

@@ -6,6 +6,51 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Changed — Identidade visual escura com destaque + UI kit unificado (2026-10-08)
+
+Direção **Linear/Things**: fundo `#0B0B0F`, superfícies em tom, **uma** cor de destaque (índigo
+`#6366F1`) e três semânticas (sucesso/alerta/urgente). Tema **único** (escuro) e sem sombra —
+registrados em [ADR-0009](docs/adr/ADR-0009-identidade-visual-escura-com-destaque.md), que **substitui**
+o [ADR-0006](docs/adr/ADR-0006-identidade-visual-monocromatica.md) (monocromático, "sem FAB"), por decisão
+do dono. Spec: [2026-10-08-visual-refresh](docs/specs/2026-10-08-visual-refresh/spec.md).
+
+- **Tokens em arquivo único** (`src/constants/theme.ts` + `global.css` + `tailwind.config.js`):
+  escala de espaçamento de 4, raio 16/12, tipografia 28/17/15/12 com no máximo 3 pesos, alvos de toque
+  44×44. `Colors`/`useTheme` (light/dark) removidos; `userInterfaceStyle` passou a `dark`.
+- **UI kit** (`src/components/ui/`): `Touchable` (feedback de escala 0.97 + opacidade), `ScreenHeader`
+  (título + ações na mesma linha, sem sobreposição), `Card`, `Chip`, `ChoiceChip`, `Input` (altura 52,
+  placeholder visível, foco no destaque), `PrimaryButton`, `TextButton`, `SegmentedControl` (+`FadeIn`),
+  `EmptyState` (ícone 40 px), `FAB` (56 px), `IconTile`, `IconPicker` (grade 6×12 inline),
+  `ColorPicker`, `DateField` (abre o calendário ao tocar + atalhos), `DateBlock`, `DueChip`,
+  `ProgressRing`, `ProgressBar` (cor por matéria), `SubjectChip`, `FormField`, `FormFooter`.
+  Removidos por ficarem sem consumidor: `Button`, `Badge`, `DashCard`, `LineChart`, `Monogram`,
+  `DonutChart`, `DateInput`, `SegmentedFilter`, `DueSoonCard`, `NextAssessmentRow`, `SubjectProgressRow`,
+  `SectionLabel`.
+- **Painel:** os 3 cards redundantes viraram 4 blocos — saudação + data, anel de progresso com
+  "X de Y concluídas" e "N vencem esta semana", lista "Próximos prazos" (3 próximas atividades com chip
+  de prazo) e a próxima avaliação. O gráfico de linha semanal saiu (reversão de CA-6.5(c) do Slice 6).
+- **Matérias:** cards com ícone em quadrado 44 tingido na cor da matéria, nome, professor,
+  "N pendentes · N avaliações" e barra de progresso na cor; card inteiro pressable; FAB de criação.
+- **Atividades:** filtro em controle segmentado único, agrupamento por período (Atrasadas → Hoje →
+  Esta semana → Depois → Sem prazo), checkbox circular animado, título em até 2 linhas, matéria com a
+  bolinha da cor e chip de prazo por urgência; transição suave ao trocar de filtro.
+- **Avaliações:** cards com bloco de data (dia grande, mês pequeno), título, matéria e contagem
+  regressiva; estado vazio com ícone de calendário.
+- **Formulários:** rótulos 12 px com 8 px de distância e 20 entre grupos; rodapé fixo com Salvar na cor
+  de destaque, Excluir em texto vermelho com confirmação e Cancelar secundário; matéria com seletor de
+  8 cores e grade de ícones; chips de matéria coloridos e chips de tipo com ícone; data abre o picker ao
+  tocar (o botão "escolher" e a digitação manual saíram); descrição com altura mínima 100.
+- **Tab bar:** flutuante com `surface` + hairline, item ativo no destaque com label, inativos em
+  `#6B6B76`.
+- Gates: `npx tsc --noEmit`, `npx expo lint` e `npx expo export --platform web` limpos.
+
+### Added — Cor por matéria (2026-10-08)
+
+- **`Subject.color`** (`string | null`): tom da paleta de 8 (`SUBJECT_COLORS`) escolhido no formulário.
+  Validado no domínio (`validateSubject`), persistido em `use-subjects` e normalizado na leitura
+  (`migrateSubjects`): registro antigo sem `color` abre sem cor e valor fora da paleta vira `null`
+  (RNF-04). Registro em [docs/features/ui-kit/spec.md](docs/features/ui-kit/spec.md).
+
 ### Added — MVP completo: os 6 slices (2026-10-07)
 
 - Slice 0 — fundação: `src/domain/` (models, date, monogram, progress, validation, sorting) e

@@ -2,138 +2,121 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Aprovado (decisão do dono em 2026-10-07) |
-| **Decisão-mãe** | [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md) · escrita em NativeWind por [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
-| **Fonte de tokens** | `tailwind.config.js` + `src/styles/global.css` (código) — este documento é a especificação |
+| **Status** | Aprovado (decisão do dono em 2026-10-08) |
+| **Decisão-mãe** | [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md) — substitui o [ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md); escrita em NativeWind por [ADR-0007](../adr/ADR-0007-estilo-nativewind.md) |
+| **Fonte de tokens** | `src/constants/theme.ts` (fonte única) + `src/styles/global.css` (CSS variables) + `tailwind.config.js` |
 
-> **Direção:** minimalismo monocromático — preto-e-branco, e vice-versa no tema escuro. A hierarquia é
-> construída **apenas** com tipografia, peso, espaço, borda e preenchimento. Nenhuma cor saturada em lugar
-> algum. Sem sombras.
+> **Direção:** escuro profundo, minimalista e premium (referências de layout: **Linear** e **Things**).
+> A hierarquia vem de tipografia, espaço, tom de superfície e hairline. Há **uma** cor de destaque
+> (índigo) e três semânticas. Sem sombras. Tema **único** (escuro): o app não alterna para claro.
 
-## 1. Tokens de cor (estritamente cinza)
+## 1. Tokens de cor
 
-Baseados no `Colors` do scaffold, estendidos. Light ↔ Dark são **o espelho um do outro** (preto e branco
-invertidos + mesmo par de neutros).
+Fonte única: `src/constants/theme.ts` (TypeScript, para tudo que é calculado em runtime) espelhada em
+`src/styles/global.css` (CSS variables do NativeWind) e `tailwind.config.js`.
 
-```ts
-// src/constants/theme.ts — valores a implementar no Slice 0
-export const Colors = {
-  light: {
-    text:            '#000000',   // título, valor, ação primária
-    textSecondary:   '#60646C',   // apoio, metadados, placeholder
-    textTertiary:    '#8A8F98',   // legendas micro, contadores
-    background:      '#FFFFFF',
-    backgroundElement:'#F4F4F6',  // superfície de card/lista, chips
-    backgroundSelected:'#E7E7EB', // pressed/selected
-    border:          '#E0E0E5',   // hairline padrão
-    borderStrong:    '#000000',   // borda de destaque (estados sem cor)
-    surfaceInverse:  '#000000',   // fundo de badge preenchido / botão primário
-    textOnInverse:   '#FFFFFF',
-  },
-  dark: {
-    text:            '#FFFFFF',
-    textSecondary:   '#B0B4BA',
-    textTertiary:    '#7D828B',
-    background:      '#000000',
-    backgroundElement:'#1C1D21',
-    backgroundSelected:'#2A2C31',
-    border:          '#2A2A2E',
-    borderStrong:    '#FFFFFF',
-    surfaceInverse:  '#FFFFFF',
-    textOnInverse:   '#000000',
-  },
-} as const;
-```
+| Token | Valor | Uso |
+|---|---|---|
+| `background` | `#0B0B0F` | fundo de tela |
+| `surface` | `#15151B` | cards, linhas, tab bar, badges |
+| `surface-raised` | `#1C1C24` | campo de texto, chip não selecionado, bloco de data, trilhos de progresso |
+| `border` | `#23232C` | hairline de card e separador de lista |
+| `text` | `#F5F5F7` | texto primário |
+| `text-secondary` | `#A1A1AA` | apoio, metadados |
+| `text-tertiary` | `#6B6B76` | legendas, **placeholder**, item inativo da tab bar, ícone de estado vazio |
+| `accent` | `#6366F1` | ação principal, item ativo da tab bar, foco de input, chip selecionado, progresso |
+| `accent-soft` | `rgba(99,102,241,.16)` | fundo de seleção (chip, dia do calendário) |
+| `on-accent` | `#FFFFFF` | texto/ícone sobre o destaque |
+| `success` | `#34D399` | concluído |
+| `warning` | `#FBBF24` | prazo hoje/amanhã |
+| `danger` | `#F87171` | vencido, erro de campo, exclusão |
 
-Os valores acima vivem em `src/styles/global.css` como CSS variables (`--color-*`) com bloco
-`@media (prefers-color-scheme: dark)`, e são expostos ao Tailwind em `tailwind.config.js` como
-`text`, `text-secondary`, `text-tertiary`, `background`, `surface`, `surface-selected`, `border`,
-`border-strong`, `inverse`, `on-inverse`.
+**Regra (ADR-0007 + Regra 4.10):** componente estiliza com `className` usando esses tokens. Literal de
+hex fora dos três arquivos acima é proibido; quando o valor é calculado em runtime (cor da matéria) ele
+vem do tema, nunca de um `#...` na árvore de componentes.
 
-**Regra (ADR-0007):** componente estiliza com `className` usando esses tokens — ex.:
-`text-text`, `bg-surface`, `border-border-strong`. Proibido `#hex` literal fora de `global.css` e
-proibido classes arbitrárias `bg-[#...]`/`text-[#...]`.
+### Contraste (fundo `#0B0B0F`)
+
+| Combinação | Razão | Uso |
+|---|---|---|
+| `text` sobre `background` | ≈ 18:1 | títulos, valores |
+| `text-secondary` sobre `surface` | ≈ 8:1 | apoio, listas |
+| `text-tertiary` sobre `surface` | ≈ 4.6:1 | legendas, placeholder, separadores de texto |
+| `on-accent` sobre `accent` | ≈ 4.6:1 | rótulo do botão principal e da FAB |
+
+### Paleta de matérias (8 tons)
+
+| Nome | `value` | `soft` (fundo tingido) |
+|---|---|---|
+| Índigo | `#6366F1` | `rgba(99, 102, 241, 0.18)` |
+| Violeta | `#8B5CF6` | `rgba(139, 92, 246, 0.18)` |
+| Rosa | `#EC4899` | `rgba(236, 72, 153, 0.18)` |
+| Laranja | `#F97316` | `rgba(249, 115, 22, 0.18)` |
+| Âmbar | `#EAB308` | `rgba(234, 179, 8, 0.18)` |
+| Verde | `#22C55E` | `rgba(34, 197, 94, 0.18)` |
+| Ciano | `#06B6D4` | `rgba(6, 182, 212, 0.18)` |
+| Coral | `#F43F5E` | `rgba(244, 63, 94, 0.18)` |
+
+Única fonte válida para `Subject.color` (`SUBJECT_COLOR_NAMES` na validação de domínio;
+`migrateSubjects` normaliza qualquer outro valor para `null` na leitura do storage). A cor aparece no
+quadrado do ícone do card de matéria, na bolinha da lista de atividades/avaliações e na barra de
+progresso da matéria. Matéria sem cor (registro antigo) usa o neutro — nunca um tom inventado.
 
 ## 2. Tipografia
 
-Sistema do próprio dispositivo (sem dependência de fontes). Escala fixa:
+Sistema do próprio dispositivo (sem dependência de fontes). **No máximo 3 pesos: 400, 600, 700.**
 
 | Token | Tamanho | Peso | Uso |
 |---|---|---|---|
 | `title` | 28 | 700 | nome da tela (header) |
-| `section` | 12 | 600 · **UPPERCASE** · letterSpacing 1.2 | rótulos de seção e micro-legendas |
-| `body` | 16 | 400 | conteúdo padrão |
-| `bodyStrong` | 16 | 600 | item ativo, valor emphasis |
-| `meta` | 13 | 400 | datas, contadores, apoio |
-| `button` | 16 | 600 | rótulos de ação |
+| `cardTitle` | 17 | 600 | título de card, título de item em destaque |
+| `body` / `bodyStrong` | 15 | 400 / 600 | conteúdo e ênfase |
+| `legend` | 12 | 600 · letterSpacing 0.4 | rótulos de formulário, legendas, chips, separadores de seção |
+| `metric` / `day` | 22 / 26 | 700 | percentual do anel, dia do bloco de data |
 
-Hierarquia de **estados sem cor** (substitui vermelho/verde):
+Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que a cor):
 
 | Estado | Tratamento |
 |---|---|
-| Prazo vencendo em ≤2 dias | rótulo `HOJE`/`amanhã` em `bodyStrong` + badge outline (`borderStrong` 1px, raio 6) |
-| Atrasada | badge **inversão** (`surfaceInverse` preenchido, texto `textOnInverse`) com rótulo "ATRASADA" |
-| Concluída / realizada | texto `textTertiary` + **riscado** (`textDecorationLine: line-through`) |
-| Pendente | padrão `body`/`bodyStrong` |
-| Números do painel | grandes (34–40, peso 700) + rótulo `section` — contraste por escala, não cor |
+| Prazo hoje/amanhã | chip `warning` + rótulo "hoje"/"amanhã" |
+| Prazo vencido | chip `danger` + rótulo "atrasada N dias" |
+| Prazo com folga | chip `neutral` + rótulo "em 12 dias" |
+| Concluída / realizada | `text-tertiary` + tracejado + checkbox preenchido no destaque |
+| Erro de campo / exclusão | `danger` |
 
 ## 3. Espaçamento, raio, traço
 
-- Escala `Spacing` do scaffold (4/8/16/24/32) — ritmo vertical 16; respiro de tela 20 (padding lateral);
-  card interno 16; gap entre itens 12.
-- `radius`: card/lista **14**; campo de formulário **10**; chip/badge **6**; botão **12**; monograma **10** (quadrado arredondado).
-- `hairline` = `StyleSheet.hairlineWidth` para divisores de lista e bordas de card; `borderStrong` só em
-  foco/estado — nada de bordas grossas decorativas.
-- **Profundidade sem sombra:** card = `backgroundElement`; fundo da tela = `background`; separação só por
-  tonalidade + hairline.
-- Monograma: quadrado 40×40 (32 nas listas), `borderStrong` 1px, texto peso 700, centrado.
+- Escala de 4: **4, 8, 12, 16, 24, 32**; **padding lateral de tela 20**; gap entre cards 12–16;
+  20 entre grupos de formulário; 8 entre rótulo e campo.
+- **Raio:** card 16, campo/botão 12, chip/bloco de data 12, bolinha 999.
+- **Hairline:** `border` de 1 px (Tailwind) e `StyleSheet.hairlineWidth` nos separadores de lista.
+- **Sem sombra** (RNF-01): profundidade = tom de superfície + hairline. A FAB também não usa sombra —
+  a separação vem do tamanho e da borda.
+- **Alvo de toque mínimo 44×44** em todo pressable; feedback de escala 0.97 + opacidade (primitivo
+  `Touchable`), e 0.9–0.92 em alvos pequenos (ícone do header, checkbox).
 
-## 4. Composição das telas (densidade minimalista)
+## 4. Composição das telas
 
-- Header por aba: só título (`title`) + botão de ação quando existir; sem subtitle; sem ícones decorativos.
-- Listas: linha única por item (título + meta na 2ª linha), hairline entre itens, sem card por item quando
-  a lista já é a superfície (padrão iOS settings / Linear).
-- FAB/substituo: **sem FAB** — ação de criação no canto direito do header como texto "+ Nova matéria"
-  (padrão minimalista: ação por texto, não por botão flutuante).
-- Modais de formulário: apresentadas como sheet/push com `title` curto ("Nova matéria"), campos empilhados,
-  botão primário full-width preenchido (`surfaceInverse`) + secundário texto simples.
-- Empty state: título `bodyStrong` + parágrafo `meta` + nada mais; sem ilustração, sem emoji na UI.
-- Navegação por abas: labels de texto apenas (ícones do scaffold podem permanecer monocromáticos se já
-  forem; trocar para texto se houver qualquer asset colorido).
+- **Header (`ScreenHeader`):** título à esquerda, ações à direita **na mesma linha** (ícone 20 px, sem
+  círculo de fundo, alvo 44). A criação de item **não** fica no header — vai para a FAB.
+- **FAB:** círculo de 56 na cor de destaque, canto inferior direito, acima da tab bar. Listas usam
+  `paddingBottom: LIST_BOTTOM_INSET` (96) para o conteúdo não ficar sob ela.
+- **Cards:** 1 item por card em matérias e avaliações; listas de atividade usam linha única com
+  separador hairline (padrão iOS settings / Linear).
+- **Estado vazio:** ícone lucide 40 px em `text-tertiary`, título, **uma** frase de apoio e botão
+  primário — centralizado.
+- **Formulário:** rótulo 12 px (`legend`) 8 px acima do campo; rodapé fixo com Salvar (destaque),
+  Excluir (texto `danger`) e Cancelar (texto neutro).
+- **Data:** campo pressable (abre o calendário) + atalhos Hoje / Amanhã / Próxima semana.
+- **Tab bar:** flutuante, `surface` + hairline, item **ativo** no destaque com label, inativos em
+  `text-tertiary`.
 
-## 5. Monograma de matéria (decisão ADR-0006)
+## 5. Checklist de conformidade
 
-Derivado, **nunca armazenado**:
-
-```
-monograma("Cálculo I")            → "CI"
-monograma("Algoritmos e Estruturas") → "AE"   // palavras significativas
-monograma("Introdução à Banco de Dados") → "IB" // ignora conectivos de/da/do/e/à/a/o; pega as 2 primeiras
-monograma("Física")               → "F"
-```
-
-Implementação: `monograma(name: string): string` em `src/domain/monogram.ts`, pura e testável.
-
-## 6. Referências de pesquisa (Mobbin)
-
-O MCP `Mobbin` (`https://api.mobbin.com/mcp`) está configurado no ambiente. Termos de busca que sustentam
-esta direção (usar para ajustar densidade/layout, **nunca para importar cor**):
-
-- `minimalist to-do app`, `monochrome productivity app`, `black and white UI`
-- Apps-âncora de padrão: **Things 3** (listas de linha única + header de texto), **Linear** (micro-labels
-  UPPERCASE + hairlines), **Notion mobile** (superfície tonal sem sombra), **Blank Space / Stoic**
-  (tipografia grande monocromática), **Streaks** (alternância de situação sem cor).
-
-**Como usar na sessão de implementação:** se a ferramenta Mobbin estiver disponível, o agente de pesquisa
-deve extrair 2–3 referências de **estrutura de lista, header de tela e formulário modal** e registrar as
-observações em `docs/design/references.md` (criar ao usar). Os prompts de implementação (execution-prompts)
-já embutem as regras destiladas acima — o implementador **não depende** da pesquisa para produzir o layout.
-
-## 7. Checklist de conformidade (para review/verificação)
-
-- [ ] Zero hex fora de `src/styles/global.css` e `tailwind.config.js` (proibido `bg-[#...]`/`text-[#...]`)
-- [ ] `Text`/`View` estilizados por `className` com tokens do tema (ADR-0007)
-- [ ] Estados (atrasada/concluída/erro) legíveis em **escala de cinza** imprimível
-- [ ] Contraste texto/fundo ≥ 4.5:1 nos dois temas
-- [ ] Nenhum `shadow*` em StyleSheet
-- [ ] Monograma renderizado de função derivada, ausente do storage
+- [ ] Zero hex fora de `src/constants/theme.ts`, `src/styles/global.css` e `tailwind.config.js`
+- [ ] `View`/`Text`/`Pressable` estilizados por `className` com tokens do tema
+- [ ] Estados sempre com rótulo textual junto da cor
+- [ ] Contraste ≥ 4.5:1 nos pares listados em §1
+- [ ] Nenhum `shadow*`/`elevation` em StyleSheet
+- [ ] Nenhum alvo tocável abaixo de 44×44
+- [ ] `Subject.color` sempre vindo de `SUBJECT_COLORS`

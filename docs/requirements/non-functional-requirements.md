@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | **Aprovado como base (2026-10-07)** — RNF-05/06 complementados por ADR-0006 (monocromático) |
+| **Status** | **Aprovado como base (2026-10-07)** — RNF-05 revisado em 2026-10-08 (tema **escuro único** por [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md), que substitui o ADR-0006) |
 | **Origem** | Roteiro Projeto Final, item 3 ("no mínimo 4 requisitos não funcionais") + práticas de portfólio |
 
 Cada RNF abaixo tem **identificador, descrição, justificativa e forma de verificação**. Nenhum RNF técnico
@@ -16,7 +16,9 @@ compatibilidade, erros, legibilidade, persistência — os aspectos sugeridos no
 **Descrição.** A interface deve ser organizada e fácil de utilizar: no máximo 2 toques entre abrir o app e
 executar uma ação comum (consultar prazos, concluir tarefa), alvos de toque com pelo menos ~44pt, navegação
 entre as telas principais sempre acessível (abas), e padrão visual consistente (espaçamentos, alinhamentos,
-cores e tipografia) entre todas as telas. Textos legíveis com contraste adequado.
+cores e tipografia) entre todas as telas, com UI kit compartilhado (`src/components/ui/`) e tokens únicos.
+Textos legíveis com contraste adequado e **cor nunca usada sozinha** para indicar estado (o rótulo textual
+acompanha sempre a cor).
 
 **Justificativa.** Requisito explícito do roteiro (RNF01/RNF02 dos exemplos: "interface organizada e fácil",
 "textos legíveis") e do Etapa 3 ("manter padrão visual entre as telas"). Além disso, o público usa o app em
@@ -71,7 +73,10 @@ exclusão cancelada, armazenamento corrompido (injeção manual de JSON inválid
 
 **Descrição.** O app deve funcionar corretamente em dispositivos móveis: orientação portrait, respeito a
 safe areas (notch/status bar), layout fluido entre resoluções comuns (sem cortes nem overflow), uso de
-`StyleSheet`/Flexbox, e comportamento correto em tema claro. Android é plataforma de verificação obrigatória;
+`StyleSheet`/Flexbox, e a barra de abas flutuante **sem cobrir o conteúdo** das listas. O tema é
+**escuro único** (`userInterfaceStyle: "dark"` + tokens de [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md)),
+com contraste verificado para todos os pares de texto em
+[visual-identity.md](../design/visual-identity.md). Android é plataforma de verificação obrigatória;
 iOS é validação de paridade quando houver meio de testar ([OQ-06](open-questions.md)).
 
 **Justificativa.** Requisito explícito do roteiro (RNF05 dos exemplos; Etapa 3 "organizar layout com

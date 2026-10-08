@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | **Aprovado** (2026-10-07) |
+| **Status** | **Aprovado** (2026-10-07) — revisited em 2026-10-08: `Subject` ganhou `hour`, `icon` (Slice 6) e `color` ([ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md)) |
 | **Origem** | Roteiro Etapa 1, itens 6–7 (≥3 entidades relacionadas, PK/FK, cardinalidade) |
 | **Termos** | Código em inglês; este documento mantém o par PT ↔ EN — o produto é PT, o código é EN |
 
@@ -29,11 +29,17 @@ opcionais confusos e validações ambíguas — viola SRP.
 | `id` | `string` (UUID) | **PK** | Identificador estável entre coleções |
 | `name` | `string` | — | Nome exibido; obrigatório, ≥2 caracteres, único (case-insensitive) |
 | `teacher` | `string \| null` | — | Professor(a); opcional |
+| `hour` | `number \| null` | — | Horas por semana; opcional (Slice 6) |
+| `icon` | `string \| null` | — | Nome do ícone (grade de 12); opcional (Slice 6) |
+| `color` | `string \| null` | — | Tom da paleta de 8 (`SUBJECT_COLORS`); `null` = sem cor (ADR-0009) |
 | `createdAt` | `string` (ISO 8601) | — | Auditoria |
 
-*(A identificação visual da matéria é o **monograma** — 1–2 iniciais derivadas de `name` em tempo de
-render ([ADR-0006](../adr/ADR-0006-identidade-visual-monocromatica.md)). Não existe campo `color`: o
-monocromático é a identidade do produto, e remover o campo simplifica o formulário, o modelo e o tema.)*
+*(A identificação visual da matéria é o **ícone escolhido + a cor escolhida**: o `IconTile` de 44×44
+mostra o ícone sobre o fundo tingido da cor, e a mesma cor aparece na bolinha das listas e na barra de
+progresso. A paleta é um conjunto **fechado** de 8 tons — `SUBJECT_COLORS` em
+`src/constants/theme.ts` — validado no domínio (`validateSubject`) e normalizado na leitura do storage
+(`migrateSubjects`): valor fora da paleta vira `null`. Sem cor, a UI cai no neutro e no **monograma**
+(1–2 iniciais derivadas de `name`, em tempo de render).)*
 
 *(IDs como `string` em vez de número sequencial: sem banco relacional
 ([ADR-0002](../adr/ADR-0002-estrategia-de-persistencia.md)), UUID evita colisões e é idiomático em apps

@@ -25,12 +25,12 @@ flowchart LR
 | [`requirements/functional-requirements.md`](requirements/functional-requirements.md) | RF-01 … RF-09 | **Aprovado como base** (2026-10-07) |
 | [`requirements/non-functional-requirements.md`](requirements/non-functional-requirements.md) | RNF-01 … RNF-06 | **Aprovado como base** (2026-10-07) |
 | [`requirements/open-questions.md`](requirements/open-questions.md) | Questões em aberto que bloqueiam ou orientam a implementação | Ativo — 9 resolvidas, 3 em aberto (contexto) |
-| [`architecture/domain-model.md`](architecture/domain-model.md) | Entidades, atributos, chaves, relacionamentos, cardinalidades, diagrama | **Aprovado** (2026-10-07) |
-| [`architecture/screens-and-navigation.md`](architecture/screens-and-navigation.md) | 7 telas: objetivo, dados, navegação e fluxo | **Aprovado como base** (2026-10-07) |
+| [`architecture/domain-model.md`](architecture/domain-model.md) | Entidades, atributos, chaves, relacionamentos, cardinalidades, diagrama | **Aprovado** (2026-10-07; `Subject.color` em 2026-10-08) |
+| [`architecture/screens-and-navigation.md`](architecture/screens-and-navigation.md) | 7 telas: objetivo, dados, navegação e fluxo | **Aprovado como base** (2026-10-07; telas revisadas em 2026-10-08) |
 | [`architecture/architecture.md`](architecture/architecture.md) | Camadas, mapeamento para Expo Router, dados por tela, SOLID pragmático | **Aprovado** (2026-10-07) |
-| [`design/visual-identity.md`](design/visual-identity.md) | Tokens monocromáticos P&B, tipografia, estados sem cor, monograma, regras de composição | **Aprovado** (2026-10-07) |
-| [`adr/`](adr/README.md) | ADR-0001 … ADR-0008 | **Aceitos** |
-| [`features/`](features/README.md) | Divisão em 5 features; especificação por feature ainda não escrita | Proposto |
+| [`design/visual-identity.md`](design/visual-identity.md) | Tokens da identidade escura, cor de destaque, paleta de matérias, tipografia, estados | **Aprovado** (2026-10-08, [ADR-0009](adr/ADR-0009-identidade-visual-escura-com-destaque.md)) |
+| [`adr/`](adr/README.md) | ADR-0001 … ADR-0009 | **Aceitos** (0006 substituído pelo 0009) |
+| [`features/`](features/README.md) | Divisão em 5 features; `ui-kit` com spec escrita | Proposto (1 implementada) |
 | [`specs/`](specs/README.md) | Fluxo SDD por mudança (spec → plan → tasks) e templates | Ativo |
 | [`execution-prompts.md`](execution-prompts.md) | Prompts de implementação prontos para o agente executor (apodex-1.1-mini) | Ativo |
 

@@ -8,7 +8,7 @@ partir do [`_template-spec.md`](_template-spec.md) **antes** de qualquer impleme
 
 | Feature | Escopo | RF atendidos | Depende de | Spec de execução | Status |
 |---|---|---|---|---|---|
-| `ui-kit/` | Componentes reutilizáveis (≥3 exigidos pelo roteiro), tokens de tema, estados vazios/erro | base de RNF-01, RNF-02, RNF-05 | — | [slice 1](../specs/2026-10-07-slice-1-navigation-uikit/spec.md) | Proposta — spec não escrita |
+| `ui-kit/` | Componentes reutilizáveis (≥3 exigidos pelo roteiro), tokens de tema, estados vazios/erro | base de RNF-01, RNF-02, RNF-05 | — | [slice 1](../specs/2026-10-07-slice-1-navigation-uikit/spec.md) · [visual refresh](../specs/2026-10-08-visual-refresh/spec.md) | **Implementada** — [spec/ui-kit/spec.md](ui-kit/spec.md) |
 | `subjects/` | CRUD de matérias + validação do formulário (o "formulário com validação" da Etapa 4) | RF-01, RF-02, RF-03 | ui-kit | [slice 2](../specs/2026-10-07-slice-2-subjects/spec.md) | Proposta — spec não escrita |
 | `activities/` | CRUD de atividades, filtros por situação, ordenação por prazo, conclusão | RF-04, RF-05, RF-06, RF-07 | subjects, ui-kit | [slice 3](../specs/2026-10-07-slice-3-activities/spec.md) | Proposta — spec não escrita |
 | `assessments/` | Cadastro/listagem de avaliações, situação agendada/realizada | RF-08 | subjects, ui-kit | [slice 4](../specs/2026-10-07-slice-4-assessments/spec.md) | Proposta — spec não escrita |

@@ -68,3 +68,12 @@ Registros existentes importados do storage (sem `hour`/`icon`) devem ser migrado
 
 - Sincronização em nuvem, notificações push, calendário do dispositivo.
 - Edição de ícone via upload de imagem.
+
+## Histórico de mudanças
+
+| Data | Mudança | Justificativa |
+|---|---|---|
+| 2026-10-08 | **CA-6.5(c) revertida** — o gráfico de linha semanal saiu do painel (`LineChart` removido; `weeklyCompleted` removido de `use-dashboard`) | Refactor visual de [2026-10-08-visual-refresh](../2026-10-08-visual-refresh/spec.md): o painel ficou com 4 blocos e nenhum número repetido. Rosca e barra (CA-6.5a/b) seguem válidas |
+| 2026-10-08 | **CA-6.3 parcialmente revertida** — o campo de data abre o calendário ao toque (o botão "escolher" separado saiu) e não aceita digitação manual | O campo inteiro é o alvo do picker, mais rápido em touch. `maskDDMMYYYY` continua no domínio |
+| 2026-10-08 | **Ícone virou grade inline** (6 colunas × 12 ícones lucide), sem campo de texto nem modal | O campo "Globe" expunha o nome interno do ícone e ocupava duas linhas |
+| 2026-10-08 | `Subject` ganhou `color` (paleta de 8 tons) | [ADR-0009](../../adr/ADR-0009-identidade-visual-escura-com-destaque.md), que substitui o ADR-0006 |
