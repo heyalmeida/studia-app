@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Palette } from '@/constants/theme';
 
@@ -14,10 +14,22 @@ export function ProgressBar({ ratio, color = Palette.accent, width }: ProgressBa
   const clamped = Number.isFinite(ratio) ? Math.min(1, Math.max(0, ratio)) : 0;
 
   return (
-    <View
-      className="h-1 w-full overflow-hidden rounded-full bg-surface-raised"
-      style={width !== undefined ? { width } : undefined}>
-      <View className="h-full rounded-full" style={{ width: `${clamped * 100}%`, backgroundColor: color }} />
+    <View style={[styles.track, width !== undefined ? { width } : undefined]}>
+      <View style={[styles.fill, { width: `${clamped * 100}%`, backgroundColor: color }]} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  track: {
+    width: '100%',
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: Palette.surfaceRaised,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: 999,
+  },
+});

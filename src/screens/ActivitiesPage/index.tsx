@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ListX from 'lucide-react-native/icons/list-x';
 
 import { ActivitySectionList } from '@/components/ActivitiesPage/ActivitySectionList';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -8,10 +10,9 @@ import { FAB } from '@/components/ui/FAB';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { FadeIn, SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Palette } from '@/constants/theme';
+import { Palette, SCREEN_PADDING } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 import { useActivities } from '@/hooks/use-activities';
-import ListX from 'lucide-react-native/icons/list-x';
 
 type ActivityFilter = 'pendentes' | 'todas' | 'concluidas';
 
@@ -28,6 +29,7 @@ const EMPTY_STATE: Record<ActivityFilter, { title: string; text: string }> = {
 };
 
 export default function ActivitiesPage() {
+  const insets = useSafeAreaInsets();
   const { activities, subjects, loading, error, refresh, toggleStatus } = useActivities();
   const [filter, setFilter] = useState<ActivityFilter>('pendentes');
 
@@ -51,8 +53,11 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <View className="flex-1 bg-background">
-      <ScreenHeader title="Atividades" />
+    <View style={styles.root}>
+      <ScreenHeader
+        title="Atividades"
+        createAction={{ label: 'Nova atividade', onPress: openCreate }}
+      />
 
       {loading ? <ListSkeleton height={72} count={4} /> : null}
 
@@ -62,13 +67,14 @@ export default function ActivitiesPage() {
           title="Deu errado"
           text={error}
           actionLabel="Tentar de novo"
+          actionWithIcon={false}
           onAction={refresh}
         />
       ) : null}
 
       {ready ? (
         <>
-          <View className="px-5 pb-1 pt-2">
+          <View style={styles.filters}>
             <SegmentedControl value={filter} options={FILTERS} onChange={setFilter} />
           </View>
 
@@ -77,6 +83,7 @@ export default function ActivitiesPage() {
             <ActivitySectionList
               activities={visible}
               subjectById={subjectById}
+              insetsBottom={insets.bottom}
               onToggle={(id) => void toggleStatus(id)}
               onOpen={(id) => router.push(`/activity-form?id=${encodeURIComponent(id)}`)}
               emptyTitle={EMPTY_STATE[filter].title}
@@ -90,9 +97,19 @@ export default function ActivitiesPage() {
         </>
       ) : null}
 
-      {ready ? (
-        <FAB label="Nova atividade" onPress={openCreate} />
-      ) : null}
+      {ready ? <FAB label="Nova atividade" onPress={openCreate} /> : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Palette.background,
+  },
+  filters: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+});

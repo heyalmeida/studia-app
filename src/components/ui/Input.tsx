@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { FIELD_HEIGHT, Palette } from '@/constants/theme';
+import { FIELD_HEIGHT, Palette, Radius, Typography } from '@/constants/theme';
 
 export interface InputProps {
   value: string;
@@ -14,14 +14,16 @@ export interface InputProps {
   keyboardType?: 'default' | 'number-pad';
   maxLength?: number;
   autoCapitalize?: 'none' | 'sentences';
-  /** Altura mínima quando `multiline` (descrição de atividade = 100). */
+  /** Altura mínima quando `multiline` (descrição = 110). */
   minHeight?: number;
 }
 
 /**
- * Campo de formulário (ADR-0009): rótulo de 12px com 8px de distância, altura mínima 52,
- * raio 12 e **borda de foco na cor de destaque**. O placeholder usa `#6B6B76` — antes
- * praticamente invisível.
+ * Campo de formulário (ADR-0009): rótulo 12px com 8px de distância, altura mínima 52,
+ * raio 12, texto 16 e **borda de foco na cor de destaque**. O placeholder usa `#6B6B76`.
+ *
+ * Todo o estilo é `StyleSheet` com valores numéricos explícitos (não `className`): sem o
+ * NativeWind o campo perderia altura, raio, fundo e borda no Expo Go.
  */
 export function Input({
   value,
@@ -41,15 +43,15 @@ export function Input({
   const hasWarning = !hasError && warning !== undefined && warning.length > 0;
 
   // Erro manda; foco muda a borda para o destaque; sem erro nem foco, hairline.
-  const fieldClass = hasError
-    ? 'border-danger'
-    : focused
-      ? 'border-accent'
-      : 'border-border';
+  function borderColor(): string {
+    if (hasError) return Palette.danger;
+    if (focused) return Palette.accent;
+    return Palette.border;
+  }
 
   return (
     <View style={styles.container}>
-      <Text className="text-legend text-text-tertiary">{label}</Text>
+      <Text style={styles.label}>{label}</Text>
 
       <TextInput
         value={value}
@@ -62,26 +64,46 @@ export function Input({
         autoCapitalize={autoCapitalize}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        className={`bg-surface-raised rounded-field border px-4 text-body text-text ${fieldClass}`}
         style={[
           styles.field,
-          multiline ? { minHeight: minHeight ?? 100, textAlignVertical: 'top' } : null,
+          { borderColor: borderColor() },
+          multiline
+            ? { minHeight: minHeight ?? 110, textAlignVertical: 'top', paddingTop: 14 }
+            : null,
         ]}
       />
 
-      {hasError ? <Text className="text-legend text-danger">{error}</Text> : null}
-      {hasWarning ? <Text className="text-legend text-warning">{warning}</Text> : null}
+      {hasError ? <Text style={[styles.message, { color: Palette.danger }]}>{error}</Text> : null}
+      {hasWarning ? (
+        <Text style={[styles.message, { color: Palette.warning }]}>{warning}</Text>
+      ) : null}
     </View>
   );
 }
 
-// altura mínima e radius/linha são fixos; cor de foco/erro via className (NativeWind)
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    marginBottom: 20,
+  },
+  label: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+    marginBottom: 8,
   },
   field: {
     minHeight: FIELD_HEIGHT,
+    paddingHorizontal: 16,
     paddingVertical: 14,
+    borderRadius: Radius.field,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    color: Palette.text,
+    fontSize: Typography.field.fontSize,
+    fontWeight: Typography.field.fontWeight,
+    lineHeight: Typography.field.lineHeight,
+  },
+  message: {
+    ...Typography.legend,
+    marginTop: 6,
   },
 });

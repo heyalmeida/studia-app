@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { TextButton } from '@/components/ui/TextButton';
+import { Palette, SAFE_GAP, SCREEN_PADDING, Typography } from '@/constants/theme';
 
 export interface FormFooterProps {
   saveLabel?: string;
@@ -18,9 +20,14 @@ export interface FormFooterProps {
 }
 
 /**
- * Rodapé fixo do formulário (ADR-0009): **Salvar** na cor de destaque, **Excluir** como
- * texto vermelho discreto (a confirmação é um `Alert` na tela) e **Cancelar** secundário.
- * Fica fora do `ScrollView`, então continua alcançável com o teclado aberto.
+ * Rodapé fixo do formulário (ADR-0009): **Salvar** na cor de destaque e, embaixo, uma linha
+ * com **Cancelar** e **Excluir** lado a lado (exclusão = texto vermelho, confirmação num
+ * `Alert` da tela).
+ *
+ * `position: absolute` nas bordas inferior/laterais, então continua alcançável com o
+ * teclado aberto. O `paddingBottom` é `insets.bottom + 16`: no Android nenhum botão fica
+ * colado na barra de gestos. O `ScrollView` do formulário compensa a altura com
+ * `FORM_FOOTER_HEIGHT` no `paddingBottom` do conteúdo.
  */
 export function FormFooter({
   saveLabel = 'Salvar',
@@ -31,29 +38,52 @@ export function FormFooter({
   message,
   children,
 }: FormFooterProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View className="border-t border-border bg-background px-5 pt-3">
+    <View
+      style={[
+        styles.root,
+        { paddingBottom: insets.bottom + SAFE_GAP },
+      ]}>
       {children}
 
-      <View className="pb-1">
-        <PrimaryButton label={saveLabel} onPress={onSave} disabled={saveDisabled} />
-      </View>
+      <PrimaryButton label={saveLabel} onPress={onSave} disabled={saveDisabled} />
 
-      {onDelete !== undefined ? (
-        <View className="pb-1">
-          <TextButton label="Excluir" tone="danger" onPress={onDelete} />
-        </View>
-      ) : null}
-
-      <View className="pb-1">
+      <View style={styles.row}>
         <TextButton label="Cancelar" onPress={onCancel} />
+        {onDelete !== undefined ? <TextButton label="Excluir" tone="danger" onPress={onDelete} /> : null}
       </View>
 
       {message !== undefined && message !== null ? (
-        <Text className="pb-2 text-center text-legend text-danger">{message}</Text>
-      ) : (
-        <View style={{ height: 8 }} />
-      )}
+        <Text style={styles.message}>{message}</Text>
+      ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Palette.background,
+    borderTopWidth: 1,
+    borderTopColor: Palette.border,
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+  },
+  message: {
+    ...Typography.legend,
+    color: Palette.danger,
+    textAlign: 'center',
+    marginTop: 12,
+  },
+});

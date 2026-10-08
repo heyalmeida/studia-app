@@ -1,14 +1,10 @@
 import { Tabs } from 'expo-router';
-import { cssInterop } from 'nativewind';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { Touchable } from '@/components/ui/Touchable';
-import { Palette, Spacing } from '@/constants/theme';
-
-// Ionicons não é componente-core do RN: registra className -> style (color do glifo).
-cssInterop(Ionicons, { className: 'style' });
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { Palette, Radius, SCREEN_PADDING, Spacing, Typography } from '@/constants/theme';
 
 interface TabRoute {
   key: string;
@@ -32,18 +28,24 @@ const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> 
 
 /**
  * Barra de abas flutuante (ADR-0009): fundo `surface`, hairline de 1px, item **ativo** na
- * cor de destaque (ícone + label) e inativos em `text-tertiary`. O container externo fica
- * em fluxo normal, então o conteúdo das telas nunca passa por baixo da barra; o
- * paddingBottom usa a safe-area inferior (barra de gestos do Android).
+ * cor de destaque (ícone + label) e inativos em `text-tertiary`.
+ *
+ * **Importante:** a tela do React Navigation é `absoluteFill` dentro do `Tabs`, então ela
+ * passa **por baixo** desta barra. É por isso que o FAB soma `TAB_BAR_HEIGHT` no `bottom` e
+ * que as listas reservam `listBottomInset(insets.bottom)` — o conteúdo nunca fica escondido.
+ * A altura sem safe area é `8 (paddingTop) + 48 (item) + 8 (paddingVertical) + 2 (borda) =
+ * 66`: mantenha `TAB_BAR_HEIGHT` em `src/constants/theme.ts` em sincronia com os estilos
+ * abaixo.
+ *
+ * Estilo em `StyleSheet` com valores numéricos explícitos — no Expo Go o `className` do
+ * NativeWind não se aplica.
  */
 function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      className="bg-background px-5"
-      style={{ paddingTop: Spacing.two, paddingBottom: Math.max(insets.bottom, Spacing.two) }}>
-      <View className="flex-row items-stretch justify-around rounded-card border border-border bg-surface px-1 py-1">
+    <View style={[styles.outer, { paddingBottom: Math.max(insets.bottom, Spacing.two) }]}>
+      <View style={styles.bar}>
         {state.routes.map((route) => {
           const icons = TAB_ICONS[route.name];
           if (!icons) return null;
@@ -57,19 +59,16 @@ function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
               accessibilityState={{ selected: focused }}
               accessibilityLabel={title}
               onPress={() => navigation.navigate(route.name)}
-              pressedScale={0.94}
               pressedOpacity={0.7}
-              style={{ flex: 1 }}
-              className="min-h-[48px] items-center justify-center gap-1 rounded-chip px-1 py-1">
+              pressedScale={0.94}
+              style={styles.item}
+              contentStyle={[centeredContent, styles.itemContent]}>
               <Ionicons
                 name={focused ? icons.active : icons.inactive}
                 size={20}
-                className={focused ? 'text-accent' : 'text-text-tertiary'}
+                color={focused ? Palette.accent : Palette.textTertiary}
               />
-              <Text
-                className="text-legend"
-                style={{ color: focused ? Palette.accent : Palette.textTertiary }}
-                numberOfLines={1}>
+              <Text style={[styles.label, { color: focused ? Palette.accent : Palette.textTertiary }]} numberOfLines={1}>
                 {title}
               </Text>
             </Touchable>
@@ -92,3 +91,36 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  outer: {
+    width: '100%',
+    paddingTop: Spacing.two,
+    paddingHorizontal: SCREEN_PADDING,
+    backgroundColor: Palette.background,
+  },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    justifyContent: 'space-around',
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.one,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    backgroundColor: Palette.surface,
+  },
+  item: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: Radius.chip,
+  },
+  itemContent: {
+    gap: Spacing.one,
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.one,
+  },
+  label: {
+    ...Typography.legend,
+  },
+});

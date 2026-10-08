@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
 import { DueChip } from '@/components/ui/DueChip';
-import { Touchable } from '@/components/ui/Touchable';
-import { subjectTone, Palette } from '@/constants/theme';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { subjectTone, Palette, Spacing, TOUCH_TARGET, Typography } from '@/constants/theme';
 import type { Activity, Subject } from '@/domain/models';
 
 export interface UpcomingListProps {
@@ -19,26 +19,22 @@ export interface UpcomingListProps {
  */
 export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
   return (
-    <Card bare className="px-4 py-2">
-      <View className="flex-row items-center justify-between pb-1 pt-3">
-        <Text className="text-legend text-text-tertiary">Próximos prazos</Text>
+    <Card bare contentStyle={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.legend}>Próximos prazos</Text>
 
         <Touchable
           accessibilityRole="button"
           accessibilityLabel="Ver todas as atividades"
           onPress={() => router.push('/activities')}
           pressedOpacity={0.6}
-          style={{ minHeight: 44 }}
-          className="justify-center px-1"
-          contentClassName="w-full justify-center px-1 py-2">
-          <Text className="text-legend text-accent">Ver todas</Text>
+          contentStyle={[styles.linkTarget, centeredContent]}>
+          <Text style={styles.link}>Ver todas</Text>
         </Touchable>
       </View>
 
       {activities.length === 0 ? (
-        <Text className="py-4 text-body text-text-secondary">
-          Nenhuma atividade pendente. Você está em dia.
-        </Text>
+        <Text style={styles.empty}>Nenhuma atividade pendente. Você está em dia.</Text>
       ) : (
         activities.map((activity, index) => {
           const subject = subjectById[activity.subjectId];
@@ -52,22 +48,19 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
               onPress={() => router.push(`/activity-form?id=${encodeURIComponent(activity.id)}`)}
               pressedOpacity={0.7}
               style={index === activities.length - 1 ? undefined : styles.divider}
-              className="flex-row items-center"
-              contentClassName="w-full flex-row items-center gap-3 py-3">
+              contentStyle={styles.item}>
               {tone !== null ? (
-                <View
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: tone.value }}
-                />
+                <View style={[styles.dot, { backgroundColor: tone.value }]} />
               ) : (
-                <View className="h-2 w-2 shrink-0" />
+                // Espaçador: sem cor de matéria, a coluna do texto continua alinhada.
+                <View style={styles.dotPlaceholder} />
               )}
 
-              <View className="flex-1 gap-1">
-                <Text className="text-bodyStrong font-semibold text-text" numberOfLines={2}>
+              <View style={styles.identifiers}>
+                <Text style={styles.title} numberOfLines={2}>
                   {activity.title}
                 </Text>
-                <Text className="text-legend text-text-tertiary" numberOfLines={1}>
+                <Text style={styles.subject} numberOfLines={1}>
                   {subject?.name ?? 'Sem matéria'}
                 </Text>
               </View>
@@ -81,9 +74,64 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
+  card: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: Spacing.three,
+    paddingBottom: Spacing.one,
+  },
+  legend: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+  },
+  link: {
+    ...Typography.legend,
+    color: Palette.accent,
+  },
+  linkTarget: {
+    minHeight: TOUCH_TARGET,
+    paddingHorizontal: Spacing.one,
+  },
+  empty: {
+    ...Typography.body,
+    color: Palette.textSecondary,
+    paddingVertical: Spacing.four,
+  },
   divider: {
     borderBottomWidth: 1,
     borderBottomColor: Palette.border,
   },
-} as const;
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    paddingVertical: Spacing.three,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+  },
+  dotPlaceholder: {
+    width: 8,
+    height: 8,
+  },
+  identifiers: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  title: {
+    ...Typography.bodyStrong,
+    color: Palette.text,
+  },
+  subject: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+  },
+});

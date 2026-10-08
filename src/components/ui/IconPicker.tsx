@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 // Deep imports (icons/<nome>) evitam o barrel gigante do lucide-react-native,
 // que derrubava o bundler do Metro com re-exports em cadeia.
 import BookOpen from 'lucide-react-native/icons/book-open';
@@ -16,8 +16,8 @@ import Dumbbell from 'lucide-react-native/icons/dumbbell';
 import PenLine from 'lucide-react-native/icons/pen-line';
 import type { LucideIcon } from 'lucide-react-native';
 
-import { Touchable } from '@/components/ui/Touchable';
-import { Palette as Tokens } from '@/constants/theme';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { Palette as Tokens, Radius, TOUCH_TARGET, Typography } from '@/constants/theme';
 
 /** 12 ícones de estudo; a chave (nome) é o que vai para `Subject.icon`. */
 const ICONS: { name: string; Icon: LucideIcon }[] = [
@@ -67,27 +67,23 @@ export function IconPicker({ selected, onChange, label = 'Ícone' }: IconPickerP
   const hasSelection = selected !== undefined && selected !== '';
 
   return (
-    <View style={{ gap: 8 }}>
-      <Text className="text-legend text-text-tertiary">{label}</Text>
+    <View style={styles.group}>
+      <Text style={styles.label}>{label}</Text>
 
-      <View className="flex-row flex-wrap" style={{ marginHorizontal: -3 }}>
+      <View style={styles.grid}>
         {ICONS.map(({ name, Icon }) => {
           const isSelected = selected === name;
           return (
-            <View key={name} style={{ width: '16.666%', padding: 3 }}>
+            <View key={name} style={styles.cell}>
               <Touchable
                 accessibilityRole="button"
                 accessibilityLabel={name}
                 accessibilityState={{ selected: isSelected }}
                 onPress={() => onChange(name)}
-                pressedScale={0.9}
-                style={{ minWidth: 44, minHeight: 44 }}
-                className={
-                  isSelected
-                    ? 'items-center justify-center rounded-field bg-accent-soft'
-                    : 'items-center justify-center rounded-field bg-surface-raised'
-                }
-                contentClassName="w-full items-center justify-center py-2">
+                pressedOpacity={0.7}
+                pressedScale={0.97}
+                style={[styles.tile, isSelected ? styles.tileSelected : styles.tileUnselected]}
+                contentStyle={[centeredContent, styles.tileContent]}>
                 <Icon
                   size={22}
                   color={isSelected ? Tokens.accent : Tokens.textSecondary}
@@ -99,29 +95,63 @@ export function IconPicker({ selected, onChange, label = 'Ícone' }: IconPickerP
         })}
 
         {/* "Nenhum" ocupa a 13ª célula da grade, no mesmo passo das outras. */}
-        <View style={{ width: '16.666%', padding: 3 }}>
+        <View style={styles.cell}>
           <Touchable
             accessibilityRole="button"
             accessibilityLabel="Sem ícone"
             accessibilityState={{ selected: !hasSelection }}
             onPress={() => onChange('')}
-            pressedScale={0.9}
-            style={{ minWidth: 44, minHeight: 44 }}
-            className={
-              !hasSelection
-                ? 'items-center justify-center rounded-field bg-accent-soft'
-                : 'items-center justify-center rounded-field bg-surface-raised'
-            }
-            contentClassName="w-full items-center justify-center py-2">
-            <Text
-              className={
-                !hasSelection ? 'text-legend text-accent' : 'text-legend text-text-tertiary'
-              }>
-              —
-            </Text>
+            pressedOpacity={0.7}
+            pressedScale={0.97}
+            style={[styles.tile, hasSelection ? styles.tileUnselected : styles.tileSelected]}
+            contentStyle={[centeredContent, styles.tileContent]}>
+            <Text style={[styles.noneLabel, hasSelection ? styles.labelDim : styles.labelOn]}>—</Text>
           </Touchable>
         </View>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  group: {
+    gap: 8,
+    marginBottom: 20,
+  },
+  label: {
+    ...Typography.legend,
+    color: Tokens.textTertiary,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -3,
+  },
+  cell: {
+    width: '16.666%',
+    padding: 3,
+  },
+  tile: {
+    minWidth: TOUCH_TARGET,
+    minHeight: TOUCH_TARGET,
+    borderRadius: Radius.field,
+  },
+  tileContent: {
+    paddingVertical: 8,
+  },
+  tileSelected: {
+    backgroundColor: Tokens.accentSoft,
+  },
+  tileUnselected: {
+    backgroundColor: Tokens.surfaceRaised,
+  },
+  noneLabel: {
+    ...Typography.legend,
+  },
+  labelOn: {
+    color: Tokens.accent,
+  },
+  labelDim: {
+    color: Tokens.textTertiary,
+  },
+});

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookOpen from 'lucide-react-native/icons/book-open';
-import ChevronLeft from 'lucide-react-native/icons/chevron-left';
 import ClipboardList from 'lucide-react-native/icons/clipboard-list';
 import FileText from 'lucide-react-native/icons/file-text';
 import Library from 'lucide-react-native/icons/library';
@@ -16,7 +16,7 @@ import { FormFooter } from '@/components/ui/FormFooter';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SubjectChip } from '@/components/ui/SubjectChip';
-import { Palette } from '@/constants/theme';
+import { FORM_FOOTER_HEIGHT, Palette, Radius, SCREEN_PADDING } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
 import { validateActivity, type FieldErrors } from '@/domain/validation';
@@ -35,6 +35,7 @@ const TYPE_OPTIONS: { value: ActivityType; label: string; Icon: LucideIcon }[] =
 type Draft = string | null;
 
 export default function ActivityFormPage() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { activities, subjects, loading, create, update, remove } = useActivities();
 
@@ -116,27 +117,26 @@ export default function ActivityFormPage() {
   const dueError = submitTried ? errors.dueDate : undefined;
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={styles.root}>
       <ScreenHeader
         title={isEdit ? 'Editar atividade' : 'Nova atividade'}
-        leading={{
-          icon: <ChevronLeft size={20} color={Palette.textSecondary} />,
-          label: 'Fechar',
-          onPress: () => router.back(),
-        }}
+        backLabel="Fechar"
+        onBack={() => router.back()}
       />
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
+        style={styles.scroll}
+        // O rodapé é `position: absolute`: o conteúdo precisa reservar a altura dele.
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + FORM_FOOTER_HEIGHT }]}
         keyboardShouldPersistTaps="handled">
         {noSubjects ? (
-          <View className="overflow-hidden rounded-card border border-border" style={{ height: 220 }}>
+          <View style={styles.block}>
             <EmptyState
               icon={<BookX size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
               title="Cadastre uma matéria"
               text="Atividades sempre pertencem a uma matéria."
               actionLabel="Cadastrar matéria"
+              actionWithIcon={false}
               onAction={() => router.push('/subject-form')}
             />
           </View>
@@ -176,7 +176,7 @@ export default function ActivityFormPage() {
           </FormField>
 
           <FormField label="Tipo">
-            <View className="flex-row flex-wrap gap-2">
+            <View style={styles.types}>
               {TYPE_OPTIONS.map((option) => (
                 <ChoiceChip
                   key={option.value}
@@ -216,7 +216,6 @@ export default function ActivityFormPage() {
             }}
             placeholder="Links, material de apoio, detalhes…"
             multiline
-            minHeight={100}
             maxLength={400}
           />
         </View>
@@ -232,3 +231,30 @@ export default function ActivityFormPage() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Palette.background,
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 8,
+  },
+  block: {
+    height: 300,
+    marginBottom: 20,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    overflow: 'hidden',
+  },
+  types: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+});

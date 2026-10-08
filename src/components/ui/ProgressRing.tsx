@@ -1,7 +1,7 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Circle, Svg } from 'react-native-svg';
 
-import { Palette } from '@/constants/theme';
+import { Palette, Typography } from '@/constants/theme';
 
 export interface ProgressRingProps {
   ratio: number; // 0..1 — clamp aplicado aqui, nunca fora
@@ -28,7 +28,7 @@ export function ProgressRing({
 
   return (
     <View style={{ width: size, height: size }}>
-      <View className="absolute inset-0">
+      <View style={styles.layer}>
         <Svg width={size} height={size}>
           <Circle
             cx={size / 2}
@@ -40,7 +40,7 @@ export function ProgressRing({
           />
         </Svg>
       </View>
-      <View className="absolute inset-0">
+      <View style={styles.layer}>
         <Svg width={size} height={size}>
           <Circle
             cx={size / 2}
@@ -55,9 +55,32 @@ export function ProgressRing({
           />
         </Svg>
       </View>
-      <View className="absolute inset-0 items-center justify-center">
-        <Text className="text-metric font-bold text-text">{Math.round(clamped * 100)}%</Text>
+      <View style={styles.center}>
+        <Text style={styles.value}>{Math.round(clamped * 100)}%</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  layer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  center: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  value: {
+    ...Typography.metric,
+    color: Palette.text,
+  },
+});

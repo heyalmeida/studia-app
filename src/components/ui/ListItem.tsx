@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Divider } from '@/components/ui/Divider';
 import { Touchable } from '@/components/ui/Touchable';
@@ -23,11 +23,11 @@ export function ListItem({ children, onPress, divider = true }: ListItemProps) {
       onPress={onPress}
       pressedOpacity={0.7}
       pressedScale={0.99}
-      contentClassName="py-3.5">
+      contentStyle={styles.padded}>
       {children}
     </Touchable>
   ) : (
-    <View className="py-3.5">{children}</View>
+    <View style={styles.padded}>{children}</View>
   );
 
   return (
@@ -37,3 +37,9 @@ export function ListItem({ children, onPress, divider = true }: ListItemProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  padded: {
+    paddingVertical: 14,
+  },
+});

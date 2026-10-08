@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { Palette, Radius, Typography } from '@/constants/theme';
 
 export type ChipTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
 
@@ -12,55 +14,78 @@ export interface ChipProps {
   dotColor?: string;
 }
 
-/** Classes por tom: fundo `accent-soft`/superfície + cor do texto. */
-const TONE: Record<ChipTone, { container: string; label: string; icon: string }> = {
+/** Cada tom resolve para um par de cores — nada de classe utilitária. */
+interface ToneStyle {
+  container: { backgroundColor: string };
+  label: { color: string };
+}
+
+/** Cor de fundo e de texto por tom: fundo neutro + cor da semântica. */
+const TONE: Record<ChipTone, ToneStyle> = {
   neutral: {
-    container: 'bg-surface-raised',
-    label: 'text-text-secondary',
-    icon: 'text-text-secondary',
+    container: { backgroundColor: Palette.surfaceRaised },
+    label: { color: Palette.textSecondary },
   },
   accent: {
-    container: 'bg-accent-soft',
-    label: 'text-accent',
-    icon: 'text-accent',
+    container: { backgroundColor: Palette.accentSoft },
+    label: { color: Palette.accent },
   },
   success: {
-    container: 'bg-surface-raised',
-    label: 'text-success',
-    icon: 'text-success',
+    container: { backgroundColor: Palette.surfaceRaised },
+    label: { color: Palette.success },
   },
   warning: {
-    container: 'bg-surface-raised',
-    label: 'text-warning',
-    icon: 'text-warning',
+    container: { backgroundColor: Palette.surfaceRaised },
+    label: { color: Palette.warning },
   },
   danger: {
-    container: 'bg-surface-raised',
-    label: 'text-danger',
-    icon: 'text-danger',
+    container: { backgroundColor: Palette.surfaceRaised },
+    label: { color: Palette.danger },
   },
 };
 
 /**
  * Chip de exibição (ADR-0009): rótulo curto com hierarquia tipográfica, sem borda.
  * `neutral` é o padrão; as semânticas existem para prazo (alerta) e atraso (urgente).
+ *
+ * Estilo em `StyleSheet` com números explícitos — no Expo Go o `className` não se aplica.
  */
 export function Chip({ label, tone = 'neutral', icon, dotColor }: ChipProps) {
   const toneStyle = TONE[tone];
 
   return (
-    <View
-      className={`flex-row items-center gap-1 self-start rounded-chip px-2 py-1 ${toneStyle.container}`}>
-      {dotColor !== undefined ? (
-        <View
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: dotColor }}
-        />
-      ) : null}
-      {icon !== undefined ? <View className={toneStyle.icon}>{icon}</View> : null}
-      <Text className={`text-legend ${toneStyle.label}`} numberOfLines={1}>
+    <View style={[styles.chip, toneStyle.container]}>
+      {dotColor !== undefined ? <View style={[styles.dot, { backgroundColor: dotColor }]} /> : null}
+      {icon !== undefined ? <View style={styles.icon}>{icon}</View> : null}
+      <Text style={[styles.label, toneStyle.label]} numberOfLines={1}>
         {label}
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: Radius.chip,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  icon: {
+    width: 14,
+    height: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    ...Typography.legend,
+  },
+});

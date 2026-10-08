@@ -1,7 +1,8 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
 import { ProgressRing } from '@/components/ui/ProgressRing';
+import { Palette, Spacing, Typography } from '@/constants/theme';
 
 export interface ProgressSummaryCardProps {
   ratio: number;
@@ -19,22 +20,22 @@ export interface ProgressSummaryCardProps {
 export function ProgressSummaryCard({ ratio, done, total, dueThisWeek }: ProgressSummaryCardProps) {
   return (
     <Card>
-      <View className="flex-row items-center gap-5">
+      <View style={styles.row}>
         <ProgressRing ratio={ratio} size={104} strokeWidth={9} />
 
-        <View className="flex-1 gap-3">
-          <View style={{ gap: 2 }}>
-            <Text className="text-cardTitle font-semibold text-text">
+        <View style={styles.details}>
+          <View style={styles.headline}>
+            <Text style={styles.headlineText}>
               {done} de {total} concluídas
             </Text>
-            <Text className="text-body text-text-secondary">
+            <Text style={styles.support}>
               {total === 0
                 ? 'Nenhuma atividade cadastrada ainda.'
                 : `${total - done} ${total - done === 1 ? 'pendente' : 'pendentes'} no total`}
             </Text>
           </View>
 
-          <Text className="text-legend text-text-tertiary">
+          <Text style={styles.legend}>
             {dueThisWeek === 0
               ? 'Nada vence nos próximos 7 dias'
               : `${dueThisWeek} ${dueThisWeek === 1 ? 'vence' : 'vencem'} nos próximos 7 dias`}
@@ -44,3 +45,30 @@ export function ProgressSummaryCard({ ratio, done, total, dueThisWeek }: Progres
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.five,
+  },
+  details: {
+    flex: 1,
+    gap: Spacing.three,
+  },
+  headline: {
+    gap: Spacing.one,
+  },
+  headlineText: {
+    ...Typography.cardTitle,
+    color: Palette.text,
+  },
+  support: {
+    ...Typography.body,
+    color: Palette.textSecondary,
+  },
+  legend: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+  },
+});

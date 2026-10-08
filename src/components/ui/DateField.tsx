@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import CalendarDays from 'lucide-react-native/icons/calendar-days';
-import { Text, View } from 'react-native';
+import Calendar from 'lucide-react-native/icons/calendar';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { ChoiceChip } from '@/components/ui/ChoiceChip';
 import { DatePicker } from '@/components/ui/DatePicker';
-import { Touchable } from '@/components/ui/Touchable';
-import { Palette } from '@/constants/theme';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { FIELD_HEIGHT, Palette, Radius, Typography } from '@/constants/theme';
 import { addDaysISO, formatDDMMYYYY, todayISO } from '@/domain/date';
 
 export interface DateFieldProps {
@@ -21,8 +21,12 @@ export interface DateFieldProps {
 }
 
 /**
- * Campo de data (ADR-0009): o campo **inteiro** é o alvo e abre o calendário ao toque —
- * o botão "escolher..." separado saiu. Atalhos de 1 toque: Hoje, Amanhã e Próxima semana.
+ * Campo de data (ADR-0009): o campo **inteiro** é o alvo e abre o calendário ao toque; ao
+ * lado, um botão de ícone 52×52 com `Calendar` 20 faz a mesma coisa de forma explícita.
+ * Atalhos de 1 toque em pílula: Hoje, Amanhã e Próxima semana.
+ *
+ * Linha com `gap` 12, rótulo 12px com 8px até o campo e 20px até o próximo grupo.
+ * Estilo em `StyleSheet` com números explícitos — no Expo Go o `className` não se aplica.
  */
 export function DateField({
   label,
@@ -37,43 +41,59 @@ export function DateField({
   const hasError = error !== undefined && error.length > 0;
   const hasWarning = !hasError && warning !== undefined && warning.length > 0;
 
-  const field = hasError
-    ? 'border-danger'
-    : pickerOpen
-      ? 'border-accent'
-      : 'border-border';
+  function openPicker() {
+    setPickerOpen(true);
+  }
+
+  function borderColor(): string {
+    if (hasError) return Palette.danger;
+    if (pickerOpen) return Palette.accent;
+    return Palette.border;
+  }
 
   const shortcutValue = (days: number) => addDaysISO(undefined, days);
 
   return (
-    <View style={{ gap: 8 }}>
-      <Text className="text-legend text-text-tertiary">{label}</Text>
+    <View style={styles.group}>
+      <Text style={styles.label}>{label}</Text>
 
-      <Touchable
-        accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value === null ? 'não definida' : formatDDMMYYYY(value)}`}
-        disabled={disabled}
-        onPress={() => setPickerOpen(true)}
-        pressedOpacity={0.85}
-        style={{ minHeight: 52 }}
-        className={`flex-row items-center rounded-field border bg-surface-raised ${
-          disabled ? 'opacity-40' : ''
-        } ${field}`}
-        contentClassName="w-full flex-row items-center gap-3 px-4 py-2">
-        <CalendarDays
-          size={20}
-          color={hasError ? Palette.danger : Palette.textSecondary}
-          strokeWidth={1.8}
-        />
-        <Text
-          className={`text-body ${value === null ? 'text-text-tertiary' : 'text-text'}`}
-          numberOfLines={1}>
-          {value === null ? 'Selecionar data' : formatDDMMYYYY(value)}
-        </Text>
-      </Touchable>
+      <View style={styles.row}>
+        <Touchable
+          accessibilityRole="button"
+          accessibilityLabel={`${label}: ${value === null ? 'não definida' : formatDDMMYYYY(value)}`}
+          disabled={disabled}
+          onPress={openPicker}
+          pressedOpacity={0.7}
+          pressedScale={0.97}
+          style={[
+            styles.input,
+            { borderColor: borderColor() },
+            disabled ? styles.disabled : null,
+          ]}
+          // Alinha na vertical, mas mantém o texto encostado à esquerda como nos outros campos.
+          contentStyle={styles.inputContent}>
+          <Text
+            style={[styles.value, value === null ? styles.valueEmpty : null]}
+            numberOfLines={1}>
+            {value === null ? 'Selecionar data' : formatDDMMYYYY(value)}
+          </Text>
+        </Touchable>
+
+        <Touchable
+          accessibilityRole="button"
+          accessibilityLabel={`Escolher ${label.toLowerCase()}`}
+          disabled={disabled}
+          onPress={openPicker}
+          pressedOpacity={0.7}
+          pressedScale={0.97}
+          style={[styles.calendarButton, disabled ? styles.disabled : null]}
+          contentStyle={centeredContent}>
+          <Calendar size={20} color={Palette.textSecondary} strokeWidth={1.8} />
+        </Touchable>
+      </View>
 
       {shortcuts && !disabled ? (
-        <View className="flex-row gap-2">
+        <View style={styles.shortcuts}>
           <ChoiceChip
             label="Hoje"
             selected={value === todayISO()}
@@ -92,8 +112,10 @@ export function DateField({
         </View>
       ) : null}
 
-      {hasError ? <Text className="text-legend text-danger">{error}</Text> : null}
-      {hasWarning ? <Text className="text-legend text-warning">{warning}</Text> : null}
+      {hasError ? <Text style={[styles.message, { color: Palette.danger }]}>{error}</Text> : null}
+      {hasWarning ? (
+        <Text style={[styles.message, { color: Palette.warning }]}>{warning}</Text>
+      ) : null}
 
       {pickerOpen && !disabled ? (
         <DatePicker
@@ -107,3 +129,58 @@ export function DateField({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  group: {
+    marginBottom: 20,
+  },
+  label: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  input: {
+    flex: 1,
+    minHeight: FIELD_HEIGHT,
+    borderRadius: Radius.field,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+  },
+  value: {
+    ...Typography.field,
+    color: Palette.text,
+  },
+  inputContent: {
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  valueEmpty: {
+    color: Palette.textTertiary,
+  },
+  calendarButton: {
+    width: FIELD_HEIGHT,
+    height: FIELD_HEIGHT,
+    borderRadius: Radius.field,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+  },
+  disabled: {
+    opacity: 0.4,
+  },
+  shortcuts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  message: {
+    ...Typography.legend,
+    marginTop: 6,
+  },
+});

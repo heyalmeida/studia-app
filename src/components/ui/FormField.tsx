@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { Palette, Typography } from '@/constants/theme';
 
 export interface FormFieldProps {
   label: string;
@@ -10,17 +12,33 @@ export interface FormFieldProps {
 }
 
 /**
- * Grupo de formulário (ADR-0009): rótulo de 12px com 8px até o campo. O espaçamento de
- * 20 entre grupos é do container do formulário, então todos os formulários respiram igual.
+ * Grupo de formulário (ADR-0009): rótulo de 12px com 8px até o campo e 20px entre grupos.
+ * O respiro entre grupos é do próprio grupo (`marginBottom`), não do container do
+ * formulário — assim qualquer ordem de campos respira igual.
  */
 export function FormField({ label, error, children }: FormFieldProps) {
   return (
-    <View style={{ gap: 8 }}>
-      <Text className="text-legend text-text-tertiary">{label}</Text>
+    <View style={styles.group}>
+      <Text style={styles.label}>{label}</Text>
       {children}
       {error !== undefined && error.length > 0 ? (
-        <Text className="text-legend text-danger">{error}</Text>
+        <Text style={[styles.error, { color: Palette.danger }]}>{error}</Text>
       ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  group: {
+    marginBottom: 20,
+  },
+  label: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+    marginBottom: 8,
+  },
+  error: {
+    ...Typography.legend,
+    marginTop: 6,
+  },
+});

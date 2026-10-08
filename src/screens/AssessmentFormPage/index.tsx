@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookX from 'lucide-react-native/icons/book-x';
-import ChevronLeft from 'lucide-react-native/icons/chevron-left';
 
 import { DateField } from '@/components/ui/DateField';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -11,7 +11,7 @@ import { FormFooter } from '@/components/ui/FormFooter';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SubjectChip } from '@/components/ui/SubjectChip';
-import { Palette } from '@/constants/theme';
+import { FORM_FOOTER_HEIGHT, Palette, Radius, SCREEN_PADDING } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import { validateAssessment, type FieldErrors } from '@/domain/validation';
 import { useAssessments } from '@/hooks/use-assessments';
@@ -21,6 +21,7 @@ import { useAssessments } from '@/hooks/use-assessments';
 type Draft = string | null;
 
 export default function AssessmentFormPage() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { assessments, subjects, loading, create, update, remove } = useAssessments();
 
@@ -97,27 +98,26 @@ export default function AssessmentFormPage() {
   const dateError = submitTried ? errors.date : undefined;
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={styles.root}>
       <ScreenHeader
         title={isEdit ? 'Editar avaliação' : 'Nova avaliação'}
-        leading={{
-          icon: <ChevronLeft size={20} color={Palette.textSecondary} />,
-          label: 'Fechar',
-          onPress: () => router.back(),
-        }}
+        backLabel="Fechar"
+        onBack={() => router.back()}
       />
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
+        style={styles.scroll}
+        // O rodapé é `position: absolute`: o conteúdo precisa reservar a altura dele.
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + FORM_FOOTER_HEIGHT }]}
         keyboardShouldPersistTaps="handled">
         {noSubjects ? (
-          <View className="overflow-hidden rounded-card border border-border" style={{ height: 220 }}>
+          <View style={styles.block}>
             <EmptyState
               icon={<BookX size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
               title="Cadastre uma matéria"
               text="Avaliações sempre pertencem a uma matéria."
               actionLabel="Cadastrar matéria"
+              actionWithIcon={false}
               onAction={() => router.push('/subject-form')}
             />
           </View>
@@ -180,3 +180,25 @@ export default function AssessmentFormPage() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Palette.background,
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 8,
+  },
+  block: {
+    height: 300,
+    marginBottom: 20,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    overflow: 'hidden',
+  },
+});

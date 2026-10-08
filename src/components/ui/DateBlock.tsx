@@ -1,6 +1,6 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Palette } from '@/constants/theme';
+import { Palette, Radius, Typography } from '@/constants/theme';
 
 const MONTHS_SHORT = [
   'jan',
@@ -34,15 +34,30 @@ export function DateBlock({ date, muted = false }: DateBlockProps) {
   const month = match !== null ? MONTHS_SHORT[Number(match[2]) - 1] ?? '' : '';
 
   return (
-    <View
-      className="items-center justify-center rounded-card bg-surface-raised"
-      style={{ width: 56, height: 56 }}>
-      <Text
-        className="text-day font-bold"
-        style={{ color: muted ? Palette.textTertiary : Palette.text }}>
+    <View style={styles.block}>
+      <Text style={[styles.day, { color: muted ? Palette.textTertiary : Palette.text }]}>
         {day}
       </Text>
-      <Text className="text-legend uppercase text-text-tertiary">{month}</Text>
+      <Text style={styles.month}>{month}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  block: {
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radius.card,
+    backgroundColor: Palette.surfaceRaised,
+  },
+  day: {
+    ...Typography.day,
+  },
+  month: {
+    ...Typography.legend,
+    textTransform: 'uppercase',
+    color: Palette.textTertiary,
+  },
+});

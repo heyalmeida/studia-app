@@ -1,4 +1,6 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { Palette, Spacing, Typography } from '@/constants/theme';
 
 const WEEKDAYS = [
   'domingo',
@@ -39,9 +41,23 @@ export function Greeting({ now = new Date() }: { now?: Date }) {
   const date = `${WEEKDAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
 
   return (
-    <View style={{ gap: 4 }}>
-      <Text className="text-title font-bold text-text">{greetingFor(now.getHours())}</Text>
-      <Text className="text-body capitalize text-text-secondary">{date}</Text>
+    <View style={styles.wrapper}>
+      <Text style={styles.greeting}>{greetingFor(now.getHours())}</Text>
+      <Text style={styles.date}>{date}</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    gap: Spacing.one,
+  },
+  greeting: {
+    ...Typography.title,
+    color: Palette.text,
+  },
+  date: {
+    ...Typography.body,
+    color: Palette.textSecondary,
+  },
+});

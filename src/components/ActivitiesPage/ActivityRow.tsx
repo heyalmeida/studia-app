@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import Check from 'lucide-react-native/icons/check';
 
 import { DueChip } from '@/components/ui/DueChip';
 import { ListItem } from '@/components/ui/ListItem';
-import { Touchable } from '@/components/ui/Touchable';
-import { Palette, subjectTone } from '@/constants/theme';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { Palette, Spacing, TOUCH_TARGET, Typography, subjectTone } from '@/constants/theme';
 import type { Activity, Subject } from '@/domain/models';
 
 export interface ActivityRowProps {
@@ -39,40 +39,41 @@ export function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRow
 
   return (
     <ListItem onPress={onOpen}>
-      <View className="flex-row items-center gap-3">
+      <View style={styles.row}>
         <Touchable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: done }}
           accessibilityLabel={done ? 'Reabrir atividade' : 'Concluir atividade'}
           onPress={onToggle}
           pressedScale={0.85}
-          style={{ width: 44, height: 44 }}
-          className="-ml-2 items-center justify-center">
+          style={[styles.checkboxTarget, centeredContent]}
+          contentStyle={centeredContent}>
           <View
-            className="h-6 w-6 items-center justify-center rounded-full border"
-            style={{
-              borderColor: done ? Palette.accent : Palette.border,
-              backgroundColor: done ? Palette.accent : 'transparent',
-            }}>
+            style={[
+              styles.checkbox,
+              {
+                borderColor: done ? Palette.accent : Palette.border,
+                backgroundColor: done ? Palette.accent : 'transparent',
+              },
+            ]}>
             <Animated.View style={{ opacity: fill }}>
               <Check size={16} color={Palette.onAccent} strokeWidth={3} />
             </Animated.View>
           </View>
         </Touchable>
 
-        <View className="flex-1 gap-1">
+        <View style={styles.identifiers}>
           <Text
-            className={done ? 'text-body text-text-tertiary' : 'text-bodyStrong font-semibold text-text'}
-            style={done ? { textDecorationLine: 'line-through' } : undefined}
+            style={done === true ? [styles.titleDone, styles.doneTitle] : styles.title}
             numberOfLines={2}>
             {activity.title}
           </Text>
 
-          <View className="flex-row items-center gap-2">
+          <View style={styles.subjectRow}>
             {tone !== null ? (
-              <View className="h-2 w-2 rounded-full" style={{ backgroundColor: tone.value }} />
+              <View style={[styles.dot, { backgroundColor: tone.value }]} />
             ) : null}
-            <Text className="text-legend text-text-tertiary" numberOfLines={1}>
+            <Text style={styles.subject} numberOfLines={1}>
               {subjectName}
             </Text>
           </View>
@@ -83,3 +84,55 @@ export function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRow
     </ListItem>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  // Alvo de toque do checkbox: 44 com o conteúdo deslocado 8px à esquerda, para o
+  // círculo ficar alinhado com o título em vez de colado na borda do item.
+  checkboxTarget: {
+    width: TOUCH_TARGET,
+    height: TOUCH_TARGET,
+    marginLeft: -8,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  identifiers: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  title: {
+    ...Typography.bodyStrong,
+    color: Palette.text,
+  },
+  titleDone: {
+    ...Typography.body,
+    color: Palette.textTertiary,
+  },
+  doneTitle: {
+    textDecorationLine: 'line-through',
+  },
+  subjectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+  },
+  subject: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+  },
+});

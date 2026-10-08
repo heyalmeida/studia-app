@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 
-import { Touchable } from '@/components/ui/Touchable';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
+import { Palette, Radius, Spacing, TOUCH_TARGET, Typography } from '@/constants/theme';
 
 export interface SegmentedOption<T extends string> {
   key: T;
@@ -19,6 +20,8 @@ export interface SegmentedControlProps<T extends string> {
  * Filtro em controle segmentado único (ADR-0009) — substitui os 3 botões soltos. O
  * item ativo fica na cor de destaque; a troca anima a opacidade do conteúdo da lista
  * (a transição de filtro mora aqui, não em cada tela).
+ *
+ * Estilo em `StyleSheet` (ADR-0010): no Expo Go o `className` não é aplicado.
  */
 export function SegmentedControl<T extends string>({
   value,
@@ -26,7 +29,7 @@ export function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   return (
-    <View className="flex-row gap-1 rounded-card bg-surface-raised p-1">
+    <View style={styles.track}>
       {options.map((option) => {
         const selected = option.key === value;
         return (
@@ -37,19 +40,9 @@ export function SegmentedControl<T extends string>({
             onPress={() => onChange(option.key)}
             pressedOpacity={0.8}
             pressedScale={0.98}
-            style={{ flex: 1 }}
-            className={
-              selected
-                ? 'min-h-[38px] items-center justify-center rounded-chip bg-accent-soft'
-                : 'min-h-[38px] items-center justify-center rounded-chip'
-            }
-            contentClassName="w-full items-center justify-center">
-            <Text
-              className={
-                selected
-                  ? 'text-body font-semibold text-accent'
-                  : 'text-body text-text-secondary'
-              }>
+            style={[styles.item, selected === true ? styles.itemSelected : null]}
+            contentStyle={[styles.itemContent, centeredContent]}>
+            <Text style={[styles.label, selected === true ? styles.labelSelected : null]}>
               {option.label}
             </Text>
           </Touchable>
@@ -83,3 +76,32 @@ export function FadeIn({
 
   return <Animated.View style={{ flex: 1, opacity }}>{children}</Animated.View>;
 }
+
+const styles = StyleSheet.create({
+  track: {
+    flexDirection: 'row',
+    gap: Spacing.one,
+    borderRadius: Radius.card,
+    backgroundColor: Palette.surfaceRaised,
+    padding: Spacing.one,
+  },
+  item: {
+    flex: 1,
+    borderRadius: Radius.chip,
+  },
+  itemSelected: {
+    backgroundColor: Palette.accentSoft,
+  },
+  // 38 = alvo alto o bastante para o polegar, baixo o bastante para não pesar a barra.
+  itemContent: {
+    minHeight: TOUCH_TARGET - 6,
+  },
+  label: {
+    ...Typography.body,
+    color: Palette.textSecondary,
+  },
+  labelSelected: {
+    fontWeight: '600',
+    color: Palette.accent,
+  },
+});

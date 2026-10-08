@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { Touchable } from '@/components/ui/Touchable';
+import { Palette, Radius, Spacing } from '@/constants/theme';
 
 export interface CardProps {
   children: ReactNode;
@@ -9,19 +10,24 @@ export interface CardProps {
   onPress?: () => void;
   /** Sem padding interno — para listas que já controlam o respiro. */
   bare?: boolean;
+  /** Estilo do alvo (vindo do chamador: `gap`, `flexDirection`, …). */
   style?: StyleProp<ViewStyle>;
-  className?: string;
+  /** Padding **dentro** do alvo de toque. */
+  contentStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * Card da identidade (ADR-0009): superfície `#15151B`, hairline de 1px e raio 16.
  * Sem sombra — profundidade é por tom de superfície (RNF-01).
+ *
+ * Estilo em `StyleSheet`: no Expo Go o `className` do NativeWind não é aplicado, então o
+ * espaçamento e a tipografia vêm daqui (ADR-0010). Layout interno é do chamador, via
+ * `style`/`contentStyle`.
  */
-export function Card({ children, onPress, bare = false, style, className }: CardProps) {
+export function Card({ children, onPress, bare = false, style, contentStyle }: CardProps) {
   // O padding vai no Pressable (via Touchable), não no Animated.View: assim o respiro
   // também responde ao toque e o card inteiro é um alvo de verdade.
-  const padding = bare ? '' : 'p-4';
-  const base = `rounded-card border border-border bg-surface ${className ?? ''}`;
+  const padding = bare ? undefined : styles.padded;
 
   if (onPress !== undefined) {
     return (
@@ -30,13 +36,26 @@ export function Card({ children, onPress, bare = false, style, className }: Card
         onPress={onPress}
         pressedOpacity={0.8}
         pressedScale={0.99}
-        style={style}
-        className={base}
-        contentClassName={padding}>
+        style={[styles.card, style]}
+        contentStyle={padding === undefined ? contentStyle : [padding, contentStyle]}>
         {children}
       </Touchable>
     );
   }
 
-  return <View className={`${base} ${padding}`}>{children}</View>;
+  return (
+    <View style={[styles.card, style, padding, contentStyle]}>{children}</View>
+  );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    backgroundColor: Palette.surface,
+  },
+  padded: {
+    padding: Spacing.four,
+  },
+});

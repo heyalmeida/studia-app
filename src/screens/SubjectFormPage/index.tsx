@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, View } from 'react-native';
-import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ColorPicker } from '@/components/ui/ColorPicker';
 import { FormFooter } from '@/components/ui/FormFooter';
 import { IconPicker } from '@/components/ui/IconPicker';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Palette } from '@/constants/theme';
+import { FORM_FOOTER_HEIGHT, Palette, SCREEN_PADDING } from '@/constants/theme';
 import type { FieldErrors } from '@/domain/validation';
 import { useSubjects } from '@/hooks/use-subjects';
 
@@ -18,6 +18,7 @@ import { useSubjects } from '@/hooks/use-subjects';
 type FieldDraft = string | null;
 
 export default function SubjectFormPage() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { subjects, create, update, remove } = useSubjects();
 
@@ -100,19 +101,17 @@ export default function SubjectFormPage() {
   const colorError = submitTried ? errors.color : undefined;
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={styles.root}>
       <ScreenHeader
         title={isEdit ? 'Editar matéria' : 'Nova matéria'}
-        leading={{
-          icon: <ChevronLeft size={20} color={Palette.textSecondary} />,
-          label: 'Fechar',
-          onPress: () => router.back(),
-        }}
+        backLabel="Fechar"
+        onBack={() => router.back()}
       />
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
+        style={styles.scroll}
+        // O rodapé é `position: absolute`: o conteúdo precisa reservar a altura dele.
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + FORM_FOOTER_HEIGHT }]}
         keyboardShouldPersistTaps="handled">
         <Input
           label="Nome"
@@ -172,3 +171,17 @@ export default function SubjectFormPage() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Palette.background,
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 8,
+  },
+});

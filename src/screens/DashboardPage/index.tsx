@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import Inbox from 'lucide-react-native/icons/inbox';
 import { useMemo } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Greeting } from '@/components/DashboardPage/Greeting';
 import { NextAssessmentCard } from '@/components/DashboardPage/NextAssessmentCard';
@@ -10,11 +11,12 @@ import { UpcomingList } from '@/components/DashboardPage/UpcomingList';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { LIST_BOTTOM_INSET, Palette } from '@/constants/theme';
+import { Palette, SCREEN_PADDING, contentBottomInset } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 import { useDashboard } from '@/hooks/use-dashboard';
 
 export default function DashboardPage() {
+  const insets = useSafeAreaInsets();
   const { summary, subjects, loading, error, refresh } = useDashboard();
 
   // CA-09.2: com as 3 coleções vazias o painel é um convite ao primeiro cadastro, não zeros.
@@ -32,7 +34,7 @@ export default function DashboardPage() {
   const nextAssessment = summary.nextAssessments[0];
 
   return (
-    <View className="flex-1 bg-background">
+    <View style={styles.root}>
       <ScreenHeader title="Painel" />
 
       {loading ? <ListSkeleton height={120} /> : null}
@@ -43,6 +45,7 @@ export default function DashboardPage() {
           title="Deu errado"
           text={error}
           actionLabel="Tentar de novo"
+          actionWithIcon={false}
           onAction={refresh}
         />
       ) : null}
@@ -59,12 +62,11 @@ export default function DashboardPage() {
 
       {!loading && error === null && !isEmpty ? (
         <ScrollView
-          contentContainerStyle={{
-            paddingHorizontal: 20,
-            paddingTop: 8,
-            paddingBottom: LIST_BOTTOM_INSET,
-            gap: 12,
-          }}>
+          contentContainerStyle={[
+            styles.content,
+            // O painel não cria item (sem FAB): basta não ficar atrás da tab bar flutuante.
+            { paddingBottom: contentBottomInset(insets.bottom) },
+          ]}>
           <Greeting />
 
           <ProgressSummaryCard
@@ -87,3 +89,15 @@ export default function DashboardPage() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Palette.background,
+  },
+  content: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 8,
+    gap: 12,
+  },
+});

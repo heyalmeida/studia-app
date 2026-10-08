@@ -18,6 +18,7 @@ module.exports = {
         success: 'var(--color-success)',
         warning: 'var(--color-warning)',
         danger: 'var(--color-danger)',
+        shadow: 'var(--color-shadow)',
       },
       spacing: {
         screen: '20px',
@@ -26,7 +27,7 @@ module.exports = {
       borderRadius: {
         chip: '8px',
         field: '12px',
-        button: '12px',
+        button: '14px',
         card: '16px',
       },
       fontSize: {
@@ -35,6 +36,9 @@ module.exports = {
         cardTitle: ['17px', { lineHeight: '22px' }],
         body: ['15px', { lineHeight: '21px' }],
         bodyStrong: ['15px', { lineHeight: '21px' }],
+        // Digitação e rótulo de botão em 16px (evita o zoom do iOS ao focar um campo).
+        field: ['16px', { lineHeight: '22px' }],
+        button: ['16px', { lineHeight: '22px' }],
         legend: ['12px', { lineHeight: '16px' }],
         metric: ['22px', { lineHeight: '28px' }],
         day: ['26px', { lineHeight: '30px' }],

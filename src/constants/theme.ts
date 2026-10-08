@@ -39,6 +39,11 @@ export const Palette = {
   warning: '#FBBF24',
   /** Semântica: urgente (atrasado, erro, exclusão). */
   danger: '#F87171',
+  /**
+   * Cor de sombra. Só o botão flutuante usa sombra (ADR-0010 §3) e é sempre preto — a
+   * separação do FAB vem da cor, não de um tom de marca.
+   */
+  shadow: '#000000',
 } as const;
 
 /** Um tom da paleta de matérias: `value` é o traço/ícone, `soft` o fundo tingido. */
@@ -75,8 +80,8 @@ export function subjectTone(color: string | null | undefined): SubjectTone | nul
 /** Ritmo: escala de 4 (4, 8, 12, 16, 24, 32). */
 export const Spacing = { one: 4, two: 8, three: 12, four: 16, five: 24, six: 32 } as const;
 
-/** Raio: card 16, campo/botão 12, chip 8. */
-export const Radius = { chip: 8, field: 12, button: 12, card: 16 } as const;
+/** Raio: card 16, campo 12, botão 14, chip 8. */
+export const Radius = { chip: 8, field: 12, button: 14, card: 16 } as const;
 
 /**
  * Escala tipográfica — no máximo 3 pesos (400, 600, 700).
@@ -87,19 +92,55 @@ export const Typography = {
   cardTitle: { fontSize: 17, fontWeight: '600' },
   body: { fontSize: 15, fontWeight: '400' },
   bodyStrong: { fontSize: 15, fontWeight: '600' },
+  /** Texto digitado e rótulo de botão: 16px evita o zoom automático do iOS no foco. */
+  field: { fontSize: 16, fontWeight: '400', lineHeight: 22 },
+  button: { fontSize: 16, fontWeight: '600', lineHeight: 22 },
   legend: { fontSize: 12, fontWeight: '600', letterSpacing: 0.4 },
+  /** Número de destaque (percentual do anel de progresso). */
+  metric: { fontSize: 22, fontWeight: '700', lineHeight: 28 },
+  /** Dia grande do bloco de data. */
+  day: { fontSize: 26, fontWeight: '700', lineHeight: 30 },
 } as const;
 
 /** Padding lateral de tela. */
 export const SCREEN_PADDING = 20;
 /** Alvo de toque mínimo (iOS HIG / Material). */
 export const TOUCH_TARGET = 44;
-/** Altura mínima de campo de formulário. */
+/** Altura mínima de campo de formulário e de botão. */
 export const FIELD_HEIGHT = 52;
 /** Diâmetro do botão flutuante. */
 export const FAB_SIZE = 56;
+
 /**
- * Respiro do fim do conteúdo: garante que a tab bar flutuante e o FAB não cubram a última
- * linha de uma lista.
+ * Distância mínima de um elemento fixo (rodapé, FAB, botão) até a borda útil da tela.
+ * Em Android é também o que afasta o alvo da barra de gestos.
  */
-export const LIST_BOTTOM_INSET = 96;
+export const SAFE_GAP = 16;
+/**
+ * Altura da barra de abas flutuante **sem** a safe area inferior — a barra soma
+ * `Math.max(insets.bottom, Spacing.two)` por conta própria. Precisa casar com o estilo da
+ * barra em `src/app/(tabs)/_layout.tsx` (8 + 48 + 8 + 2 de borda).
+ */
+export const TAB_BAR_HEIGHT = 66;
+/**
+ * Altura útil do rodapé fixo dos formulários **sem** a safe area inferior:
+ * 16 (paddingTop) + 52 (Salvar) + 12 (gap) + 52 (Cancelar/Excluir) + 16 (paddingBottom).
+ * O conteúdo rolável reserva este valor para a última linha não ficar atrás do rodapé.
+ */
+export const FORM_FOOTER_HEIGHT = 148;
+
+/**
+ * Padding inferior de uma lista **que tem FAB**: tab bar + folga + FAB + folga, medidos a
+ * partir da borda inferior da tela (`insetsBottom` já inclui a barra de gestos).
+ */
+export function listBottomInset(insetsBottom: number): number {
+  return insetsBottom + TAB_BAR_HEIGHT + SAFE_GAP + FAB_SIZE + SAFE_GAP;
+}
+
+/**
+ * Padding inferior de uma tela **sem FAB** (painel): só a tab bar e a folga. O painel não
+ * cria item, então não precisa reservar espaço para botão flutuante.
+ */
+export function contentBottomInset(insetsBottom: number): number {
+  return insetsBottom + TAB_BAR_HEIGHT + SAFE_GAP;
+}

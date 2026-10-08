@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
 import { IconTile } from '@/components/ui/IconTile';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { subjectTone, Palette } from '@/constants/theme';
+import { subjectTone, Palette, Spacing, Typography } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 
 export interface SubjectCardProps {
@@ -26,22 +26,22 @@ export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardP
   return (
     <Card
       onPress={() => router.push(`/subject-form?id=${encodeURIComponent(subject.id)}`)}
-      className="gap-4">
-      <View className="flex-row items-center gap-3">
+      contentStyle={styles.content}>
+      <View style={styles.header}>
         <IconTile subject={subject} size={44} />
 
-        <View className="flex-1 gap-1">
-          <Text className="text-cardTitle font-semibold text-text" numberOfLines={2}>
+        <View style={styles.identifiers}>
+          <Text style={styles.name} numberOfLines={2}>
             {subject.name}
           </Text>
-          <Text className="text-legend text-text-tertiary" numberOfLines={1}>
+          <Text style={styles.teacher} numberOfLines={1}>
             {subject.teacher ?? 'Sem professor'}
           </Text>
         </View>
       </View>
 
-      <View style={{ gap: 8 }}>
-        <Text className="text-legend text-text-secondary">
+      <View style={styles.footer}>
+        <Text style={styles.counts}>
           {pending} {pending === 1 ? 'pendente' : 'pendentes'} · {scheduled}{' '}
           {scheduled === 1 ? 'avaliação' : 'avaliações'}
         </Text>
@@ -50,3 +50,33 @@ export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardP
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  content: {
+    gap: Spacing.four,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  identifiers: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  name: {
+    ...Typography.cardTitle,
+    color: Palette.text,
+  },
+  teacher: {
+    ...Typography.legend,
+    color: Palette.textTertiary,
+  },
+  footer: {
+    gap: Spacing.two,
+  },
+  counts: {
+    ...Typography.legend,
+    color: Palette.textSecondary,
+  },
+});

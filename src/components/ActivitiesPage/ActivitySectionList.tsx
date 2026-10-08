@@ -1,16 +1,18 @@
 import { useMemo } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { ActivityRow } from '@/components/ActivitiesPage/ActivityRow';
 import { groupByPeriod } from '@/components/ActivitiesPage/activity-groups';
 import { EmptyState } from '@/components/ui/EmptyState';
 import ListChecks from 'lucide-react-native/icons/list-checks';
-import { LIST_BOTTOM_INSET, Palette } from '@/constants/theme';
+import { Palette, SCREEN_PADDING, Spacing, Typography, listBottomInset } from '@/constants/theme';
 import type { Activity, Subject } from '@/domain/models';
 
 export interface ActivitySectionListProps {
   activities: Activity[];
   subjectById: Record<string, Subject>;
+  /** Safe area inferior da tela: define o respiro que mantém a última linha fora do FAB. */
+  insetsBottom: number;
   onToggle: (id: string) => void;
   onOpen: (id: string) => void;
   emptyTitle: string;
@@ -27,6 +29,7 @@ export interface ActivitySectionListProps {
 export function ActivitySectionList({
   activities,
   subjectById,
+  insetsBottom,
   onToggle,
   onOpen,
   emptyTitle,
@@ -56,9 +59,9 @@ export function ActivitySectionList({
       keyExtractor={(row) => row.key}
       renderItem={({ item }) =>
         item.kind === 'header' ? (
-          <View className="flex-row items-center gap-3 pb-1 pt-5">
-            <Text className="text-legend uppercase text-text-tertiary">{item.title}</Text>
-            <View className="h-px flex-1 bg-border" />
+          <View style={styles.groupHeader}>
+            <Text style={styles.groupTitle}>{item.title}</Text>
+            <View style={styles.groupRule} />
           </View>
         ) : (
           <ActivityRow
@@ -70,8 +73,8 @@ export function ActivitySectionList({
         )
       }
       contentContainerStyle={{
-        paddingHorizontal: 20,
-        paddingBottom: LIST_BOTTOM_INSET,
+        paddingHorizontal: SCREEN_PADDING,
+        paddingBottom: listBottomInset(insetsBottom),
         flexGrow: 1,
       }}
       ListEmptyComponent={
@@ -81,8 +84,29 @@ export function ActivitySectionList({
           text={emptyText}
           actionLabel={emptyAction?.label}
           onAction={emptyAction?.onPress}
+          actionWithIcon={emptyAction !== undefined}
         />
       }
     />
   );
 }
+
+const styles = StyleSheet.create({
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    paddingTop: Spacing.five,
+    paddingBottom: Spacing.one,
+  },
+  groupTitle: {
+    ...Typography.legend,
+    textTransform: 'uppercase',
+    color: Palette.textTertiary,
+  },
+  groupRule: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Palette.border,
+  },
+});

@@ -1,6 +1,7 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/ui/Card';
+import { SCREEN_PADDING, Spacing } from '@/constants/theme';
 
 export interface ListSkeletonProps {
   height: number;
@@ -13,7 +14,7 @@ export interface ListSkeletonProps {
  */
 export function ListSkeleton({ height, count = 3 }: ListSkeletonProps) {
   return (
-    <View className="flex-1 gap-3 px-5 pb-4">
+    <View style={styles.wrapper}>
       {Array.from({ length: count }, (_, index) => (
         <Card key={index} style={{ height }} bare>
           {null}
@@ -22,3 +23,12 @@ export function ListSkeleton({ height, count = 3 }: ListSkeletonProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    gap: Spacing.three,
+    paddingHorizontal: SCREEN_PADDING,
+    paddingBottom: Spacing.four,
+  },
+});
