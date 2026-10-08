@@ -122,6 +122,8 @@ export function DateInput({
               selectedTextColor={theme.text}
               fontStyle={{ color: theme.text }}
               textStyleModal={{ color: theme.text }}
+              containerStyle={{ gap: 8, padding: 0 }}
+              inputStyle={{ borderRadius: 10 }}
             />
             <Pressable
               accessibilityRole="button"
