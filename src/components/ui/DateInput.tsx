@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Modal, Pressable, Text, TextInput, View } from 'react-native';
-import DatePicker from 'expo-datepicker';
+import { Pressable, Text, TextInput, View } from 'react-native';
 
-import { formatDDMMYYYY, maskDDMMYYYY, parseDDMMYYYY, todayISO } from '@/domain/date';
-import { useTheme } from '@/hooks/use-theme';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { formatDDMMYYYY, maskDDMMYYYY, parseDDMMYYYY } from '@/domain/date';
 
 export interface DateInputProps {
   /** ISO 'YYYY-MM-DD' ou null. */
@@ -16,17 +15,9 @@ export interface DateInputProps {
   disabled?: boolean;
 }
 
-/** '2026-10-07' | '2026/10/7' -> '07/10/2026' (formato do expo-datepicker) ou null. */
-function pickerValueToDDMMYYYY(value: string): string | null {
-  const match = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(value.trim());
-  if (!match) return null;
-  const [, year, month, day] = match;
-  return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-}
-
 /**
- * Campo de data em duas vias: digitação manual (máscara DD/MM/AAAA) e picker nativo
- * (expo-datepicker — modais de mês/dia/ano). `date` é sempre ISO (ou null).
+ * Campo de data em duas vias: digitação manual (máscara DD/MM/AAAA) e calendário
+ * mensal próprio em Modal nativo. `date` é sempre ISO (ou null).
  */
 export function DateInput({
   date,
@@ -40,7 +31,6 @@ export function DateInput({
   // `null` = campo ainda não editado; exibe o valor convertido da prop (chega async).
   const [draft, setDraft] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const theme = useTheme();
   const text = draft ?? (date === null || date === '' ? '' : formatDDMMYYYY(date));
   const hasError = error !== undefined && error.length > 0;
 
@@ -79,7 +69,7 @@ export function DateInput({
         <Pressable
           accessibilityRole="button"
           disabled={disabled}
-          onPress={() => setPickerOpen((open) => !open)}
+          onPress={() => setPickerOpen(true)}
           className="rounded-field border border-border bg-backgroundElement px-three py-two">
           <Text className="text-body text-text-secondary">escolher...</Text>
         </Pressable>
@@ -94,50 +84,16 @@ export function DateInput({
           Aviso: {warning}
         </Text>
       ) : null}
-      {/* O DatePicker do expo-datepicker usa FlatList (as opções de mês/dia/ano);
-          precisa ficar fora do ScrollView do formulário — daí o Modal nativo. */}
-      <Modal
-        visible={pickerOpen && !disabled}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setPickerOpen(false)}>
-        <Pressable
-          className="flex-1 items-center justify-center bg-black/50"
-          onPress={() => setPickerOpen(false)}>
-          <Pressable
-            className="mx-four rounded-card border border-border bg-background p-three"
-            onPress={() => undefined}>
-            {/* Fechar no topo: a lista do expo-datepicker expande para baixo e
-                cobriria o botão se ele ficasse embaixo do picker. */}
-            <View className="flex-row justify-end pb-two">
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => setPickerOpen(false)}
-                className="rounded-field border border-border px-three py-two">
-                <Text className="text-body text-text-secondary">Fechar</Text>
-              </Pressable>
-            </View>
-            <DatePicker
-              date={date === null || date === '' ? todayISO() : date}
-              onChange={(value) => {
-                const ddmmyyyy = pickerValueToDDMMYYYY(value);
-                const iso = ddmmyyyy === null ? null : parseDDMMYYYY(ddmmyyyy);
-                setDraft(ddmmyyyy);
-                onChange(iso);
-              }}
-              borderColor={theme.border}
-              backgroundColor={theme.backgroundElement}
-              modalBackgroundColor={theme.background}
-              selectedColor={theme.backgroundSelected}
-              selectedTextColor={theme.text}
-              fontStyle={{ color: theme.text }}
-              textStyleModal={{ color: theme.text }}
-              containerStyle={{ gap: 8, padding: 0 }}
-              inputStyle={{ borderRadius: 10 }}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
+      {pickerOpen && !disabled ? (
+        <DatePicker
+          value={date === null || date === '' ? null : date}
+          onChange={(iso) => {
+            setDraft(iso === null ? '' : formatDDMMYYYY(iso));
+            onChange(iso);
+          }}
+          onClose={() => setPickerOpen(false)}
+        />
+      ) : null}
     </View>
   );
 }
