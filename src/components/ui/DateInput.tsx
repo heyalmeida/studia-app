@@ -107,6 +107,16 @@ export function DateInput({
           <Pressable
             className="mx-four rounded-card border border-border bg-background p-three"
             onPress={() => undefined}>
+            {/* Fechar no topo: a lista do expo-datepicker expande para baixo e
+                cobriria o botão se ele ficasse embaixo do picker. */}
+            <View className="flex-row justify-end pb-two">
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setPickerOpen(false)}
+                className="rounded-field border border-border px-three py-two">
+                <Text className="text-body text-text-secondary">Fechar</Text>
+              </Pressable>
+            </View>
             <DatePicker
               date={date === null || date === '' ? todayISO() : date}
               onChange={(value) => {
@@ -125,12 +135,6 @@ export function DateInput({
               containerStyle={{ gap: 8, padding: 0 }}
               inputStyle={{ borderRadius: 10 }}
             />
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setPickerOpen(false)}
-              className="mt-two items-center rounded-field border border-border px-three py-two">
-              <Text className="text-body text-text-secondary">Fechar</Text>
-            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>
