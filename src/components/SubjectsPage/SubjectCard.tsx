@@ -28,15 +28,11 @@ export function SubjectCard({ subject, pending, scheduled, ratio }: SubjectCardP
       onPress={() => router.push(`/subject-form?id=${encodeURIComponent(subject.id)}`)}
       style={{ marginBottom: 16, gap: 16 }}>
       <View className="flex-row items-center gap-three">
-        {hasIcon ? (
           <View
-            className="items-center justify-center rounded-monogram border border-border-strong p-half text-text"
+            className="items-center justify-center rounded-monogram p-half text-text"
             style={{ width: 40, height: 40 }}>
             {renderIcon(subject.icon, 20, theme.text)}
           </View>
-        ) : (
-          <Monogram name={subject.name} size="md" />
-        )}
         <View className="flex-1 gap-half">
           <Text className="flex-shrink text-body font-semibold text-text" numberOfLines={1} ellipsizeMode="tail">
             {subject.name}

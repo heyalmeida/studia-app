@@ -27,7 +27,7 @@ export function SegmentedFilter({ value, onChange }: SegmentedFilterProps) {
             accessibilityState={{ selected }}
             className={
               selected
-                ? 'flex-1 items-center justify-center rounded-chip border-[1.5px] border-border-strong bg-background px-two py-two'
+                ? 'flex-1 items-center justify-center rounded-chip border-[1.5px] border-white/40 bg-background px-two py-two'
                 : 'flex-1 items-center justify-center rounded-chip border border-transparent bg-surface px-two py-two'
             }>
             <Text className={selected ? 'text-meta text-text' : 'text-meta text-text-secondary'}>

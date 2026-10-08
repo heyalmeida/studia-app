@@ -792,6 +792,161 @@ como questões novas — NÃO conserte o que foge do escopo aprovado).
 
 ---
 
+## P7 — Melhorias: carga horária, ícones, pickers de data e dashboard com gráficos (Slice 6)
+
+```text
+Você vai implementar o Slice 6 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
+um conjunto de melhorias de usabilidade que **altera o contrato de dados** (nova branch recomendada
+se a `development` estiver travada em release):
+
+- Matérias: campo opcional **Carga Horária** (horas/semana, range 1–200) + **ícone** (emoji).
+- Atividades: **date picker** nativo no campo de prazo; seletor de matéria simplificado (**apenas
+  o nome**, sem monograma/resumo).
+- Avaliações: **date picker** nativo no campo de data.
+- Painel: resumos por **cards e gráficos** (barra de progresso, rosca de conclusão, linha semanal
+  de atividades concluídas), substituindo as listas compactas atuais.
+
+LEIA ANTES DE CODAR:
+1. docs/specs/2026-10-07-slice-6-improvements/spec.md — contratos exatos (domínio, UI kit, gates).
+2. docs/adr/ADR-0004-organizacao-arquitetural.md e ADR-0006-identidade-visual-monocromatica.md.
+3. docs/design/visual-identity.md — tokens; a exceção ao monocromático (emoji do ícone) é documentada
+   na spec e é a única quebra permitida.
+4. docs/specs/2026-10-07-slice-*/spec.md — contratos dos hooks existentes (use-subjects,
+   use-activities, use-assessments, use-dashboard) para **não mudar o retorno**, só o uso.
+
+INSTALE AS DEPENDÊNCIAS (exatamente nesta ordem):
+npx expo install expo-datepicker expo-charts react-native-svg
+
+CRIE/EDIITE OS SEGUINTES ARQUIVOS (nenhum outro deve ser criado ou editado):
+
+--- 1. src/domain/models.ts ---
+Atualize a interface Subject para:
+export interface Subject {
+  id: string;
+  name: string;
+  teacher: string | null;
+  hour: number | null;    // horas por semana; null = não informado
+  icon: string | null;    // emoji (ex: '📚') ou ''; '' tratado como null
+  createdAt: string;
+}
+
+--- 2. src/storage/storage.ts ---
+Nenhuma mudança — o repositório de matérias cuida da migração.
+
+--- 3. src/storage/subject.repository.ts ---
+Migração na leitura: em readCollection, após carregar Subject[][], para cada item:
+  se item.hour === undefined → item.hour = null
+  se item.icon === undefined || item.icon === '' → item.icon = null
+E apenas após isso, retorne o array. (Guarda dados dos Slices 0–5 sem `hour`/`icon`.)
+
+--- 4. src/components/ui/IconPicker.tsx ---
+interface IconPickerProps { selected?: string; onChange: (icon: string) => void; }
+Grid 4 colunas × 4 linhas com os 16 icones diferentes relacionados a estudo via biblioteca do lucide-react (npm install lucide-react
+).
+Cada célula: TouchableOpacity/Pressable com padding, borda 1px `border-border`, `bg-surface` (se
+selected) / `bg-backgroundElement` (se não selecionado), texto tamanho `text-body` centrado.
+selected = célula com borda `border-border-strong`.
+Se selected for '', mostre uma célula inicial 'Escolha' desabilitada? (Opcional — se ficar
+complicado, trate '' como 'nenhum ícone' e a seleção sobrescreve.)
+
+--- 5. src/components/ui/DateInput.tsx ---
+interface DateInputProps { date: string | null; onChange: (iso: string | null) => void;
+  label: string; placeholder?: string; error?: string; disabled?: boolean; }
+Use expo-datepicker no picker. Input de texto visível (editable manualmente) no formato
+'DD/MM/AAAA' (use a máscara do prompt P3 + input) + botão 'escolher...' que abre o picker.
+Ao confirmar no picker: converta para ISO com parseDDMMYYYY; se nulo -> onChange(null).
+Mantenha os tokens de erro/label dos prompts P2/P4.
+
+--- 6. src/components/ui/DashCard.tsx ---
+interface DashCardProps { title: string; value?: string | number; subtitle?: string;
+  children?: React.ReactNode; }
+Card com `border-border`, `bg-surface`, padding Spacing.three; título `text-section`;
+valor `text-metric font-bold` (se fornecido); subtítulo `text-meta text-text-tertiary`; children
+embaixo (gráfico).
+
+--- 7. src/components/ui/DonutChart.tsx ---
+interface DonutChartProps { ratio: number; size?: 'sm' | 'md'; }
+Rosca desenhada com react-native-svg (arc Path com strokeDasharray = [progresso, total -
+progresso]). Cor do traço: `text-on-inverse` / `bg-inverse` (monocromático). label central
+'{Math.round(ratio*100)}%'. size sm 64, md 96.
+
+--- 8. src/components/ui/LineChart.tsx ---
+interface LineChartProps { data: { label: string; value: number }[]; height?: number; }
+Últimos 7 dias de atividades concluídas ({label: 'seg', value: 2}, ...). Desenho SVG: eixo X com
+labels rotacionados, eixo Y, pontos marcados e linha conectando. Se data.length < 3 -> mostra
+texto 'Dados insuficientes para o gráfico.' no lugar. height padrão 120.
+
+--- 9. src/components/ui/SubjectChip.tsx ---
+interface SubjectChipProps { subject: Subject; selected: boolean; onPress: () => void; }
+Chip horizontal **apenas com o NOME da matéria** (sem Monogram, sem resumo): texto `body`,
+padding h/v Spacing.two, borda `border-border` + `bg-surface` se selecionado,
+`border-border-strong` + `bg-backgroundElement` se não selecionado, radius Radius.chip.
+
+--- 10. src/screens/SubjectFormPage/index.tsx ---
+Novos campos após 'Professor(a) (opcional)':
+- Input (novo campo) 'Carga Horária' — number-pad, maxLength 5, máscara opcional 'h' (não obrigar;
+  apenas número, ex: 60). Ao salvar, validação: null ou entre 1 e 200 -> {hour: parsed || null};
+  fora do range -> {hour: 'Informe uma carga horária entre 1 e 200 horas.'}.
+- IconPicker com onChange -> ícone salvo como string.
+- Retorno de Subject: { id, name, teacher: trim||null, hour: parsedHour, icon: icon || null, createdAt }.
+
+--- 11. src/screens/SubjectsPage/index.tsx ---
+Card da matéria: Monogram → substitua ou complemente com o ícone da matéria (IconPicker saved):
+mostre `icon` (emoji) em vez de / junto ao monograma. Barra de progresso mantida.
+(Se o ícone existir, mostre o emoji; caso contrário, o monograma.)
+
+--- 12. src/screens/ActivityFormPage/index.tsx ---
+Substitua o Input 'Prazo (opcional)' (number-pad com máscara) pelo <DateInput date={dueDateDraft}
+onChange={setDueDateDraft} label='Prazo (opcional)' placeholder='DD/MM/AAAA'>.
+O input de matéria: mapeie subjects para SubjectChip ({subject, selected, onPress}) em vez do
+ChoiceChip com monograma/resumo.
+
+--- 13. src/screens/AssessmentFormPage/index.tsx ---
+Substitua o Input 'Data' (number-pad com máscara) pelo <DateInput date={dateDraft}
+onChange={setDateDraft} label='Data' placeholder='DD/MM/AAAA'>.
+
+--- 14. src/screens/DashboardPage/index.tsx ---
+Substitua o layout de três listas por:
+(a) **Card "Progresso geral"** (DashCard): valor 'Concluídas X/Y' + DonutChart(ratio do
+    progressSummary) + barra de progresso full-width do progressSummary.
+(b) **Card "Tarefas concluídas (7 dias)"** (DashCard + LineChart): agrupar atividades concluídas
+    por dia (createdAt, últimos 7 dias) -> data[] de {label, value}; se vazio, mensagem 'Sem
+    atividades concluídas nesta semana.'
+(c) **Card "Pendências"** (DashCard): título 'Pendências', valor grande '{pendingTotal}' com
+    'atividade(s) sem prazo ou vencendo', badge de estado (outline), e até 3 cards compactos de
+    tarefas com prazo (badge relativo) — ou, se quiser zerar listas, apenas o valor grande +
+    botão 'Ver todas' -> /activities.
+(d) **Card "Próximas avaliações"** (DashCard): valor '{nextAssessments.length}' + lista compacta
+    de até 3 (nome + data relativa) OU apenas o valor + botão 'Ver avaliações' -> /assessments.
+Escolha a versão 'cards gráficos' (evite listas longas; botões de ação substituem as listas).
+- loading -> ListSkeleton; error -> EmptyState padrão.
+
+--- 15. src/hooks/use-dashboard.ts ---
+Sem mudança de retorno. Os dados para o gráfico semanal podem ser computados na própria tela
+(agrupando activities concluídas por dia), ou no hook se preferir — documente no relatório.
+
+REGRAS: monocromático em TODO o UI exceto o emoji do ícone da matéria; zero hex; zero shadow;
+textos em PT-BR; picker de data fecha e volta ao form (modal nativo).
+
+VERIFICAÇÃO: npx tsc --noEmit && npx expo lint && npx expo export --platform web — todos limpos.
+Manual: (1) cria matéria com carga horária 60 e ícone relacionado; cria outra com 0.5h e outra com 250h (erro);
+(2) atividade com prazo via date picker + matéria sem ícone; (3) avaliação com data via picker;
+(4) dashboard mostra barra, rosca, linha semanal + cards; (5) materias antigas (Slice 5) aparecem
+sem erro (migração ok); (6) web export roda.
+
+COMMIT (sugestão de branch: `improvements/slice-6` se `development` estiver travada):
+git add src/domain/models.ts src/storage/subject.repository.ts src/components/ui/{IconPicker,DateInput,DashCard,DonutChart,LineChart,SubjectChip}.tsx src/hooks/use-dashboard.ts "src/screens/{SubjectFormPage,SubjectsPage,ActivityFormPage,AssessmentFormPage,DashboardPage}" "src/app/(tabs)/index.tsx"
+git commit -m "feat(improvements): carga horária, ícones, pickers de data e dashboard com gráficos
+
+Refs: docs/specs/2026-10-07-slice-6-improvements"
+
+RELATÓRIO: arquivos criados/editados, saídas dos 3 gates, divergências (especialmente compatibilidade
+expo-datepicker / expo-charts na versão do SDK 57 instalado — se alguma lib não rodar no web,
+relate e sugira fallback SVG puro).
+```
+
+---
+
 ## PR — Pesquisa Mobbin (opcional; executo eu quando o MCP estiver ativo)
 
 ```text

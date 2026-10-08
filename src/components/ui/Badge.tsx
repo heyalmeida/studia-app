@@ -1,23 +1,27 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
 
 export interface BadgeProps {
   label: string;
-  tone?: 'outline' | 'inverse';
+  tone?: "outline" | "inverse";
 }
 
-export function Badge({ label, tone = 'outline' }: BadgeProps) {
-  const inverse = tone === 'inverse';
+export function Badge({ label, tone = "outline" }: BadgeProps) {
+  const inverse = tone === "inverse";
 
   return (
     <View
       className={
         inverse
-          ? 'self-start rounded-chip bg-inverse px-two py-one'
-          : 'self-start rounded-chip border border-border-strong px-two py-one'
-      }>
+          ? "self-start rounded-chip bg-inverse px-two py-one"
+          : "self-start rounded-chip border border-gray-500 px-two py-one"
+      }
+    >
       <Text
         style={styles.label}
-        className={inverse ? 'text-section text-on-inverse' : 'text-section text-text'}>
+        className={
+          inverse ? "text-section text-on-inverse" : "text-section text-gray-300"
+        }
+      >
         {label}
       </Text>
     </View>

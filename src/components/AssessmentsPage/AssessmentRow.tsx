@@ -49,7 +49,6 @@ export function AssessmentRow({ assessment, subject, onToggle, onOpen }: Assessm
             {assessment.title}
           </Text>
           <View className="flex-row items-center gap-two">
-            <Monogram name={subjectName} size="sm" />
             <Text className="flex-shrink text-meta text-text-secondary" numberOfLines={1}>
               {subjectName}
             </Text>
