@@ -3,6 +3,7 @@ import { Modal, Pressable, Text, TextInput, View } from 'react-native';
 import DatePicker from 'expo-datepicker';
 
 import { formatDDMMYYYY, maskDDMMYYYY, parseDDMMYYYY, todayISO } from '@/domain/date';
+import { useTheme } from '@/hooks/use-theme';
 
 export interface DateInputProps {
   /** ISO 'YYYY-MM-DD' ou null. */
@@ -39,6 +40,7 @@ export function DateInput({
   // `null` = campo ainda não editado; exibe o valor convertido da prop (chega async).
   const [draft, setDraft] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const theme = useTheme();
   const text = draft ?? (date === null || date === '' ? '' : formatDDMMYYYY(date));
   const hasError = error !== undefined && error.length > 0;
 
@@ -113,11 +115,13 @@ export function DateInput({
                 setDraft(ddmmyyyy);
                 onChange(iso);
               }}
-              borderColor="var(--color-border)"
-              backgroundColor="var(--color-surface)"
-              modalBackgroundColor="var(--color-background)"
-              selectedColor="var(--color-inverse)"
-              selectedTextColor="var(--color-on-inverse)"
+              borderColor={theme.border}
+              backgroundColor={theme.backgroundElement}
+              modalBackgroundColor={theme.background}
+              selectedColor={theme.backgroundSelected}
+              selectedTextColor={theme.text}
+              fontStyle={{ color: theme.text }}
+              textStyleModal={{ color: theme.text }}
             />
             <Pressable
               accessibilityRole="button"
