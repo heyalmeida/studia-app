@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, Text, TextInput, View } from 'react-native';
 import DatePicker from 'expo-datepicker';
 
 import { formatDDMMYYYY, maskDDMMYYYY, parseDDMMYYYY, todayISO } from '@/domain/date';
@@ -92,22 +92,42 @@ export function DateInput({
           Aviso: {warning}
         </Text>
       ) : null}
-      {pickerOpen && !disabled ? (
-        <DatePicker
-          date={date === null || date === '' ? todayISO() : date}
-          onChange={(value) => {
-            const ddmmyyyy = pickerValueToDDMMYYYY(value);
-            const iso = ddmmyyyy === null ? null : parseDDMMYYYY(ddmmyyyy);
-            setDraft(ddmmyyyy);
-            onChange(iso);
-          }}
-          borderColor="var(--color-border)"
-          backgroundColor="var(--color-surface)"
-          modalBackgroundColor="var(--color-background)"
-          selectedColor="var(--color-inverse)"
-          selectedTextColor="var(--color-on-inverse)"
-        />
-      ) : null}
+      {/* O DatePicker do expo-datepicker usa FlatList (as opções de mês/dia/ano);
+          precisa ficar fora do ScrollView do formulário — daí o Modal nativo. */}
+      <Modal
+        visible={pickerOpen && !disabled}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPickerOpen(false)}>
+        <Pressable
+          className="flex-1 items-center justify-center bg-black/50"
+          onPress={() => setPickerOpen(false)}>
+          <Pressable
+            className="mx-four rounded-card border border-border bg-background p-three"
+            onPress={() => undefined}>
+            <DatePicker
+              date={date === null || date === '' ? todayISO() : date}
+              onChange={(value) => {
+                const ddmmyyyy = pickerValueToDDMMYYYY(value);
+                const iso = ddmmyyyy === null ? null : parseDDMMYYYY(ddmmyyyy);
+                setDraft(ddmmyyyy);
+                onChange(iso);
+              }}
+              borderColor="var(--color-border)"
+              backgroundColor="var(--color-surface)"
+              modalBackgroundColor="var(--color-background)"
+              selectedColor="var(--color-inverse)"
+              selectedTextColor="var(--color-on-inverse)"
+            />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setPickerOpen(false)}
+              className="mt-two items-center rounded-field border border-border px-three py-two">
+              <Text className="text-body text-text-secondary">Fechar</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
