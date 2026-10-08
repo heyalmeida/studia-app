@@ -15,6 +15,8 @@ export interface ActivitySectionListProps {
   onOpen: (id: string) => void;
   emptyTitle: string;
   emptyText: string;
+  /** Ação do estado vazio. Só a lista realmente vazia tem o que criar. */
+  emptyAction?: { label: string; onPress: () => void };
 }
 
 /**
@@ -29,6 +31,7 @@ export function ActivitySectionList({
   onOpen,
   emptyTitle,
   emptyText,
+  emptyAction,
 }: ActivitySectionListProps) {
   const groups = useMemo(() => groupByPeriod(activities), [activities]);
 
@@ -76,6 +79,8 @@ export function ActivitySectionList({
           icon={<ListChecks size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
           title={emptyTitle}
           text={emptyText}
+          actionLabel={emptyAction?.label}
+          onAction={emptyAction?.onPress}
         />
       }
     />

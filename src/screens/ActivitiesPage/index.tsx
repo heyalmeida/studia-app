@@ -81,6 +81,10 @@ export default function ActivitiesPage() {
               onOpen={(id) => router.push(`/activity-form?id=${encodeURIComponent(id)}`)}
               emptyTitle={EMPTY_STATE[filter].title}
               emptyText={EMPTY_STATE[filter].text}
+              emptyAction={
+                // Só o filtro "todas" vazio significa "nada cadastrado": aí há o que criar.
+                filter === 'todas' ? { label: 'Nova atividade', onPress: openCreate } : undefined
+              }
             />
           </FadeIn>
         </>
