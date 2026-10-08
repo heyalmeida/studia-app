@@ -1,24 +1,24 @@
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import {
-  BarChart3,
-  Book,
-  BookOpen,
-  Calculator,
-  Calendar,
-  Dumbbell,
-  FlaskConical,
-  Globe,
-  GraduationCap,
-  Languages,
-  Microscope,
-  Music,
-  Palette,
-  PenLine,
-  Plane,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+// Deep imports (icons/<nome>) evitam o barrel gigante do lucide-react-native,
+// que derrubava o bundler do Metro com re-exports em cadeia.
+import BookOpen from 'lucide-react-native/icons/book-open';
+import Book from 'lucide-react-native/icons/book';
+import GraduationCap from 'lucide-react-native/icons/graduation-cap';
+import Calculator from 'lucide-react-native/icons/calculator';
+import FlaskConical from 'lucide-react-native/icons/flask-conical';
+import Microscope from 'lucide-react-native/icons/microscope';
+import Zap from 'lucide-react-native/icons/zap';
+import Palette from 'lucide-react-native/icons/palette';
+import Music from 'lucide-react-native/icons/music';
+import Languages from 'lucide-react-native/icons/languages';
+import ChartColumn from 'lucide-react-native/icons/chart-column';
+import Calendar from 'lucide-react-native/icons/calendar';
+import Dumbbell from 'lucide-react-native/icons/dumbbell';
+import PenLine from 'lucide-react-native/icons/pen-line';
+import Plane from 'lucide-react-native/icons/plane';
+import Globe from 'lucide-react-native/icons/globe';
+import type { LucideIcon } from 'lucide-react-native';
 
 /** 16 ícones de estudo; a chave (nome) é o que vai para `Subject.icon`. */
 const ICONS: { name: string; Icon: LucideIcon }[] = [
@@ -32,7 +32,7 @@ const ICONS: { name: string; Icon: LucideIcon }[] = [
   { name: 'Palette', Icon: Palette },
   { name: 'Music', Icon: Music },
   { name: 'Languages', Icon: Languages },
-  { name: 'BarChart3', Icon: BarChart3 },
+  { name: 'ChartColumn', Icon: ChartColumn },
   { name: 'Calendar', Icon: Calendar },
   { name: 'Dumbbell', Icon: Dumbbell },
   { name: 'PenLine', Icon: PenLine },
