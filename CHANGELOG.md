@@ -6,6 +6,42 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Added — Lembrete local de prazo em atividades e avaliações (2026-10-09, Slice 8)
+
+Opção **"Lembrar"** nos formulários de atividade e avaliação agenda uma **notificação local** para
+**1 dia antes da data, às 08:00** (fuso local do aparelho), com o título "Lembrete" e o corpo
+`Amanhã: <título>`. É **local**, não push: nenhum token, nenhuma chamada de rede, nenhuma API
+externa (RNF-03, [ADR-0002](docs/adr/ADR-0002-estrategia-de-persistencia.md)). Spec:
+[2026-10-09-slice-8-reminders](docs/specs/2026-10-09-slice-8-reminders/spec.md) · Feature:
+[docs/features/reminders/spec.md](docs/features/reminders/spec.md).
+
+- **Modelo:** `Activity` e `Assessment` ganharam `reminder: boolean` e `notificationId: string | null`.
+  `ActivityFormInput`/`AssessmentFormInput` ganharam `reminder?: boolean` — **sem** regra de validação
+  (o agendamento é regra do serviço, não do formulário). Leitura migrada em `migrateActivities` e
+  `migrateAssessments` (mesmo padrão de `migrateSubjects`): registro antigo vira
+  `{ reminder: false, notificationId: null }` e a migração nunca lança (RNF-04).
+- **Serviço novo `src/services/reminders.ts`** — único módulo do app que importa
+  `expo-notifications`, atrás de três funções (`ensurePermission`, `scheduleForDueDate`, `cancel`).
+  Android cria o canal `studia-reminders` ("Lembretes", importance alta) uma vez, antes do prompt de
+  permissão. Web é no-op por `Platform.OS`. Push remoto fora de escopo (removido do Expo Go no SDK 53).
+- **Hooks:** `use-activities` e `use-assessments` agendam antes do `upsert` (o id precisa ser gravado),
+  cancelam o id antigo ao re-salvar (um id por entidade) e cancelam + zeram o par em `toggleStatus`
+  (concluída/realizada) e em `remove`.
+- **UI:** `components/ui/SwitchField.tsx` (linha com switch 50×30 desenhado à mão,
+  `accessibilityRole="switch"`, alvo de toque 44px), usado sob Prazo em T6 — desabilitado sem prazo —
+  e sob Data em T7, sempre habilitado.
+- **Formato do trigger conferido na doc do SDK 57**
+  ([`DateTriggerInput`](https://docs.expo.dev/versions/v57.0.0/sdk/notifications/)):
+  `{ type: SchedulableTriggerInputTypes.DATE, date: Date, channelId? }`. **Não existe
+  `torchScheduled`** e `dateComponents` pertence ao trigger `CALENDAR` (iOS, repetitivo).
+- **Contorno documentado — Android + Expo Go:** o barrel `expo-notifications` **lança no `import`**
+  nesse ambiente (`index.js` reexporta `TokenEmitter`, que chama `warnOfExpoGoPushUsage()` no escopo
+  do módulo e lança para Android/Expo Go). O serviço importa direto os módulos usados
+  (`scheduleNotificationAsync`, `NotificationPermissions`, …), que não puxam essa cadeia — assim o
+  lembrete local funciona no Expo Go de Android e iOS. Risco e mitigação anotados no próprio arquivo.
+- Gates: `npx tsc --noEmit`, `npx expo lint` e `npx expo export --platform web` limpos. Checklist
+  manual em aparelho físico (Expo Go) **não executado** — depende de dispositivo; ver a spec.
+
 ### Fixed — Layout e espaçamento no Expo Go: `StyleSheet` no lugar de `className` (2026-10-08)
 
 O `className` do NativeWind **não é aplicado no Expo Go** — o `react-native-css-interop` é módulo

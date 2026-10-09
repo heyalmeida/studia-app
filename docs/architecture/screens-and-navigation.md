@@ -103,7 +103,8 @@ de "≤2 toques para ação comum".
 - **Objetivo:** criar ou editar atividade.
 - **Campos:** Título (obrigatório); Matéria (chips horizontais com a cor de cada uma, obrigatório);
   Tipo (Tarefa, Trabalho, Leitura, Estudo — chips com ícone, quebram linha); Prazo (campo que abre o
-  calendário ao toque, com atalhos Hoje/Amanhã/Próxima semana; opcional, aviso se passada); Descrição
+  calendário ao toque, com atalhos Hoje/Amanhã/Próxima semana; opcional, aviso se passada); **Lembrar**
+  (switch, "Avisa um dia antes do prazo" — desabilitado sem prazo, Slice 8); Descrição
   (opcional, altura mínima 100).
 - **Validações:** CA-04.1–CA-04.3; sem matérias cadastradas, o formulário vira ponte para T5 (CA-04.4).
 - **Rodapé fixo:** Salvar / Excluir / Cancelar → T3. **Origem:** T3, T1. **Dados:** grava `activities`.
@@ -112,7 +113,8 @@ de "≤2 toques para ação comum".
 
 - **Objetivo:** criar ou editar avaliação.
 - **Campos:** Título (obrigatório); Matéria (mesmos chips coloridos de T6, obrigatório); Data
-  (obrigatória; campo que abre o calendário ao toque + atalhos; aviso se passada).
+  (obrigatória; campo que abre o calendário ao toque + atalhos; aviso se passada); **Lembrar**
+  (switch, "Avisa um dia antes da data" — sempre habilitado porque a data é obrigatória, Slice 8).
 - **Validações:** CA-08.1–CA-08.2. **Rodapé fixo:** Salvar / Excluir / Cancelar → T4.
 - **Origem:** T4, T1. **Dados:** grava `assessments`.
 
@@ -136,5 +138,10 @@ de "≤2 toques para ação comum".
 - **Prazo/data:** campo pressable que abre o calendário mensal em `Modal` nativo
   (`components/ui/DatePicker`), com atalhos Hoje/Amanhã/Próxima semana. Sem dependência nova — roda no
   Expo Go (ADR-0001/0007).
+- **Lembrete (Slice 8):** `components/ui/SwitchField.tsx` — linha de formulário com switch 50×30
+  desenhado à mão (o `Switch` nativo não segue o tema nem aceita tokens), `accessibilityRole="switch"`
+  e alvo de toque de 44px. Debaixo de Prazo em T6 (desabilitado sem prazo) e de Data em T7 (sempre
+  ativo). O agendamento é **local**, 1 dia antes às 08:00, e mora em `src/services/reminders.ts` —
+  único módulo que importa `expo-notifications`. Ver [features/reminders](../features/reminders/spec.md).
 - Protótipo visual das 7 telas: item do roteiro, ferramenta em OQ-08 — desenhar na identidade escura com
   cor de destaque do [ADR-0009](../adr/ADR-0009-identidade-visual-escura-com-destaque.md).

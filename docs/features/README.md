@@ -13,6 +13,7 @@ partir do [`_template-spec.md`](_template-spec.md) **antes** de qualquer impleme
 | `activities/` | CRUD de atividades, filtros por situação, ordenação por prazo, conclusão | RF-04, RF-05, RF-06, RF-07 | subjects, ui-kit | [slice 3](../specs/2026-10-07-slice-3-activities/spec.md) | Proposta — spec não escrita |
 | `assessments/` | Cadastro/listagem de avaliações, situação agendada/realizada | RF-08 | subjects, ui-kit | [slice 4](../specs/2026-10-07-slice-4-assessments/spec.md) | Proposta — spec não escrita |
 | `dashboard/` | Painel inicial com agregados e progresso | RF-09 | subjects, activities, assessments, ui-kit | [slice 5](../specs/2026-10-07-slice-5-dashboard/spec.md) | Proposta — spec não escrita |
+| `reminders/` | Lembrete **local** de prazo (1 dia antes, 08:00) em atividades e avaliações | RF-04, RF-08 (datas), RNF-03 (offline) | activities, assessments, ui-kit | [slice 8](../specs/2026-10-09-slice-8-reminders/spec.md) | **Implementada** — [spec/reminders/spec.md](reminders/spec.md) |
 
 > **A camada `features/<slug>/spec.md` (contrato permanente) será escrita quando a feature for
 > implementada** — hoje ela só existe em forma de spec de execução fatiada (slice 0–5) e dos prompts de
@@ -27,8 +28,11 @@ partir do [`_template-spec.md`](_template-spec.md) **antes** de qualquer impleme
   é pré-requisito transversal, não parte de uma tela específica.
 - **`dashboard` separada** porque é a única feature que compõe leitura das três coleções — seu risco está
   em agregação/atualização, mérito de spec própria.
-- Nenhuma feature adicional foi criada por cosmética: login, calendário, notificações e notas estão
-  classificadas em [product-brief.md](../product-brief.md) §7 como pós-MVP/descartadas.
+- Nenhuma feature adicional foi criada por cosmética: login, calendário e notas estão classificadas em
+  [product-brief.md](../product-brief.md) §7 como pós-MVP/descartadas.
+- **`reminders` não é notificação genérica**: é o lembrete **local** de prazo (RF-04/RF-08), dentro do
+  escopo aprovado. O que está fora de escopo é o **push remoto** e a notificação personalizável — ver
+  [product-brief.md](../product-brief.md) §8.
 
 ## Ciclo de vida de uma spec
 

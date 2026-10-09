@@ -22,13 +22,20 @@ flowchart TD
     HOOKS["src/hooks/ (stado de apresentação, orquestração)"]
     DOMAIN["src/domain/ (entidades, validações, regras, interfaces de repositório)"]
     STORAGE["src/storage/ (storage JSON + repositórios concretos)"]
+    SERVICES["src/services/ (isolamento de SDK nativo)"]
 
     ROUTES --> UI
     UI --> HOOKS
     HOOKS --> DOMAIN
+    HOOKS -->|"lembrete de prazo"| SERVICES
     STORAGE -.->|"implementa as interfaces"| DOMAIN
     HOOKS -.->|"recebe repositório (DIP)"| DOMAIN
 ```
+
+`src/services/` é a **única** exceção permitida a essa seta: hooks chamam o serviço, o serviço
+fala com o SDK nativo e **nenhum** tipo de `expo-notifications` escapa para `domain/` ou para a UI
+(Slice 8, [ADR-0004](../adr/ADR-0004-organizacao-arquitetural.md) aplicado ao caso "SDK nativo").
+O domínio continua sem React, sem storage e sem SDK.
 
 Regra de dependência: **setas apontam para dentro**. Telas/hooks nunca importam `src/storage/`;
 `src/domain/` não importa React nem storage.
@@ -75,6 +82,8 @@ src/
 │   ├── subject.repository.ts # implementa Repository<Subject>
 │   ├── activity.repository.ts
 │   └── assessment.repository.ts
+├── services/                 # isolamento de SDK nativo (Slice 8) — NÃO é camada de API
+│   └── reminders.ts          # único import de expo-notifications: permissão, agenda, cancela
 ├── styles/global.css         # espelho dos tokens em CSS variables (ADR-0010) — nome do roteiro
 └── constants/theme.ts        # fonte única dos tokens: cores, espaçamento, tipografia e medidas
 ```
@@ -89,7 +98,7 @@ src/
 | `styles/` | **adotada (ADR-0008)** | `src/styles/global.css` permanece como espelho dos tokens em CSS variables (ADR-0010 §2), sem estar no caminho de execução. `constants/theme.ts` é a fonte única do estilo. |
 | `repositories/` | **dividida: interface em `domain/`, implementação em `storage/`** | A interface é contrato de negócio (porto); a implementação é detalhe técnico (adaptador). DIP sem pasta extra decorativa. |
 | `models/` | **fundida em `domain/models.ts`** | Um arquivo de tipos não precisa de diretório; modelos vivem junto das regras que os validam. |
-| `services/` | **não existe — decisão final** | Sem API externa ([ADR-0002](../adr/ADR-0002-estrategia-de-persistencia.md)); o app é 100% local. Na apresentação: `domain/` é a camada equivalente (regras de negócio). |
+| `services/` | **adotada em 2026-10-09 (Slice 8)** — hoje só `reminders.ts` | O app é 100% local ([ADR-0002](../adr/ADR-0002-estrategia-de-persistencia.md)) e não consome API externa: a pasta nasceu para **isolar um SDK nativo**, não para chamar backend. `expo-notifications` é importado exclusivamente em `src/services/reminders.ts`, atrás de três funções — a mesma disciplina de `storage.ts` com o AsyncStorage. Sem serviço, o SDK vazaria para hooks e telas. |
 | `components/`, `hooks/`, `utils/` | mantidas | Responsabilidade real; `utils/` ainda não nasceu — funções entraram em `domain/` (date, id) onde são regras, não utilidades. |
 
 ## SOLID — pragmaticamente
