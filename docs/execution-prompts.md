@@ -31,17 +31,17 @@
 - Stack: Expo SDK 57, Expo Router, TypeScript strict. **Proibido** adicionar dependências fora das listadas.
 - Proibido criar telas/componentes/funcionalidades não listadas no prompt. Se sentir falta de algo,
   **parar e reportar**, não improvisar.
-- UI: somente monocromático via tokens (ADR-0006) escritos com **NativeWind** (ADR-0007): `className`
-  com as classes do tema (`text-text`, `text-text-secondary`, `text-text-tertiary`, `bg-background`,
-  `bg-surface`, `bg-surface-selected`, `border-border`, `border-border-strong`, `bg-inverse`,
-  `text-on-inverse`, `rounded-card/field/button/chip/monogram`, `p/half|one|two|three|four|five|six`,
-  `text-title|section|body|meta|button|metric`, `tracking-section`). Proibido `#hex` em qualquer lugar
-  fora de `src/styles/global.css`/`tailwind.config.js`; proibido `bg-[#...]`/`text-[#...]` arbitrários; zero
-  `shadow*`; zero emoji na UI; texto da UI em português-BR. NÃO use `useTheme()`/`Colors` para estilo
-  novo — use `className`. Exceções StyleSheet: `hairlineWidth`, dimensões dinâmicas calculadas.
-- Ícones: `@expo/vector-icons` (Ionicons). Para usar `className` em Ionicons, o arquivo precisa de
-  `cssInterop(Ionicons, { className: 'style' })` no topo (veja `src/app/(tabs)/_layout.tsx` como
-  referência).
+- UI (desde 2026-10-08 — ADR-0009 + ADR-0010; os prompts P0–P6 abaixo descrevem o padrão antigo
+  monocromático/NativeWind e são HISTÓRICOS): identidade **escura com uma cor de destaque**
+  (`Palette` em `src/constants/theme.ts` — fonte única; `global.css`/`tailwind.config.js` são
+  espelhos). Sistema de escrita: **`StyleSheet.create`** — nenhum componente renderiza `className`
+  (NativeWind não funciona no Expo Go — ADR-0010). Proibido hex literal fora dos tokens;accent
+  restrito a ação principal/tab ativa/foco/chip selecionado/progresso; semânticas (success/warning/
+  danger) sempre acompanhadas de texto; zero sombras exceto FAB (ADR-0010 §3); texto da UI em
+  português-BR. Dimensões/alvos: `SCREEN_PADDING`, `TOUCH_TARGET`, `FIELD_HEIGHT`,
+  `listBottomInset`/`contentBottomInset`.
+- Ícones: `lucide-react-native`, import nomeado por ícone
+  (`import Search from 'lucide-react-native/icons/search'`), `color` sempre via `Palette`.
 - Imports com alias `@/` (`@/* → ./src/*`).
 - **Estrutura (ADR-0008, obrigatório):** rotas **só** em `src/app/` (layouts + re-export de 1 linha);
   cada tela é uma PASTA `src/screens/<Tela>Page/index.tsx` (default export nomeado `<Tela>Page`);
@@ -950,6 +950,198 @@ Refs: docs/specs/2026-10-07-slice-6-improvements"
 RELATÓRIO: arquivos criados/editados, saídas dos 3 gates, divergências (especialmente compatibilidade
 expo-datepicker / expo-charts na versão do SDK 57 instalado — se alguma lib não rodar no web,
 relate e sugira fallback SVG puro).
+```
+
+---
+
+## P8 — Busca e filtro por matéria nas listas (Slice 7)
+
+```text
+Você vai implementar o Slice 7 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
+busca textual e filtro por matéria nas três listas (Atividades, Avaliações, Matérias). Zero
+dependência nova; zero mudança nos hooks/repositórios — o filtro é estado local da tela aplicado
+DEPOIS da ordenação que o hook entrega.
+
+LEIA ANTES DE CODAR:
+1. docs/specs/2026-10-09-slice-7-search-filters/spec.md — ACs vinculares.
+2. src/constants/theme.ts — tokens (Palette/Spacing/Radius/Typography/FIELD_HEIGHT/TOUCH_TARGET).
+   Estilo é StyleSheet + tokens (ADR-0010): proibido className, proibido hex fora de Palette.
+3. src/screens/ActivitiesPage/index.tsx (filtro de status existente com useMemo pós-sort — o padrão
+   a estender) e src/components/ActivitiesPage/ActivitySectionList.tsx (props emptyTitle/emptyText/
+   emptyAction), src/components/ui/SegmentedControl.tsx, src/components/ui/SubjectChip.tsx (visual
+   de chip selecionado), src/components/ui/EmptyState.tsx (props atuais), src/components/ui/Input.tsx.
+4. src/screens/AssessmentsPage/index.tsx e src/screens/SubjectsPage/index.tsx.
+
+CRIE/EDIITE (nenhum outro arquivo):
+
+--- 1. src/domain/text.ts ---
+export function normalizeForSearch(value: string): string;
+// lowercase + normalize('NFD') + strip de [\u0300-\u036f]. 'Cálculo I' -> 'calculo i'. Pura.
+
+--- 2. src/domain/filtering.ts ---
+export function matchesSearch(query: string, fields: (string | null)[]): boolean;
+// query vazio/só-espaço -> true. Senão: needle = normalizeForSearch(query.trim()); cada campo não-nulo
+// é normalizado e testado com includes. OR entre campos.
+export function filterBySubject<T extends { subjectId: string }>(items: T[], subjectId: string | null): T[];
+// subjectId null -> retorna a MESMA lista (sem copia? não — pode retornar items; não muta).
+
+--- 3. src/components/ui/SearchField.tsx ---
+interface SearchFieldProps { value: string; onChangeText: (t: string) => void; placeholder: string; }
+StyleSheet: container com fundo surfaceRaised, radius Radius.field, altura 44, padding h Spacing.three;
+ícone Search (lucide 'icons/search', color Palette.textTertiary, size 18) à esquerda; TextInput
+flex-1, fontSize Typography.field, placeholder textTertiary, SEM label em cima (diferente do Input);
+quando value não-vazio: botão X (lucide 'icons/x', TOUCH_TARGET) à direita que chama onChangeText('').
+accessibilityLabel 'Limpar busca'.
+
+--- 4. src/components/ui/SubjectFilterRow.tsx ---
+interface SubjectFilterRowProps { subjects: Subject[]; selected: string | null; onChange: (id: string | null) => void; }
+ScrollView horizontal (showsHorizontalScrollIndicator false, contentContainerStyle gap Spacing.two,
+paddingHorizontal SCREEN_PADDING): primeiro chip fixo 'Todas' (onChange(null)); um chip por matéria
+(nome puro, SEM IconTile/ícone). Chip: Pressable, padding h Spacing.three v Spacing.two, radius
+Radius.chip, Typography.body; selecionado: backgroundColor accentSoft + color accent + borda 1px
+accent; não: backgroundColor surface + color textSecondary + borda 1px border. selected === null
+significa o chip 'Todas' ativo.
+
+--- 5. src/screens/SubjectsPage/index.tsx ---
+Estado `query`; <SearchField placeholder='Buscar matéria...' /> sob o ScreenHeader (paddingHorizontal
+SCREEN_PADDING); a FlatList filtra por matchesSearch(query, [item.name, item.teacher]). Vazio com
+query não-vazia -> EmptyState 'Nenhum resultado' + text 'Nenhuma matéria combina com a busca.' +
+actionLabel 'Limpar busca' (setQuery('')). Vazio real permanece como está.
+
+--- 6. src/screens/ActivitiesPage/index.tsx ---
+Estados `query` e `subjectFilter: string | null`. Ordens na tela: ScreenHeader, SearchField
+('Buscar atividade...' sobre title/description? NÃO — só title), SubjectFilterRow, SegmentedControl,
+lista. O useMemo `visible` atual passa a combinar: status filter AND filterBySubject AND
+matchesSearch(query, [title]) — interseção, aplicado depois do sortActivities (já ordenado pelo hook).
+FadeIn key passa a ser `${filter}:${query}:${subjectFilter ?? ''}`. O empty state É renderizado pelo
+ActivitySectionList via props emptyTitle/emptyText/emptyAction (NÃO edite o componente): quando
+`activities.length > 0` E algum filtro está ativo (query não-vazio OU subjectFilter !== null),
+passe emptyTitle='Nenhum resultado', emptyText='Nenhuma atividade combina com os filtros.' e
+emptyAction={ label: 'Limpar filtros', onPress: () => { setQuery(''); setSubjectFilter(null);
+setFilter('pendentes'); } } — reseta os TRÊS. Caso contrário (vazio real), as props atuais de
+EMPTY_STATE[filter] permanecem intactas.
+
+--- 7. src/screens/AssessmentsPage/index.tsx ---
+Estados `query` e `subjectFilter`; SearchField ('Buscar avaliação...' sobre title) + SubjectFilterRow
+sob o ScreenHeader; a lista recebe items filtrados preservando a ordem do hook. O EmptyState do vazio
+da lista (bloco inline atual) segue o MESMO critério: se `assessments.length > 0` E (query OU
+subjectFilter ativos) -> title='Nenhum resultado', text='Nenhuma avaliação combina com os filtros.',
+actionLabel='Limpar filtros' (reseta query+subjectFilter); senão o vazio real permanece como está.
+
+REGRAS: StyleSheet + tokens apenas (ADR-0009/0010); PT-BR; não mexa em hooks, repositórios, domínio
+já existente nem nas rotas-finas; não adicione nada além do listado.
+
+VERIFICAÇÃO: npx tsc --noEmit && npx expo lint && npx expo export --platform web — todos limpos.
+TESTE DE MESA (registre no relatório): normalizeForSearch('Cálculo I')==='calculo i';
+matchesSearch('', ['x'])===true; matchesSearch('calcul', ['Cálculo','prof'])===true;
+filterBySubject([{subjectId:'a'}], null) mantém o item.
+MANUAL (Expo Go): 'calculo' acha 'Cálculo'; chip de matéria reduz às daquela; combinar busca+chip+
+segmented; 'Nenhum resultado' com 'Limpar filtros' reaparece a lista completa; FAB e vazios originais
+intactos; ordenação por prazo inalterada com filtro ativo.
+
+COMMIT:
+git add src/domain/text.ts src/domain/filtering.ts src/components/ui/SearchField.tsx src/components/ui/SubjectFilterRow.tsx src/screens/SubjectsPage/index.tsx src/screens/ActivitiesPage/index.tsx src/screens/AssessmentsPage/index.tsx
+git commit -m "feat(filters): busca e filtro por matéria nas listas
+
+Refs: docs/specs/2026-10-09-slice-7-search-filters"
+
+RELATÓRIO: arquivos, saídas dos gates, testes de mesa, divergências (não adapte silenciosamente).
+```
+
+---
+
+## P9 — Lembretes locais de prazo (Slice 8)
+
+```text
+Você vai implementar o Slice 8 do Studia (Expo SDK 57, Expo Router, TS strict, branch development):
+opção 'Lembrar' em atividades e avaliações que agenda uma NOTIFICAÇÃO LOCAL para 1 dia antes do
+prazo, às 08:00. Notificação local funciona no Expo Go (push remoto NÃO — não use API de push).
+
+OBRIGATÓRIO ANTES DE CODAR (Expo muda toda release — não confie em memória):
+fetch https://docs.expo.dev/versions/v57.0.0/sdk/notifications/ (ou llms.txt → sdk/notifications) e
+confirme o formato EXATO do trigger de scheduleNotificationAsync no SDK 57
+(torchScheduled? dateComponents? seconds?) e o nome das funções de permissão/cancelamento. O código
+segue a DOC, não este prompt, se divergirem — e a divergência vai no relatório.
+
+INSTALE: npx expo install expo-notifications
+
+LEIA: docs/specs/2026-10-09-slice-8-reminders/spec.md (contratos vinculares);
+src/domain/models.ts (Activity/Assessment atuais com hour/icon/color já migrados);
+src/storage/subject.repository.ts (padrão migrateSubjects — replicar para as outras duas coleções);
+src/hooks/use-activities.ts e use-assessments.ts (create/update/remove/toggleStatus atuais);
+src/constants/theme.ts + src/components/ui/ (estilo StyleSheet, ADR-0010).
+
+CRIE/EDIITE:
+
+--- 1. src/domain/models.ts ---
+Activity e Assessment ganham: reminder: boolean; notificationId: string | null.
+ActivityFormInput/AssessmentFormInput (em validation.ts) ganham reminder?: boolean (não validado).
+
+--- 2. src/storage/activity.repository.ts e assessment.repository.ts ---
+Migração de leitura idêntica à de matérias: item.reminder === undefined -> false;
+item.notificationId === undefined -> null. Nunca lançar na migração (RNF-04).
+
+--- 3. src/services/reminders.ts (único arquivo que importa expo-notifications) ---
+export async function ensurePermission(): Promise<boolean>;
+export async function scheduleForDueDate(title: string, dueISO: string): Promise<string | null>;
+export async function cancel(id: string | null): Promise<void>;
+- Platform.OS === 'web' -> todas retornam false/null/void sem tocar na API (gate web).
+- ensurePermission: getPermissionsAsync; se !granted, requestPermissionsAsync (iOS: alert+sound+badge
+  via setNotificationHandler + requestPermissões conforme doc). Android: criar canal 'studia-reminders'
+  (nome 'Lembretes', importance alta) uma vez, no module scope com guarda.
+- scheduleForDueDate: parse dueISO 'YYYY-MM-DD'; alvo = new Date(y, m-1, d-1, 8, 0, 0) (1 dia antes,
+  08:00 local). alvo <= agora -> null. agenda com o trigger da doc; corpo: título 'Lembrete',
+  text `Amanhã: ${title}`. try/catch -> null em erro (log console.warn).
+- cancel: id null -> return; try/catch vazio.
+
+--- 4. src/hooks/use-activities.ts ---
+create/update com dueDate presente: se input.reminder -> id = await scheduleForDueDate(título, dueISO);
+entity.reminder=true, entity.notificationId=id (id pode ser null — prazo passado: switch on sem
+agenda, limitação da spec). Se !reminder -> cancel(notificationId antigo); reminder=false, id null.
+Sem dueDate -> reminder forçado false + cancel. Editar com reminder on e prazo novo -> cancela o id
+antigo ANTES de agendar o novo (um id por entity). toggleStatus p/ 'concluida' -> cancel +
+reminder=false/notificationId=null persistidos via upsert. remove -> cancel antes de excluir.
+O id da edição vem do entity carregado (getAll+find como hoje).
+
+--- 5. src/hooks/use-assessments.ts ---
+Idem, com a date (obrigatória) e toggleStatus p/ 'realizada'.
+
+--- 6. src/components/ui/SwitchField.tsx ---
+interface SwitchFieldProps { value: boolean; onChange: (v: boolean) => void; label: string;
+description?: string; disabled?: boolean; }
+Pressable (accessibilityRole='switch', accessibilityState={{checked:value}}, altura TOUCH_TARGET):
+coluna label (Typography.cardTitle, text) + description (Typography.legend, textTertiary); à direita
+trilha 50x30 radius 15: off backgroundColor Palette.border + knob Palette.textTertiary;
+on backgroundColor Palette.accent + knob Palette.onAccent (knob 26, translate 2/22). disabled:
+opacity 0.5 e onPress no-op.
+
+--- 7. src/screens/ActivityFormPage/index.tsx ---
+<SwitchField label='Lembrar' description='Avisa um dia antes do prazo' value={reminderDraft}
+onChange={setReminderDraft} disabled={!dueDateDraft}/> logo abaixo do campo de prazo. Rascunho
+inicial vem do entity em edição. No save, passar reminder: reminderDraft no input do hook. Se o
+picker de data atual usa objeto próprio, mantenha — só o disabled reage ao prazo vazio.
+
+--- 8. src/screens/AssessmentFormPage/index.tsx ---
+Mesmo SwitchField sob o campo Data (disabled={false} — data é obrigatória).
+
+REGRAS: expo-notifications importado SÓ em src/services/reminders.ts (analogia storage.ts/AsyncStorage —
+grep vai verificar); StyleSheet + tokens; PT-BR; sem API de push/remote; não tocar em validação existente.
+
+VERIFICAÇÃO: npx tsc --noEmit && npx expo lint && npx expo export --platform web — limpos.
+grep "expo-notifications" src/ -> só services/reminders.ts (e package.json).
+MANUAL (Expo Go em aparelho físico): (1) criar atividade com prazo amanhã + Lembrar on -> prompt de
+permissão; adiantar relógio do aparelho -> notificação 'Amanhã: <título>' às 08:00; (2) concluir
+atividade -> não chega; (3) excluir -> não chega; (4) editar trocando a data -> só a nova dispara;
+(5) atividade antiga (sem campos) abre e salva sem erro (migração).
+
+COMMIT:
+git add src/domain/models.ts src/domain/validation.ts src/storage/activity.repository.ts src/storage/assessment.repository.ts src/services/reminders.ts src/hooks/use-activities.ts src/hooks/use-assessments.ts src/components/ui/SwitchField.tsx src/screens/ActivityFormPage/index.tsx src/screens/AssessmentFormPage/index.tsx package.json
+git commit -m "feat(reminders): lembrete local de prazo em atividades e avaliações
+
+Refs: docs/specs/2026-10-09-slice-8-reminders"
+
+RELATÓRIO: formato de trigger usado (com a URL da doc consultada), arquivos, gates, checklist manual,
+divergências entre doc e prompt (a doc vence).
 ```
 
 ---
