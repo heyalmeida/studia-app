@@ -9,8 +9,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FAB } from '@/components/ui/FAB';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SearchField } from '@/components/ui/SearchField';
 import { FadeIn, SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Palette, SCREEN_PADDING } from '@/constants/theme';
+import { SubjectFilterRow } from '@/components/ui/SubjectFilterRow';
+import { Palette, SCREEN_PADDING, Spacing } from '@/constants/theme';
+import { filterBySubject, matchesSearch } from '@/domain/filtering';
 import type { Subject } from '@/domain/models';
 import { useActivities } from '@/hooks/use-activities';
 
@@ -25,20 +28,37 @@ const FILTERS: { key: ActivityFilter; label: string }[] = [
 const EMPTY_STATE: Record<ActivityFilter, { title: string; text: string }> = {
   pendentes: { title: 'Nada pendente', text: 'Você está em dia.' },
   concluidas: { title: 'Nada concluído ainda', text: 'Marque uma atividade para vê-la aqui.' },
-  todas: { title: 'Nenhuma atividade', text: 'Crie a primeira pelo botão flutuante.' },
+  todas: { title: 'Nenhuma atividade', text: 'Crie a primeira pelo botão ao lado do título.' },
 };
 
 export default function ActivitiesPage() {
   const insets = useSafeAreaInsets();
   const { activities, subjects, loading, error, refresh, toggleStatus } = useActivities();
   const [filter, setFilter] = useState<ActivityFilter>('pendentes');
+  const [query, setQuery] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
 
-  // Filtro aplicado DEPOIS do sortActivities (o hook já entrega a lista ordenada).
+  // Os três filtros são uma **interseção** (AC-7.2) e valem sobre a lista que o hook já
+  // entregou ordenada (`sortActivities`): filtrar nunca reordena, então a ordem por prazo e
+  // a posição relativa dos itens continuam válidas com filtro ativo.
   const visible = useMemo(() => {
-    if (filter === 'todas') return activities;
-    const wanted = filter === 'pendentes' ? 'pendente' : 'concluida';
-    return activities.filter((activity) => activity.status === wanted);
-  }, [activities, filter]);
+    const byStatus =
+      filter === 'todas'
+        ? activities
+        : activities.filter((activity) => activity.status === (filter === 'pendentes' ? 'pendente' : 'concluida'));
+    const bySubject = filterBySubject(byStatus, subjectFilter);
+    return bySubject.filter((activity) => matchesSearch(query, [activity.title]));
+  }, [activities, filter, subjectFilter, query]);
+
+  // Havia atividades mas os filtros zeraram o resultado (AC-7.5) — situação diferente da
+  // lista realmente vazia, que é o estado inicial e mantém o CTA de criação.
+  const filteredToNothing = activities.length > 0 && visible.length === 0;
+
+  function clearFilters() {
+    setQuery('');
+    setSubjectFilter(null);
+    setFilter('pendentes');
+  }
 
   const subjectById = useMemo(() => {
     const map: Record<string, Subject> = {};
@@ -59,7 +79,19 @@ export default function ActivitiesPage() {
         createAction={{ label: 'Nova atividade', onPress: openCreate }}
       />
 
-      {loading ? <ListSkeleton height={72} count={4} /> : null}
+      <View style={styles.search}>
+        <SearchField
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Buscar atividade..."
+        />
+      </View>
+
+      <SubjectFilterRow
+        subjects={subjects}
+        selected={subjectFilter}
+        onChange={setSubjectFilter}
+      />
 
       {!loading && error !== null ? (
         <EmptyState
@@ -72,25 +104,35 @@ export default function ActivitiesPage() {
         />
       ) : null}
 
+      {loading ? <ListSkeleton height={72} count={4} /> : null}
+
       {ready ? (
         <>
           <View style={styles.filters}>
             <SegmentedControl value={filter} options={FILTERS} onChange={setFilter} />
           </View>
 
-          {/* key no filtro: a lista re-monta e a opacidade anima a troca (sem atraso). */}
-          <FadeIn key={filter}>
+          {/* key nos três filtros: a lista re-monta e a opacidade anima a troca (sem atraso). */}
+          <FadeIn key={`${filter}:${query}:${subjectFilter ?? ''}`}>
             <ActivitySectionList
               activities={visible}
               subjectById={subjectById}
               insetsBottom={insets.bottom}
               onToggle={(id) => void toggleStatus(id)}
               onOpen={(id) => router.push(`/activity-form?id=${encodeURIComponent(id)}`)}
-              emptyTitle={EMPTY_STATE[filter].title}
-              emptyText={EMPTY_STATE[filter].text}
+              emptyTitle={filteredToNothing === true ? 'Nenhum resultado' : EMPTY_STATE[filter].title}
+              emptyText={
+                filteredToNothing === true
+                  ? 'Nenhuma atividade combina com os filtros.'
+                  : EMPTY_STATE[filter].text
+              }
               emptyAction={
-                // Só o filtro "todas" vazio significa "nada cadastrado": aí há o que criar.
-                filter === 'todas' ? { label: 'Nova atividade', onPress: openCreate } : undefined
+                filteredToNothing === true
+                  ? { label: 'Limpar filtros', onPress: clearFilters }
+                  : // Só o filtro "todas" vazio significa "nada cadastrado": aí há o que criar.
+                    filter === 'todas'
+                    ? { label: 'Nova atividade', onPress: openCreate }
+                    : undefined
               }
             />
           </FadeIn>
@@ -111,5 +153,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SCREEN_PADDING,
     paddingTop: 8,
     paddingBottom: 4,
+  },
+  search: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 4,
+    paddingBottom: Spacing.three,
   },
 });
