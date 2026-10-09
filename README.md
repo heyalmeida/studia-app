@@ -20,8 +20,10 @@ Modelo de dados: [`docs/architecture/domain-model.md`](./docs/architecture/domai
 
 ## Stack
 
-[Expo](https://expo.dev) SDK 57 · React Native 0.86 · TypeScript (strict) · Expo Router · AsyncStorage.
-Decisões registradas em [`docs/adr/`](./docs/adr/README.md).
+[Expo](https://expo.dev) SDK 57 · React Native 0.86 · TypeScript (strict) · Expo Router · AsyncStorage ·
+`lucide-react-native` (ícones) · `react-native-svg` (anel de progresso) · calendário próprio em Modal
+(pickers de data, sem lib) · `expo-notifications` (lembretes locais). Estilo em `StyleSheet` com
+tokens (`ADR-0010`). Decisões registradas em [`docs/adr/`](./docs/adr/README.md).
 
 ## Executando
 
@@ -49,8 +51,9 @@ src/
 ├── hooks/       # hooks de dados
 ├── domain/      # entidades, regras e validações puras
 ├── storage/     # persistência (repositórios sobre AsyncStorage)
-├── styles/      # tokens CSS do NativeWind (global.css) — fonte da cor da UI
-└── constants/   # valores numéricos legados (safe-area, dimensões dinâmicas)
+├── services/    # integrações de sistema (expo-notifications — lembretes locais)
+├── constants/   # fonte única dos tokens visuais (theme.ts, ADR-0009/0010)
+└── styles/      # espelho CSS do NativeWind (não está no caminho de execução — ADR-0010)
 assets/          # imagens/ícones
 ```
 
@@ -58,12 +61,16 @@ Regras de desenvolvimento (humanos e IA): [`.clinerules`](./.clinerules) e [`AGE
 
 ## Status
 
-**Implementado (MVP).** Escopo autocontido entregue: matérias, atividades, avaliações e painel inicial,
-100% offline (sem back-end). Requisitos em [`docs/requirements/`](./docs/requirements/functional-requirements.md),
-decisões em [`docs/adr/`](./docs/adr/README.md), features em [`docs/features/`](./docs/features/README.md).
+**Implementado (MVP + melhorias).** Além do escopo original — matérias, atividades, avaliações e painel
+inicial, 100% offline (sem back-end) — o app inclui as expansões aprovadas: carga horária e ícone por
+matéria, cores por matéria, date pickers, painel em cards com anel de progresso, **busca e filtro por
+matéria** nas listas e **lembrete local** de prazo (1 dia antes, 08:00). Requisitos em
+[`docs/requirements/`](./docs/requirements/functional-requirements.md), decisões em
+[`docs/adr/`](./docs/adr/README.md), features em [`docs/features/`](./docs/features/README.md).
 
-Conhecido: os `docs/features/<slug>/spec.md` (registro por feature, Regra 7) ainda não foram escritos — o
-MVP está rastreado pelas specs de execução em [`docs/specs/`](./docs/specs/README.md).
+Registro por feature (Regra 7) em construção: `ui-kit`, `filters` e `reminders` têm
+`docs/features/<slug>/spec.md`; as demais permanecem rastreadas pelas specs de execução em
+[`docs/specs/`](./docs/specs/README.md).
 
 ---
 

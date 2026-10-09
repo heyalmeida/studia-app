@@ -14,6 +14,12 @@ partir do [`_template-spec.md`](_template-spec.md) **antes** de qualquer impleme
 | `assessments/` | Cadastro/listagem de avaliações, situação agendada/realizada | RF-08 | subjects, ui-kit | [slice 4](../specs/2026-10-07-slice-4-assessments/spec.md) | Proposta — spec não escrita |
 | `dashboard/` | Painel inicial com agregados e progresso | RF-09 | subjects, activities, assessments, ui-kit | [slice 5](../specs/2026-10-07-slice-5-dashboard/spec.md) | Proposta — spec não escrita |
 | `reminders/` | Lembrete **local** de prazo (1 dia antes, 08:00) em atividades e avaliações | RF-04, RF-08 (datas), RNF-03 (offline) | activities, assessments, ui-kit | [slice 8](../specs/2026-10-09-slice-8-reminders/spec.md) | **Implementada** — [spec/reminders/spec.md](reminders/spec.md) |
+| `filters/` | Busca textual (sem acento) e filtro por matéria nas três listas | RF-04/06/08 (apresentação), RNF-02 (escala) | subjects, activities, assessments, ui-kit | [slice 7](../specs/2026-10-09-slice-7-search-filters/spec.md) | **Implementada** — [spec/filters/spec.md](filters/spec.md) |
+
+> Expansões pós-MVP pedidas pelo dono (2026-10-07/08) que **não** viraram feature nova: carga horária +
+> ícone por matéria ([slice 6](../specs/2026-10-07-slice-6-improvements/spec.md)) e dashboard em
+> cards/gráficos pertencem a `subjects`/`dashboard` (specs de execução próprias; a camada de feature
+> permanente dessas duas ainda não foi escrita).
 
 > **A camada `features/<slug>/spec.md` (contrato permanente) será escrita quando a feature for
 > implementada** — hoje ela só existe em forma de spec de execução fatiada (slice 0–5) e dos prompts de

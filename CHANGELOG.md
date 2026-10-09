@@ -6,6 +6,19 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Added — Busca e filtro por matéria nas listas (2026-10-09, Slice 7)
+
+As três listas ganham **busca textual** (case-insensitive, sem acentos: 'calculo' encontra
+'Cálculo I') e, em Atividades e Avaliações, **filtro por matéria** em linha de chips ('Todas' +
+uma por matéria; selecionado com a cor de destaque). Em Atividades os três controles — busca, chip
+e segmented de status — combinam por **interseção**, aplicada **depois** da ordenação por prazo que
+o hook entrega: filtrar nunca reordena. Filtro que zera o resultado mostra **'Nenhum resultado'**
+com ação **'Limpar filtros'** — distinto do vazio real, que mantém o CTA de criação. Domínio puro
+em `src/domain/text.ts` + `src/domain/filtering.ts`; componentes `SearchField` e `SubjectFilterRow`
+no kit; **hooks e repositórios não mudaram** (estado local da tela). Spec:
+[2026-10-09-slice-7-search-filters](docs/specs/2026-10-09-slice-7-search-filters/spec.md) · Feature:
+[docs/features/filters](docs/features/filters/spec.md) · Commit: `23c8400`.
+
 ### Added — Lembrete local de prazo em atividades e avaliações (2026-10-09, Slice 8)
 
 Opção **"Lembrar"** nos formulários de atividade e avaliação agenda uma **notificação local** para
