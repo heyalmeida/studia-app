@@ -115,4 +115,7 @@ Isa Alexandre; data: 09/10/2026; repositório: `github.com/heyalmeida/studia-app
 
 **Recomendação (sugestão).** Figma + capturas em `docs/prototype/`.
 
-**Estado.** Em aberto — é trabalho de design da dupla, não de implementação.
+**Estado.** **Resolvida (2026-10-09)** — as 7 telas foram capturadas do app real no Expo Go (Android) e
+versionadas em `docs/prototype/` (`t1-painel.jpeg` … `t7-form-avaliacao.jpeg`), embutidas no item 8 de
+`docs/entrega/Studia_Documentacao.pdf`. Como o app excede o mínimo de telas, as capturas do produto
+final substituem o protótipo pré-código.
