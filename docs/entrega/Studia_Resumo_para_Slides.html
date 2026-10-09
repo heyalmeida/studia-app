@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Studia — Resumo do Projeto para Slides</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  @page cover { margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1a1a1f; font-size: 10.5pt; line-height: 1.5; }
+  h1,h2,h3 { margin: 0; line-height: 1.2; }
+  p { margin: 0 0 7pt; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #eef0f6; padding: 1px 4px; border-radius: 3px; color: #3730a3; }
+
+  .cover { page: cover; width: 210mm; height: 297mm; background: #0b0b0f; color: #f5f5f7; padding: 26mm 20mm; display: flex; flex-direction: column; break-after: page; position: relative; overflow: hidden; }
+  .cover .glow { position: absolute; width: 150mm; height: 150mm; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,0.28), rgba(99,102,241,0) 70%); bottom: -50mm; left: -40mm; }
+  .cover .kicker { font-size: 11pt; letter-spacing: 3px; text-transform: uppercase; color: #a1a1aa; margin-bottom: 6mm; }
+  .cover .brand { font-size: 42pt; font-weight: 700; margin-bottom: 3mm; }
+  .cover .brand .dot { color: #6366f1; }
+  .cover .tag { font-size: 15pt; color: #c7c7cf; max-width: 150mm; }
+  .cover .rule { height: 3px; width: 30mm; background: #6366f1; margin: 12mm 0; border-radius: 2px; }
+  .cover .purpose { font-size: 12pt; color: #e4e4e7; font-weight: 600; }
+  .cover .meta { margin-top: auto; font-size: 10pt; color: #a1a1aa; }
+
+  .section { break-before: page; }
+  .sec-head { display: flex; align-items: baseline; gap: 4mm; border-bottom: 2px solid #4f46e5; padding-bottom: 2.5mm; margin-bottom: 5mm; }
+  .sec-num { font-size: 20pt; font-weight: 700; color: #c7c9f5; }
+  .sec-head h2 { font-size: 15.5pt; font-weight: 700; }
+  h3.sub { font-size: 11.5pt; color: #4f46e5; margin: 5mm 0 2mm; font-weight: 700; }
+  ul { margin: 2mm 0 5mm; padding-left: 5.5mm; }
+  li { margin-bottom: 2mm; }
+  li b { color: #312e81; }
+  .lead { font-size: 11pt; color: #3a3a44; margin-bottom: 5mm; }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9.5pt; }
+  th { background: #eceefb; color: #312e81; text-align: left; font-weight: 700; padding: 4pt 6pt; border: 1px solid #d8dbf0; }
+  td { padding: 4pt 6pt; border: 1px solid #e4e6f2; vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.n { font-weight: 700; color: #4f46e5; white-space: nowrap; }
+  .box { border: 1px solid #d8dbf0; border-left: 4px solid #4f46e5; background: #f7f8fe; padding: 4mm 5mm; border-radius: 0 6px 6px 0; margin: 4mm 0; break-inside: avoid; }
+  .box .t { font-weight: 700; color: #312e81; margin-bottom: 1.5mm; }
+  .stat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin: 4mm 0; }
+  .stat .s { border: 1px solid #d8dbf0; border-radius: 10px; padding: 4mm 3mm; text-align: center; background: #fafbff; }
+  .stat .v { font-size: 22pt; font-weight: 700; color: #4f46e5; display: block; }
+  .stat .l { font-size: 8.5pt; color: #6b6b76; text-transform: uppercase; letter-spacing: 0.5px; }
+  .script { background: #f4f5fd; border-radius: 8px; padding: 4mm 5mm; margin: 3mm 0; break-inside: avoid; }
+  .script .q { font-weight: 700; color: #312e81; }
+  .note { font-size: 9pt; color: #6b6b76; font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<div class="cover">
+  <div class="glow"></div>
+  <div class="kicker">Para a criação dos slides</div>
+  <div class="brand">Studia<span class="dot">.</span></div>
+  <div class="tag">Resumo do projeto — o que dizer e o que mostrar na apresentação</div>
+  <div class="rule"></div>
+  <div class="purpose">Documento de apoio para a dupla</div>
+  <div class="meta">Pedro Miguel · Anna Cecilia — Turma 1 · Prof.ª Isa Alexandre<br>UEM/Cept · Desenvolvimento de Sistemas para Dispositivos Móveis · 09/10/2026<br>Código: github.com/heyalmeida/studia-app<br>Este resumo condensa o app, a arquitetura e o roteiro de demonstração. A apresentação deve ser feita no Expo Go, com o app funcionando.</div>
+</div>
+
+<!-- 1 O ELEVATOR PITCH -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">1</span><h2>O que é o Studia (para abrir os slides)</h2></div>
+  <p class="lead"><b>Studia é um app de organização de estudos, 100% offline, que reúne em um só lugar o que
+  o estudante tem por fazer, o que vence primeiro e o quanto ele já concluiu.</b></p>
+  <div class="stat">
+    <div class="s"><span class="v">7</span><span class="l">telas navegáveis</span></div>
+    <div class="s"><span class="v">9+2</span><span class="l">requisitos funcionais</span></div>
+    <div class="s"><span class="v">3</span><span class="l">entidades no domínio</span></div>
+    <div class="s"><span class="v">26</span><span class="l">componentes no UI kit</span></div>
+  </div>
+  <h3 class="sub">O problema em uma frase (slide de dor)</h3>
+  <p>O estudante anota prazos no caderno, esquece provas até a véspera e não tem visão do que falta por
+  matéria — o resultado é prazo perdido e estudo reativo.</p>
+  <h3 class="sub">A solução em uma frase (slide de proposta)</h3>
+  <p>Registrar matéria → atividade com prazo → prova, e abrir o app para ver, em segundos, as três respostas:
+  <b>o que vence primeiro? o que falta por matéria? como andam minhas provas?</b></p>
+  <div class="box">
+    <div class="t">Diferenciais para enfatizar nos slides</div>
+    <ul style="margin:0">
+      <li><b>Offline de verdade</b> — sem servidor, sem conta, sem internet; dado fica no aparelho.</li>
+      <li><b>Lembrete local</b> — notifica 1 dia antes do prazo, às 08:00, sem push nem back-end.</li>
+      <li><b>Busca sem acento</b> — digitar "calculo" encontra "Cálculo I".</li>
+      <li><b>Progresso real</b> — concluir atividade atualiza card da matéria e painel na hora.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2 FUNCIONALIDADES -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">2</span><h2>Funcionalidades (agrupadas para os slides)</h2></div>
+  <p class="lead">Não listar os 11 requisitos um a um no slide — agrupar em 4 blocos, um slide cada, com a
+  tela correspondente ao lado.</p>
+  <table>
+    <thead><tr><th style="width:44mm">Bloco</th><th style="width:22mm">Tela</th><th>O que dizer</th></tr></thead>
+    <tbody>
+      <tr><td class="n">Matérias</td><td>T2 / T5</td><td>Cadastro com validação (nome obrigatório, único, ≥2 caracteres), professor opcional, carga horária, ícone e cor por matéria. Exclusão é bloqueada se houver registros vinculados — integridade sem banco de dados.</td></tr>
+      <tr><td class="n">Atividades</td><td>T3 / T6</td><td>Tarefa/trabalho/leitura/estudo por matéria, com prazo, busca, filtro por matéria e por situação. Concluir com um toque atualiza progresso e painel imediatamente.</td></tr>
+      <tr><td class="n">Avaliações</td><td>T4 / T7</td><td>Provas e seminários com data obrigatória, ordenadas por proximidade; realizadas viram histórico visível.</td></tr>
+      <tr><td class="n">Painel + lembretes</td><td>T1</td><td>Anel de progresso, próximos prazos e próxima avaliação na abertura do app; lembrete local 1 dia antes do prazo, às 08:00.</td></tr>
+    </tbody>
+  </table>
+  <div class="box">
+    <div class="t">Números do roteiro (slide de conformidade, se quiser)</div>
+    Mínimo exigido → entregue: <b>5 telas → 7</b> · <b>6 RFs → 9 (+2 de expansão)</b> · <b>4 RNFs → 6</b> ·
+    <b>3 entidades → 3</b> · <b>3 componentes reutilizáveis → ~26</b>.
+  </div>
+</div>
+
+<!-- 3 ARQUITETURA -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">3</span><h2>Arquitetura e decisões (o slide técnico)</h2></div>
+  <p class="lead">Uma frase por decisão — profundidade só se o professor perguntar.</p>
+  <ul>
+    <li><b>Camadas:</b> UI → hooks → repositórios → storage. A tela nunca toca o AsyncStorage; o domínio é
+      feito de <b>funções puras</b> (validação, ordenação, progresso) sem React nem banco.</li>
+    <li><b>Estado reativo sem lib:</b> pub/sub próprio (notifier) — gravou, avisa; painel e cards se
+      atualizam sozinhos entre abas.</li>
+    <li><b>Persistência:</b> AsyncStorage com uma chave por coleção e <b>leitura defensiva</b> — JSON
+      corrompido vira lista vazia; registros antigos ganham campos novos na leitura (migração).</li>
+    <li><b>Navegação:</b> Expo Router — 4 abas + 3 formulários modais; botão de criação no centro da barra.</li>
+    <li><b>Tipos:</b> TypeScript <code>strict</code>, zero <code>any</code>, <code>tsc</code> e
+      <code>expo lint</code> limpos.</li>
+    <li><b>Notificação:</b> local (não push) — funciona no Expo Go sem servidor; cancelar ao concluir/excluir.</li>
+  </ul>
+  <h3 class="sub">Decisões de portfólio (para brilhar se perguntarem "por que?")</h3>
+  <ul>
+    <li><b>StyleSheet em vez de Tailwind/NativeWind:</b> o motor do NativeWind é módulo nativo e quebra
+      silenciosamente no Expo Go — migrar para <code>StyleSheet</code> + tokens garantiu fidelidade à
+      demonstração. Registrado em ADR-0010.</li>
+    <li><b>Spec-Driven Development:</b> cada decisão virou documento versionado — 10 ADRs, specs por feature,
+      requisitos com critérios de aceitação, prompts de execução para agente de IA. O histórico de commits
+      mostra o desenvolvimento por etapas.</li>
+    <li><b>Chave estrangeira sem banco:</b> integridade garantida pela regra de domínio (bloqueio de exclusão
+      + ponte de navegação quando falta matéria), não por constraint de SGBD.</li>
+  </ul>
+</div>
+
+<!-- 4 ROTEIRO DE DEMONSTRAÇÃO -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">4</span><h2>Roteiro de demonstração ao vivo (Expo Go)</h2></div>
+  <p class="lead">Sequência testável em ~3 minutos. Ensaie com dados de exemplo já cadastrados
+  ("Cálculo I" e "Redes" com atividades e uma prova).</p>
+  <div class="script">
+    <span class="q">1. Abre o app → Painel.</span> Mostra anel de progresso, "X de Y concluídas", próximos
+    prazos e a próxima avaliação com contagem regressiva. <i>"É a resposta às três perguntas do produto."</i>
+  </div>
+  <div class="script">
+    <span class="q">2. Validação (exigência do roteiro).</span> Nova matéria → salvar com nome vazio →
+    "Informe o nome da matéria." → duplicar um nome existente → bloqueio. <i>Mostra que cadastro inválido é
+    impedido com mensagem clara.</i>
+  </div>
+  <div class="script">
+    <span class="q">3. Cadastro real.</span> Cria atividade com prazo via calendário + switch "Lembrar"
+    ligado. Salva → aparece na lista ordenada por prazo. <i>Mostra formulário, lista e persistência.</i>
+  </div>
+  <div class="script">
+    <span class="q">4. Progresso reativo.</span> Marca a atividade como concluída na lista → card da matéria
+    e painel atualizam <b>sem recarregar</b>. <i>Mostra pub/sub e agregações.</i>
+  </div>
+  <div class="script">
+    <span class="q">5. Busca sem acento.</span> Digita "calculo" → encontra "Cálculo I". Filtra por matéria
+    com o chip. <i>Mostra domínio puro.</i>
+  </div>
+  <div class="script">
+    <span class="q">6. Persistência offline.</span> Fecha o app de vez e reabre → dados intactos. (Opcional:
+    modo avião antes de reabrir.) <i>Mostra AsyncStorage e RNF de offline.</i>
+  </div>
+  <div class="box">
+    <div class="t">Antes de apresentar</div>
+    <ul style="margin:0">
+      <li>Rode <code>npx expo start</code> e confirme o QR no aparelho <b>antes</b> de subir ao palco.</li>
+      <li>Deixe o app já populado com 2 matérias, ~4 atividades (uma atrasada, uma para hoje) e 1 prova futura.</li>
+      <li>Se for demonstrar o lembrete: adiante o relógio do aparelho na véspera (combine antes — nem todo
+        público gosta de relógio mexido; o slide de funcionalidade já cobre).</li>
+      <li>Tenha um plano B: a versão web (<code>npx expo start --web</code>) não roda o Expo Go, mas o app
+        abre no navegador se o celular falhar — lembretes não disparam na web.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 5 ESQUELETO DE SLIDES -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">5</span><h2>Esqueleto sugerido para os slides</h2></div>
+  <p class="lead">8 slides, ~10 minutos. Cada linha já tem o conteúdo pronto neste documento.</p>
+  <table>
+    <thead><tr><th style="width:10mm">#</th><th style="width:48mm">Slide</th><th>Conteúdo (fonte neste resumo)</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td>Capa</td><td>Studia · Pedro Miguel e Anna Cecilia · Turma 1 · Prof.ª Isa Alexandre · 09/10/2026.</td></tr>
+      <tr><td class="n">2</td><td>Problema</td><td>Frase da dor + público-alvo (seção 1).</td></tr>
+      <tr><td class="n">3</td><td>Solução / proposta de valor</td><td>As três perguntas que o app responde (seção 1).</td></tr>
+      <tr><td class="n">4</td><td>Funcionalidades</td><td>Os 4 blocos com print da tela de cada um (seção 2).</td></tr>
+      <tr><td class="n">5</td><td>Telas e navegação</td><td>Diagrama de fluxo (Figura 1 da documentação) — abas + modais.</td></tr>
+      <tr><td class="n">6</td><td>Arquitetura</td><td>Camadas + modelo de dados (ER da Figura 2) + stack (seção 3).</td></tr>
+      <tr><td class="n">7</td><td>Destaques técnicos</td><td>Lembrete local, busca sem acento, leitura defensiva, SDD/ADRs (seção 3).</td></tr>
+      <tr><td class="n">8</td><td>Demonstração + conclusão</td><td>Ao vivo no Expo Go (seção 4); fechar com o que a dupla aprendeu.</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Dica de identidade visual dos slides: fundo escuro (#0B0B0F), texto claro (#F5F5F7), um
+  acento índigo (#6366F1), tipografia sem serifa — o mesmo sistema do app (tokens em
+  <code>src/constants/theme.ts</code>).</p>
+  <div class="box">
+    <div class="t">Checklist da apresentação (exigido no roteiro)</div>
+    Problema e objetivo · telas e fluxo · um formulário com validação · a lista de dados · armazenamento
+    local · componentes reutilizáveis · organização de pastas · repositório no GitHub (com acesso ao
+    professor). Todos cobertos pelas seções 1–4 deste resumo.
+  </div>
+</div>
+
+</body>
+</html>

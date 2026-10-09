@@ -103,7 +103,9 @@ verificação final.
 
 **Impacto.** Item 1 da Etapa 1 do roteiro (capa) e envio por e-mail.
 
-**Estado.** Em aberto — preencher quando informado; entra na capa do documento de entrega.
+**Estado.** **Resolvida (2026-10-09)** — integrantes: Pedro Miguel e Anna Cecilia; turma: 1; professor(a):
+Isa Alexandre; data: 09/10/2026; repositório: `github.com/heyalmeida/studia-app`. Aplicados na capa de
+`docs/entrega/Studia_Documentacao.pdf`.
 
 ### OQ-08 — Ferramenta e local do protótipo das telas
 

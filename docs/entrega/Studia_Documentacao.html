@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Studia — Documentação do Projeto</title>
+<style>
+  @page { size: A4; margin: 20mm 17mm; }
+  @page cover { margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Arial, "Helvetica Neue", sans-serif;
+    color: #1a1a1f;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+  h1, h2, h3, h4 { line-height: 1.2; margin: 0; }
+  p { margin: 0 0 8pt; }
+  code, .mono {
+    font-family: "Consolas", "SFMono-Regular", monospace;
+    font-size: 9.5pt;
+    background: #eef0f6;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #3730a3;
+  }
+  .accent { color: #4f46e5; }
+
+  /* ---------- COVER ---------- */
+  .cover {
+    page: cover;
+    width: 210mm; height: 297mm;
+    background: #0b0b0f;
+    color: #f5f5f7;
+    padding: 26mm 20mm;
+    display: flex; flex-direction: column;
+    break-after: page;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover .glow {
+    position: absolute; width: 150mm; height: 150mm; border-radius: 50%;
+    background: radial-gradient(circle, rgba(99,102,241,0.28), rgba(99,102,241,0) 70%);
+    top: -40mm; right: -40mm;
+  }
+  .cover .kicker {
+    font-size: 11pt; letter-spacing: 3px; text-transform: uppercase;
+    color: #a1a1aa; margin-bottom: 6mm;
+  }
+  .cover .brand { font-size: 46pt; font-weight: 700; letter-spacing: -1px; margin-bottom: 3mm; }
+  .cover .brand .dot { color: #6366f1; }
+  .cover .tagline { font-size: 14pt; color: #c7c7cf; font-weight: 400; max-width: 150mm; }
+  .cover .rule { height: 3px; width: 30mm; background: #6366f1; margin: 12mm 0; border-radius: 2px; }
+  .cover .doctype { font-size: 12.5pt; color: #e4e4e7; font-weight: 600; margin-bottom: 2mm; }
+  .cover .meta { margin-top: auto; font-size: 10.5pt; color: #a1a1aa; }
+  .cover .meta .row { display: flex; gap: 4mm; margin-bottom: 2.4mm; }
+  .cover .meta .lbl { min-width: 40mm; color: #6b6b76; text-transform: uppercase; letter-spacing: 1px; font-size: 8.5pt; padding-top: 1px; }
+  .cover .meta .val { color: #e4e4e7; }
+  .cover .meta .fill { color: #6b6b76; border-bottom: 1px dotted #4a4a55; min-width: 60mm; }
+
+  /* ---------- BODY ---------- */
+  .section { break-before: page; }
+  .section.first { break-before: auto; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 4mm;
+    border-bottom: 2px solid #4f46e5; padding-bottom: 2.5mm; margin-bottom: 5mm;
+  }
+  .sec-num { font-size: 22pt; font-weight: 700; color: #c7c9f5; }
+  .sec-head h2 { font-size: 16pt; color: #1a1a1f; font-weight: 700; }
+  h3.sub { font-size: 12pt; color: #4f46e5; margin: 6mm 0 2mm; font-weight: 700; }
+  h4 { font-size: 10.5pt; margin: 4mm 0 1.5mm; font-weight: 700; }
+  .lead { font-size: 11pt; color: #3a3a44; margin-bottom: 5mm; }
+
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9.3pt; break-inside: auto; }
+  thead { display: table-header-group; }
+  th { background: #eceefb; color: #312e81; text-align: left; font-weight: 700; padding: 4pt 6pt; border: 1px solid #d8dbf0; }
+  td { padding: 4pt 6pt; border: 1px solid #e4e6f2; vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.id { font-weight: 700; color: #4f46e5; white-space: nowrap; }
+  .pk { color: #b91c1c; font-weight: 700; }
+  .fk { color: #1d4ed8; font-weight: 700; }
+
+  ul { margin: 2mm 0 5mm; padding-left: 5.5mm; }
+  li { margin-bottom: 1.6mm; }
+  .ca { color: #55555f; }
+  .ca b { color: #1a1a1f; }
+
+  .box { border: 1px solid #d8dbf0; border-left: 4px solid #4f46e5; background: #f7f8fe; padding: 4mm 5mm; border-radius: 0 6px 6px 0; margin: 4mm 0; break-inside: avoid; }
+  .box .t { font-weight: 700; color: #312e81; margin-bottom: 1.5mm; }
+  .note { font-size: 9pt; color: #6b6b76; font-style: italic; }
+
+  figure { margin: 5mm 0; break-inside: avoid; text-align: center; }
+  figcaption { font-size: 9pt; color: #6b6b76; margin-top: 2mm; }
+  svg { max-width: 100%; height: auto; }
+
+  .fillline { display: inline-block; min-width: 55mm; border-bottom: 1px solid #9a9ab0; }
+  .ph {
+    border: 1.5px dashed #b7bad4; border-radius: 8px; background: #fafbff;
+    color: #8a8fa8; text-align: center; padding: 14mm 6mm; font-size: 10pt;
+    break-inside: avoid; margin: 3mm 0;
+  }
+  .ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .ph-grid .ph { padding: 16mm 4mm; }
+  .ph .big { font-size: 12pt; font-weight: 700; color: #6b6b76; display: block; margin-bottom: 1.5mm; }
+
+  .toc { list-style: none; padding: 0; margin: 4mm 0; columns: 2; column-gap: 10mm; }
+  .toc li { break-inside: avoid; margin-bottom: 2.2mm; font-size: 10pt; display: flex; gap: 3mm; }
+  .toc .n { color: #4f46e5; font-weight: 700; min-width: 6mm; }
+  .kv { display: grid; grid-template-columns: 46mm 1fr; gap: 1mm 4mm; font-size: 10pt; margin: 3mm 0; }
+  .kv .k { color: #6b6b76; }
+  .footer-note { margin-top: 8mm; padding-top: 3mm; border-top: 1px solid #e4e6f2; font-size: 8.5pt; color: #8a8fa8; }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA ============ -->
+<div class="cover">
+  <div class="glow"></div>
+  <div class="kicker">Projeto Final · Módulo IV</div>
+  <div class="brand">Studia<span class="dot">.</span></div>
+  <div class="tagline">Organização da rotina acadêmica — matérias, atividades com prazo, avaliações e progresso, em um único lugar e 100% offline.</div>
+  <div class="rule"></div>
+  <div class="doctype">Documentação do Projeto</div>
+  <div class="meta">
+    <div class="row"><span class="lbl">Instituição</span><span class="val">Universidade Estadual de Montes Claros — Cept</span></div>
+    <div class="row"><span class="lbl">Curso</span><span class="val">Técnico em Desenvolvimento de Sistemas</span></div>
+    <div class="row"><span class="lbl">Disciplina</span><span class="val">Desenvolvimento de Sistemas para Dispositivos Móveis</span></div>
+    <div class="row"><span class="lbl">Integrantes</span><span class="val">Pedro Miguel · Anna Cecilia</span></div>
+    <div class="row"><span class="lbl">Turma</span><span class="val">Turma 1</span></div>
+    <div class="row"><span class="lbl">Professor(a)</span><span class="val">Isa Alexandre</span></div>
+    <div class="row"><span class="lbl">Data</span><span class="val">09/10/2026</span></div>
+  </div>
+</div>
+
+<!-- ============ SUMÁRIO ============ -->
+<div class="section first">
+  <div class="sec-head"><span class="sec-num">00</span><h2>Sumário</h2></div>
+  <p class="lead">Este documento reúne, conforme a Etapa 1 do roteiro, todas as decisões de planejamento,
+  arquitetura e implementação do Studia. Ele descreve o que foi projetado <b>e o que foi efetivamente
+  construído</b> — o código no repositório é a fonte de verdade executável.</p>
+  <ul class="toc">
+    <li><span class="n">1</span><span>Introdução</span></li>
+    <li><span class="n">2</span><span>Objetivo</span></li>
+    <li><span class="n">3</span><span>Problema</span></li>
+    <li><span class="n">4</span><span>Público-alvo</span></li>
+    <li><span class="n">5</span><span>Requisitos Funcionais</span></li>
+    <li><span class="n">6</span><span>Requisitos Não Funcionais</span></li>
+    <li><span class="n">7</span><span>Telas e Fluxo de Navegação</span></li>
+    <li><span class="n">8</span><span>Protótipo das Telas</span></li>
+    <li><span class="n">9</span><span>Modelagem do Banco de Dados</span></li>
+    <li><span class="n">10</span><span>Diagrama do Banco (ER)</span></li>
+    <li><span class="n">11</span><span>Dados Utilizados</span></li>
+    <li><span class="n">12</span><span>Tecnologias</span></li>
+    <li><span class="n">13</span><span>Organização do Código</span></li>
+    <li><span class="n">14</span><span>Conclusão</span></li>
+  </ul>
+  <div class="box">
+    <div class="t">Identificação do projeto</div>
+    Código-fonte versionado em <code>github.com/heyalmeida/studia-app</code>, com acesso de avaliação
+    concedido à professora. Este documento reúne a Etapa 1 (planejamento e documentação) e reflete o que foi
+    efetivamente implementado no repositório.
+  </div>
+</div>
+
+<!-- ============ 1 INTRODUÇÃO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">1</span><h2>Introdução</h2></div>
+  <p class="lead">O <b>Studia</b> é um aplicativo móvel de organização de estudos, desenvolvido em dupla
+  como Projeto Final da disciplina de Desenvolvimento de Sistemas para Dispositivos Móveis.</p>
+  <p>O app permite ao estudante centralizar a rotina acadêmica em um único lugar: cadastrar <b>matérias</b>,
+  registrar <b>atividades</b> (tarefas, trabalhos, leituras e estudos) com prazo e situação, acompanhar
+  <b>avaliações</b> (provas, seminários e entregas) por data e visualizar, na tela inicial, um resumo do que
+  vence primeiro, do que falta por matéria e do progresso geral.</p>
+  <p>Foi construído com <b>React Native + Expo + TypeScript</b> sobre o projeto-base da disciplina, seguindo
+  a stack exigida. O aplicativo é <b>100% local e offline</b>: não há servidor, conta de usuário ou
+  dependência de internet — os dados são persistidos no próprio aparelho via AsyncStorage.</p>
+  <p>Além do produto em si, o projeto foi conduzido com <b>Desenvolvimento Orientado a Especificação
+  (Spec-Driven Development)</b>: cada decisão de arquitetura e funcionalidade está registrada em
+  documentação versionada junto ao código (requisitos, especificações por feature, Architecture Decision
+  Records e planos de execução), o que torna o repositório legível como portfólio técnico.</p>
+</div>
+
+<!-- ============ 2 OBJETIVO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">2</span><h2>Objetivo</h2></div>
+  <p class="lead">Demonstrar, na prática, os conteúdos da disciplina — organização de código, navegação entre
+  telas, componentes reutilizáveis, formulários com validação, listas e manipulação de dados — por meio de um
+  aplicativo que resolve um problema real do estudante.</p>
+  <h3 class="sub">Objetivos do aplicativo (o que o usuário deve conseguir fazer)</h3>
+  <ul>
+    <li>Cadastrar e manter <b>matérias</b>;</li>
+    <li>Registrar <b>atividades</b> vinculadas a uma matéria, com prazo, tipo e situação;</li>
+    <li>Marcar atividades como <b>concluídas</b>, enxergando o progresso por matéria;</li>
+    <li>Registrar <b>avaliações</b> (provas) com data, vinculadas a uma matéria;</li>
+    <li>Abrir o app e ver, na <b>tela inicial</b>, um resumo da rotina: pendências, prazos próximos e provas futuras;</li>
+    <li><b>Buscar e filtrar</b> por matéria nas listas e receber um <b>lembrete local</b> um dia antes de um prazo.</li>
+  </ul>
+  <div class="box">
+    <div class="t">Proposta de valor</div>
+    Um único lugar onde o estudante registra o que tem por fazer (por matéria), enxerga o que vence primeiro e
+    acompanha o quanto já concluiu. O Studia não tenta ser agenda completa nem plataforma de aprendizagem —
+    ele responde, em segundos, a três perguntas: <i>o que vence primeiro? o que falta por matéria? como andam
+    minhas provas?</i>
+  </div>
+</div>
+
+<!-- ============ 3 PROBLEMA ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">3</span><h2>Problema</h2></div>
+  <p class="lead">Estudantes gerenciam a rotina acadêmica de forma <b>fragmentada</b>: prazos anotados no
+  caderno, provas esquecidas até a véspera, materiais espalhados entre aplicativos que não se conversam.</p>
+  <p>O resultado concreto dessa fragmentação é triplo: <b>perda de prazos</b>, <b>estudo reativo</b> (estudar
+  "quando dá", sem planejamento) e <b>ausência de visão objetiva</b> do que ainda falta fazer por matéria.
+  Não existe uma ferramenta simples que una o registro do que fazer, o acompanhamento do prazo e a noção de
+  progresso — sem exigir internet, cadastro ou configuração complexa.</p>
+  <p>O Studia ataca exatamente esse ponto: ele reúne registro, prazo e progresso em uma única tela inicial,
+  funciona no bolso durante o dia todo (offline) e não pede nada além de um cadastro rápido de matéria para
+  começar a ser útil.</p>
+  <p class="note">Hipótese registrada no planejamento: o problema é plausível e comum, embora não tenha sido
+  validado com usuários reais — suficiente para o escopo de um projeto disciplinar.</p>
+</div>
+
+<!-- ============ 4 PÚBLICO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">4</span><h2>Público-alvo</h2></div>
+  <p class="lead">Estudantes de cursos técnicos e de graduação que cursam <b>várias matérias simultâneas</b> e
+  precisam organizar tarefas, trabalhos e provas em um único lugar.</p>
+  <h3 class="sub">Cenário típico de uso</h3>
+  <ul>
+    <li>Uso no <b>celular</b>, em curtas sessões de consulta e registro ao longo do dia;</li>
+    <li>Sem exigência de internet — o app funciona no ônibus, no intervalo, onde estiver;</li>
+    <li>Perfil que hoje se vira com caderno, planilha ou mais de um app que não conversam entre si.</li>
+  </ul>
+  <p>O aplicativo é autoexplicativo e não possui contas nem múltiplos usuários: cada pessoa usa o próprio
+  aparelho com seus próprios dados. Isso mantém a barreira de entrada baixa — o requisito central é que o
+  estudante consiga registrar e consultar sem atrito.</p>
+</div>
+
+<!-- ============ 5 REQUISITOS FUNCIONAIS ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">5</span><h2>Requisitos Funcionais</h2></div>
+  <p class="lead">O roteiro exige no mínimo 6 requisitos funcionais; o Studia possui <b>9</b>, derivados
+  naturalmente do domínio de três entidades (nenhum requisito foi criado apenas para atingir o mínimo).</p>
+  <table>
+    <thead><tr><th style="width:14mm">ID</th><th style="width:52mm">Requisito</th><th>Descrição e critérios de aceitação</th></tr></thead>
+    <tbody>
+      <tr><td class="id">RF-01</td><td><b>Cadastrar matéria</b></td>
+        <td>Informa nome (obrigatório, ≥2 caracteres, único sem diferenciar maiúsculas) e professor(a) (opcional). Nome vazio ou duplicado bloqueia o cadastro com mensagem específica.</td></tr>
+      <tr><td class="id">RF-02</td><td><b>Listar e visualizar matérias</b></td>
+        <td>Cards ordenados por nome, exibindo por matéria: atividades pendentes, avaliações agendadas e progresso (concluídas ÷ total). Toque no card abre a edição.</td></tr>
+      <tr><td class="id">RF-03</td><td><b>Editar e excluir matéria</b></td>
+        <td>Edição abre preenchida e reaplica as validações. Exclusão exige confirmação e é <b>bloqueada</b> quando há atividades/avaliações vinculadas ("exclua-os primeiro").</td></tr>
+      <tr><td class="id">RF-04</td><td><b>Cadastrar atividade</b></td>
+        <td>Atividade (tarefa, trabalho, leitura ou estudo) com título, matéria (obrigatória), prazo (opcional) e descrição. Data no passado gera <b>aviso</b>, não bloqueio. Sem matérias, o formulário orienta a cadastrar uma antes.</td></tr>
+      <tr><td class="id">RF-05</td><td><b>Listar e filtrar atividades</b></td>
+        <td>Ordenadas por prazo (mais próximos primeiro, sem prazo ao final), com filtro por situação: todas, pendentes, concluídas. Cada item mostra matéria, prazo destacado e situação.</td></tr>
+      <tr><td class="id">RF-06</td><td><b>Concluir / reabrir atividade</b></td>
+        <td>Alternar a situação diretamente na lista, atualizando o progresso da matéria e o resumo do painel, com feedback imediato e sem recarregar a tela.</td></tr>
+      <tr><td class="id">RF-07</td><td><b>Editar e excluir atividade</b></td>
+        <td>Correção com as mesmas validações do cadastro; exclusão com confirmação, removendo a atividade de listas, painel e agregados.</td></tr>
+      <tr><td class="id">RF-08</td><td><b>Cadastrar e gerenciar avaliações</b></td>
+        <td>Avaliação com título, matéria e <b>data obrigatória</b>; lista ordenada pela data (agendadas primeiro); alternância entre agendada e realizada. O histórico de realizadas permanece visível.</td></tr>
+      <tr><td class="id">RF-09</td><td><b>Painel inicial de visão da rotina</b></td>
+        <td>Tela de abertura com resumo: pendências, prazos próximos, próximas avaliações e progresso geral. Cada bloco navega para a tela relacionada; com dados zerados, exibe estado vazio convidativo.</td></tr>
+    </tbody>
+  </table>
+  <h3 class="sub">Requisitos funcionais adicionais (expansões aprovadas)</h3>
+  <table>
+    <thead><tr><th style="width:20mm">Ref.</th><th style="width:52mm">Requisito</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td class="id">RF-10</td><td><b>Busca e filtro por matéria</b></td>
+        <td>Busca textual (sem diferenciar maiúsculas nem acentos) e filtro por matéria nas listas de atividades, avaliações e matérias, sem alterar a ordenação.</td></tr>
+      <tr><td class="id">RF-11</td><td><b>Lembrete local de prazo</b></td>
+        <td>Opt-in por registro: agenda uma <b>notificação local</b> 1 dia antes do prazo, às 08:00. Concluir, excluir ou desligar o lembrete cancela o agendamento.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ 6 REQUISITOS NÃO FUNCIONAIS ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">6</span><h2>Requisitos Não Funcionais</h2></div>
+  <p class="lead">O roteiro exige no mínimo 4; o Studia define <b>6</b>, cada um ligado a um aspecto real do
+  produto e com forma de verificação objetiva.</p>
+  <table>
+    <thead><tr><th style="width:16mm">ID</th><th style="width:50mm">Requisito</th><th>Descrição e verificação</th></tr></thead>
+    <tbody>
+      <tr><td class="id">RNF-01</td><td><b>Usabilidade e interface organizada</b></td>
+        <td>No máximo 2 toques entre abrir o app e uma ação comum; alvos de toque ≥44pt; padrão visual consistente via UI kit compartilhado; cor nunca usada sozinha (sempre com rótulo textual). Verificação: inspeção por tela + percurso "abrir → ver o que vence hoje".</td></tr>
+      <tr><td class="id">RNF-02</td><td><b>Organização do código em camadas</b></td>
+        <td>Pastas por responsabilidade (<code>app</code>, <code>screens</code>, <code>components</code>, <code>domain</code>, <code>storage</code>, <code>services</code>, <code>hooks</code>…), sem lógica concentrada em um arquivo; ≥3 componentes reutilizáveis em mais de uma tela. Verificação: revisão da árvore <code>src/</code>.</td></tr>
+      <tr><td class="id">RNF-03</td><td><b>Manutenibilidade e segurança de tipos</b></td>
+        <td>TypeScript <code>strict</code>, sem <code>any</code> gratuito, ESLint do Expo sem erros, commits pequenos e claros. Verificação: <code>tsc --noEmit</code> e <code>expo lint</code> limpos.</td></tr>
+      <tr><td class="id">RNF-04</td><td><b>Tratamento de erros e feedback</b></td>
+        <td>Mensagens claras por campo, falha de armazenamento sem texto técnico, confirmação em exclusão, feedback de sucesso; o app não quebra diante de dado ausente ou corrompido. Verificação: roteiro manual por tela.</td></tr>
+      <tr><td class="id">RNF-05</td><td><b>Compatibilidade mobile (Android prioritário)</b></td>
+        <td>Orientação retrato, respeito a safe areas, layout fluido, tema escuro único com contraste verificado. Verificação: dispositivo físico/emulador Android no checklist da Etapa 6.</td></tr>
+      <tr><td class="id">RNF-06</td><td><b>Persistência confiável e offline</b></td>
+        <td>Todo dado sobrevive a fechar e reabrir o app; funciona integralmente sem rede; gravação atômica por coleção. Verificação: ciclo cadastrar → fechar → reabrir + teste em modo avião.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ 7 TELAS E NAVEGAÇÃO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">7</span><h2>Telas e Fluxo de Navegação</h2></div>
+  <p class="lead">O roteiro exige no mínimo 5 telas navegáveis; o Studia possui <b>7</b>. As quatro primeiras
+  são <b>abas</b>; as três de formulário são <b>rotas modais</b> sobre a pilha. Cada tela de listagem
+  concentra o próprio CRUD (listar + editar/excluir), atendendo ao alvo de "≤2 toques para ação comum".</p>
+
+  <figure>
+    <svg viewBox="0 0 760 300" role="img" aria-label="Diagrama de fluxo de navegação entre as sete telas">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+          <path d="M0,0 L7,3.2 L0,6.4 z" fill="#8a8fa8"/>
+        </marker>
+      </defs>
+      <g font-family="Segoe UI, Arial, sans-serif" font-size="13">
+        <!-- tabs row -->
+        <g>
+          <rect x="20"  y="20" width="150" height="54" rx="9" fill="#eef0fb" stroke="#4f46e5" stroke-width="1.6"/>
+          <text x="95" y="43" text-anchor="middle" font-weight="700" fill="#312e81">T1 · Painel</text>
+          <text x="95" y="60" text-anchor="middle" fill="#55555f" font-size="11">tela inicial</text>
+
+          <rect x="210" y="20" width="150" height="54" rx="9" fill="#f4f5fd" stroke="#c7c9f5" stroke-width="1.4"/>
+          <text x="285" y="43" text-anchor="middle" font-weight="700" fill="#312e81">T2 · Matérias</text>
+          <text x="285" y="60" text-anchor="middle" fill="#55555f" font-size="11">lista + CRUD</text>
+
+          <rect x="400" y="20" width="150" height="54" rx="9" fill="#f4f5fd" stroke="#c7c9f5" stroke-width="1.4"/>
+          <text x="475" y="43" text-anchor="middle" font-weight="700" fill="#312e81">T3 · Atividades</text>
+          <text x="475" y="60" text-anchor="middle" fill="#55555f" font-size="11">lista + filtros</text>
+
+          <rect x="590" y="20" width="150" height="54" rx="9" fill="#f4f5fd" stroke="#c7c9f5" stroke-width="1.4"/>
+          <text x="665" y="43" text-anchor="middle" font-weight="700" fill="#312e81">T4 · Avaliações</text>
+          <text x="665" y="60" text-anchor="middle" fill="#55555f" font-size="11">lista + situação</text>
+        </g>
+        <!-- forms row -->
+        <g>
+          <rect x="210" y="210" width="150" height="54" rx="9" fill="#ffffff" stroke="#8a8fa8" stroke-width="1.3"/>
+          <text x="285" y="233" text-anchor="middle" font-weight="700" fill="#1a1a1f">T5 · Form. Matéria</text>
+          <text x="285" y="250" text-anchor="middle" fill="#55555f" font-size="11">modal</text>
+
+          <rect x="400" y="210" width="150" height="54" rx="9" fill="#ffffff" stroke="#8a8fa8" stroke-width="1.3"/>
+          <text x="475" y="233" text-anchor="middle" font-weight="700" fill="#1a1a1f">T6 · Form. Atividade</text>
+          <text x="475" y="250" text-anchor="middle" fill="#55555f" font-size="11">modal</text>
+
+          <rect x="590" y="210" width="150" height="54" rx="9" fill="#ffffff" stroke="#8a8fa8" stroke-width="1.3"/>
+          <text x="665" y="233" text-anchor="middle" font-weight="700" fill="#1a1a1f">T7 · Form. Avaliação</text>
+          <text x="665" y="250" text-anchor="middle" fill="#55555f" font-size="11">modal</text>
+        </g>
+        <!-- tab bar connector -->
+        <line x1="20" y1="98" x2="740" y2="98" stroke="#d8dbf0" stroke-width="1.2"/>
+        <text x="30" y="113" fill="#8a8fa8" font-size="10">Barra de abas (navegação sempre acessível) + botão central de criação</text>
+        <!-- links T1 -> lists -->
+        <path d="M95,74 L95,140 L475,140 L475,74" fill="none" stroke="#8a8fa8" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M95,140 L285,140" fill="none" stroke="#8a8fa8" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <path d="M95,140 L665,140" fill="none" stroke="#8a8fa8" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <!-- create links -->
+        <line x1="285" y1="74" x2="285" y2="210" stroke="#4f46e5" stroke-width="1.3" marker-end="url(#arr)"/>
+        <line x1="475" y1="74" x2="475" y2="210" stroke="#4f46e5" stroke-width="1.3" marker-end="url(#arr)"/>
+        <line x1="665" y1="74" x2="665" y2="210" stroke="#4f46e5" stroke-width="1.3" marker-end="url(#arr)"/>
+        <!-- bridge T6 -> T5 -->
+        <path d="M400,237 L360,237" fill="none" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arr)"/>
+        <text x="362" y="205" fill="#b91c1c" font-size="9.5">sem matéria: ir cadastrar</text>
+      </g>
+    </svg>
+    <figcaption>Figura 1 — Fluxo de navegação: abas (T1–T4), formulários modais (T5–T7) e a ponte de T6 para T5 quando não há matéria cadastrada.</figcaption>
+  </figure>
+
+  <h3 class="sub">Descrição das telas</h3>
+  <table>
+    <thead><tr><th style="width:14mm">Tela</th><th style="width:40mm">Objetivo</th><th>Informações e ações</th></tr></thead>
+    <tbody>
+      <tr><td class="id">T1</td><td>Painel (inicial)</td>
+        <td>Saudação + data; card principal com anel de progresso, "X de Y concluídas" e quantas vencem em 7 dias; "Próximos prazos" (3 atividades) e próxima avaliação. Toque abre edição ou "Ver todas".</td></tr>
+      <tr><td class="id">T2</td><td>Matérias</td>
+        <td>Cards com ícone tingido na cor da matéria, nome, professor, contadores e barra de progresso na cor. Busca por nome/professor. Botão de criação abre T5; toque no card edita.</td></tr>
+      <tr><td class="id">T3</td><td>Atividades</td>
+        <td>Controle segmentado (pendentes/todas/concluídas), agrupamento por período (Atrasadas, Hoje, Esta semana, Depois), item com título, matéria e chip de prazo por urgência. Busca + filtro por matéria. Conclusão por checkbox.</td></tr>
+      <tr><td class="id">T4</td><td>Avaliações</td>
+        <td>Cards com bloco de data, título, matéria e contagem regressiva; realizadas esmaecidas como histórico. Busca + filtro por matéria; alternar agendada/realizada.</td></tr>
+      <tr><td class="id">T5</td><td>Form. Matéria</td>
+        <td>Nome, professor(a), carga horária, grade de ícones e seletor de cor (8 tons). Rodapé fixo com Salvar / Cancelar / Excluir (edição).</td></tr>
+      <tr><td class="id">T6</td><td>Form. Atividade</td>
+        <td>Título, seletor de matéria, tipo com ícone, prazo com calendário + atalhos, descrição e switch "Lembrar". Ponte para T5 quando não há matéria.</td></tr>
+      <tr><td class="id">T7</td><td>Form. Avaliação</td>
+        <td>Título, seletor de matéria, data obrigatória com calendário e switch "Lembrar". Mesmo padrão de T6, sem tipo/descrição.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ 8 PROTÓTIPO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">8</span><h2>Protótipo das Telas</h2></div>
+  <p class="lead">O roteiro exige o protótipo de, no mínimo, 5 telas. As capturas abaixo correspondem às
+  telas finais do aplicativo (desenvolvidas em Figma / telas reais) e devem ser inseridas nos quadros
+  reservados, uma por tela.</p>
+  <div class="ph-grid">
+    <div class="ph"><span class="big">T1 · Painel</span>inserir protótipo</div>
+    <div class="ph"><span class="big">T2 · Matérias</span>inserir protótipo</div>
+    <div class="ph"><span class="big">T3 · Atividades</span>inserir protótipo</div>
+    <div class="ph"><span class="big">T5 · Form. Matéria</span>inserir protótipo</div>
+    <div class="ph"><span class="big">T6 · Form. Atividade</span>inserir protótipo</div>
+    <div class="ph"><span class="big">T4 · Avaliações</span>inserir protótipo (opcional)</div>
+  </div>
+  <p class="note">Cinco quadros atendem ao mínimo exigido; o sexto é opcional. Recomenda-se versionar as
+  imagens em <code>docs/prototype/</code> junto ao repositório (questão OQ-08).</p>
+</div>
+
+<!-- ============ 9 MODELAGEM ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">9</span><h2>Modelagem do Banco de Dados</h2></div>
+  <p class="lead">A modelagem cobre <b>3 entidades relacionadas</b> (mínimo do roteiro). Embora o app não use
+  banco relacional — a persistência é local por chave-JSON (AsyncStorage) —, campos, tipos, chaves e
+  relacionamentos estão formalizados abaixo.</p>
+
+  <h3 class="sub">Subject (Matéria)</h3>
+  <table>
+    <thead><tr><th style="width:34mm">Campo</th><th style="width:52mm">Tipo</th><th style="width:18mm">Chave</th><th>Finalidade</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string (UUID)</td><td class="pk">PK</td><td>Identificador estável entre coleções</td></tr>
+      <tr><td><code>name</code></td><td>string</td><td>—</td><td>Nome exibido; obrigatório, ≥2 caracteres, único</td></tr>
+      <tr><td><code>teacher</code></td><td>string ou nulo</td><td>—</td><td>Professor(a); opcional</td></tr>
+      <tr><td><code>hour</code></td><td>número ou nulo</td><td>—</td><td>Horas por semana; opcional</td></tr>
+      <tr><td><code>icon</code></td><td>string ou nulo</td><td>—</td><td>Nome do ícone (grade); opcional</td></tr>
+      <tr><td><code>color</code></td><td>string ou nulo</td><td>—</td><td>Tom da paleta de 8; nulo = sem cor</td></tr>
+      <tr><td><code>createdAt</code></td><td>string (ISO 8601)</td><td>—</td><td>Auditoria</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Activity (Atividade)</h3>
+  <table>
+    <thead><tr><th style="width:34mm">Campo</th><th style="width:52mm">Tipo</th><th style="width:18mm">Chave</th><th>Finalidade</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string (UUID)</td><td class="pk">PK</td><td>—</td></tr>
+      <tr><td><code>subjectId</code></td><td>string</td><td class="fk">FK → Subject.id</td><td>Matéria da atividade (obrigatória)</td></tr>
+      <tr><td><code>title</code></td><td>string</td><td>—</td><td>O que deve ser feito; obrigatório</td></tr>
+      <tr><td><code>type</code></td><td>tarefa | trabalho | leitura | estudo</td><td>—</td><td>Classificação leve</td></tr>
+      <tr><td><code>description</code></td><td>string ou nulo</td><td>—</td><td>Detalhamento opcional</td></tr>
+      <tr><td><code>dueDate</code></td><td>string (só-data) ou nulo</td><td>—</td><td>Prazo; ordena a lista e alimenta o painel</td></tr>
+      <tr><td><code>status</code></td><td>pendente | concluida</td><td>—</td><td>Situação; motor do progresso</td></tr>
+      <tr><td><code>completedAt</code></td><td>string (ISO) ou nulo</td><td>—</td><td>Data da conclusão</td></tr>
+      <tr><td><code>reminder</code></td><td>boolean</td><td>—</td><td>Lembrete local ligado (1 dia antes, 08:00)</td></tr>
+      <tr><td><code>notificationId</code></td><td>string ou nulo</td><td>—</td><td>Id do agendamento; nulo = nada agendado</td></tr>
+      <tr><td><code>createdAt</code></td><td>string (ISO 8601)</td><td>—</td><td>Auditoria</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Assessment (Avaliação)</h3>
+  <table>
+    <thead><tr><th style="width:34mm">Campo</th><th style="width:52mm">Tipo</th><th style="width:18mm">Chave</th><th>Finalidade</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string (UUID)</td><td class="pk">PK</td><td>—</td></tr>
+      <tr><td><code>subjectId</code></td><td>string</td><td class="fk">FK → Subject.id</td><td>Matéria da prova (obrigatória)</td></tr>
+      <tr><td><code>title</code></td><td>string</td><td>—</td><td>Identificação da avaliação; obrigatório</td></tr>
+      <tr><td><code>date</code></td><td>string (só-data)</td><td>—</td><td>Data; obrigatória — o que a diferencia de Activity</td></tr>
+      <tr><td><code>status</code></td><td>agendada | realizada</td><td>—</td><td>Situação; histórico permanece visível</td></tr>
+      <tr><td><code>reminder</code></td><td>boolean</td><td>—</td><td>Lembrete local ligado (1 dia antes, 08:00)</td></tr>
+      <tr><td><code>notificationId</code></td><td>string ou nulo</td><td>—</td><td>Id do agendamento; nulo = nada agendado</td></tr>
+      <tr><td><code>createdAt</code></td><td>string (ISO 8601)</td><td>—</td><td>Auditoria</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">Relacionamentos e cardinalidade</h3>
+  <table>
+    <thead><tr><th style="width:52mm">Relacionamento</th><th style="width:24mm">Cardinalidade</th><th>Leitura e totalidade</th></tr></thead>
+    <tbody>
+      <tr><td>Subject → Activity</td><td class="id">1 : N</td><td>Uma matéria possui muitas atividades; cada atividade pertence a exatamente uma matéria (FK obrigatória).</td></tr>
+      <tr><td>Subject → Assessment</td><td class="id">1 : N</td><td>Uma matéria possui muitas avaliações; cada avaliação pertence a exatamente uma matéria (FK obrigatória).</td></tr>
+    </tbody>
+  </table>
+  <p>Atividade e Avaliação <b>não</b> se relacionam entre si. A integridade da chave estrangeira não é
+  imposta por banco (não há banco relacional), e sim pela regra de domínio: é impossível criar atividade ou
+  avaliação sem matéria válida pela interface, e excluir uma matéria com registros vinculados é bloqueado.
+  Registros órfãos são tratados como dado corrompido: as agregações ignoram chaves inexistentes em vez de
+  quebrar a tela.</p>
+</div>
+
+<!-- ============ 10 DIAGRAMA ER ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Diagrama do Banco (ER)</h2></div>
+  <p class="lead">Diagrama entidade-relacionamento simplificado das três entidades, com atributos, chaves
+  primárias (<span class="pk">PK</span>), chaves estrangeiras (<span class="fk">FK</span>) e a cardinalidade
+  1:N entre Matéria e suas atividades/avaliações.</p>
+  <figure>
+    <svg viewBox="0 0 760 360" role="img" aria-label="Diagrama entidade-relacionamento do Studia">
+      <g font-family="Segoe UI, Arial, sans-serif">
+        <!-- SUBJECT -->
+        <g>
+          <rect x="280" y="16" width="200" height="150" rx="8" fill="#f4f5fd" stroke="#4f46e5" stroke-width="1.8"/>
+          <rect x="280" y="16" width="200" height="26" rx="8" fill="#4f46e5"/>
+          <text x="380" y="34" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">SUBJECT (Matéria)</text>
+          <text x="292" y="58" font-size="11" fill="#1a1a1f"><tspan font-weight="700" fill="#b91c1c">PK</tspan> id</text>
+          <text x="292" y="76" font-size="11" fill="#1a1a1f">name</text>
+          <text x="292" y="94" font-size="11" fill="#1a1a1f">teacher</text>
+          <text x="292" y="112" font-size="11" fill="#1a1a1f">hour · icon · color</text>
+          <text x="292" y="130" font-size="11" fill="#1a1a1f">createdAt</text>
+        </g>
+        <!-- ACTIVITY -->
+        <g>
+          <rect x="30" y="230" width="220" height="118" rx="8" fill="#ffffff" stroke="#8a8fa8" stroke-width="1.5"/>
+          <rect x="30" y="230" width="220" height="26" rx="8" fill="#6b6b76"/>
+          <text x="140" y="248" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">ACTIVITY (Atividade)</text>
+          <text x="42" y="272" font-size="11"><tspan font-weight="700" fill="#b91c1c">PK</tspan> id</text>
+          <text x="42" y="290" font-size="11"><tspan font-weight="700" fill="#1d4ed8">FK</tspan> subjectId</text>
+          <text x="42" y="308" font-size="11">title · type · description</text>
+          <text x="42" y="326" font-size="11">dueDate · status · completedAt</text>
+          <text x="42" y="344" font-size="11">reminder · notificationId</text>
+        </g>
+        <!-- ASSESSMENT -->
+        <g>
+          <rect x="510" y="230" width="220" height="118" rx="8" fill="#ffffff" stroke="#8a8fa8" stroke-width="1.5"/>
+          <rect x="510" y="230" width="220" height="26" rx="8" fill="#6b6b76"/>
+          <text x="620" y="248" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">ASSESSMENT (Avaliação)</text>
+          <text x="522" y="272" font-size="11"><tspan font-weight="700" fill="#b91c1c">PK</tspan> id</text>
+          <text x="522" y="290" font-size="11"><tspan font-weight="700" fill="#1d4ed8">FK</tspan> subjectId</text>
+          <text x="522" y="308" font-size="11">title · date</text>
+          <text x="522" y="326" font-size="11">status · createdAt</text>
+          <text x="522" y="344" font-size="11">reminder · notificationId</text>
+        </g>
+        <!-- connectors -->
+        <path d="M330,166 L140,230" fill="none" stroke="#4f46e5" stroke-width="1.5"/>
+        <path d="M430,166 L620,230" fill="none" stroke="#4f46e5" stroke-width="1.5"/>
+        <text x="228" y="200" font-size="12" font-weight="700" fill="#4f46e5">1</text>
+        <text x="150" y="224" font-size="12" font-weight="700" fill="#4f46e5">N</text>
+        <text x="520" y="200" font-size="12" font-weight="700" fill="#4f46e5">1</text>
+        <text x="600" y="224" font-size="12" font-weight="700" fill="#4f46e5">N</text>
+        <text x="330" y="205" font-size="10" fill="#8a8fa8">possui</text>
+        <text x="452" y="205" font-size="10" fill="#8a8fa8">possui</text>
+      </g>
+    </svg>
+    <figcaption>Figura 2 — Diagrama ER: uma matéria para muitas atividades e muitas avaliações (1:N).</figcaption>
+  </figure>
+  <div class="box">
+    <div class="t">Progresso é derivado, não armazenado</div>
+    <code>progresso(matéria) = atividades concluídas ÷ atividades totais</code> é <b>computado</b> a partir das
+    entidades, nunca persistido — evitando inconsistência entre a fonte e o derivado. Não existe campo de
+    nota: o progresso do Studia é este (decisão OQ-04).
+  </div>
+</div>
+
+<!-- ============ 11 DADOS UTILIZADOS ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Dados Utilizados</h2></div>
+  <p class="lead">O Studia adota a <b>Opção 2 — Armazenamento Local</b> do roteiro. Não há API externa nem
+  back-end: o próprio aparelho é a fonte de dados, o que garante funcionamento 100% offline.</p>
+  <h3 class="sub">Fluxo dos dados</h3>
+  <div class="box">
+    <b>Usuário cadastra</b> → <b>o app salva</b> (AsyncStorage, uma chave por coleção) → <b>o app recupera</b>
+    ao abrir → <b>listas e telas exibem</b>.
+  </div>
+  <h3 class="sub">Coleções e telas onde aparecem</h3>
+  <table>
+    <thead><tr><th style="width:46mm">Chave (storage)</th><th style="width:30mm">Entidade</th><th>Cadastrada / consultada em</th></tr></thead>
+    <tbody>
+      <tr><td><code>studia.subjects</code></td><td>Matérias</td><td>Cadastro/edição em T5; consulta em T2, T1 e nos seletores de T6/T7</td></tr>
+      <tr><td><code>studia.activities</code></td><td>Atividades</td><td>Cadastro/edição em T6; consulta em T3, T1 e agregados de T2</td></tr>
+      <tr><td><code>studia.assessments</code></td><td>Avaliações</td><td>Cadastro/edição em T7; consulta em T4, T1 e agregados de T2</td></tr>
+    </tbody>
+  </table>
+  <h3 class="sub">Como os dados chegam às telas</h3>
+  <ul>
+    <li>A UI <b>nunca</b> acessa o storage diretamente: consome <b>hooks</b> (<code>use-subjects</code>,
+      <code>use-activities</code>, <code>use-assessments</code>, <code>use-dashboard</code>) que leem os
+      <b>repositórios</b> por trás de uma interface.</li>
+    <li>Uma camada de <b>pub/sub</b> (notifier) avisa quando uma coleção muda; assim, concluir uma atividade
+      atualiza o card da matéria e o painel sem recarregar a tela.</li>
+    <li>A leitura é <b>defensiva</b>: JSON ausente ou inválido vira lista vazia; campos opcionais de versões
+      anteriores são migrados na leitura (registros antigos abrem sem erro).</li>
+  </ul>
+</div>
+
+<!-- ============ 12 TECNOLOGIAS ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Tecnologias</h2></div>
+  <p class="lead">Stack alinhada ao projeto-base da disciplina (React Native + Expo + TypeScript), com o
+  acréscimo pontual de bibliotecas para calendário, ícones, gráficos e notificação local.</p>
+  <div class="kv">
+    <span class="k">Framework de app</span><span>React Native 0.86 sobre Expo SDK 57</span>
+    <span class="k">Linguagem</span><span>TypeScript 6 (modo <code>strict</code>)</span>
+    <span class="k">Biblioteca de UI</span><span>React 19</span>
+    <span class="k">Navegação</span><span>Expo Router 57 (abas + rotas modais)</span>
+    <span class="k">Estilização</span><span><code>StyleSheet</code> do React Native + tokens centralizados</span>
+    <span class="k">Persistência</span><span>@react-native-async-storage/async-storage</span>
+    <span class="k">Ícones</span><span>lucide-react-native</span>
+    <span class="k">Gráficos</span><span>react-native-svg (anel de progresso)</span>
+    <span class="k">Notificação local</span><span>expo-notifications (agendamento local)</span>
+    <span class="k">Segurança de tipos / qualidade</span><span>ESLint (eslint-config-expo) + tsc</span>
+    <span class="k">Versionamento</span><span>Git + GitHub</span>
+  </div>
+  <div class="box">
+    <div class="t">Decisão de estilo relevante (portfólio)</div>
+    O projeto adotou inicialmente NativeWind (Tailwind) e migrou para <code>StyleSheet</code> puro: o motor do
+    NativeWind é um módulo nativo que <b>não existe dentro do Expo Go</b>, onde o app é executado e
+    demonstrado. A decisão está registrada em ADR. Isso mantém o app fiel ao requisito do roteiro de "organizar
+    o layout com StyleSheet e Flexbox".
+  </div>
+</div>
+
+<!-- ============ 13 ORGANIZAÇÃO DO CÓDIGO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">13</span><h2>Organização do Código</h2></div>
+  <p class="lead">O código é organizado em camadas por responsabilidade, sem concentrar lógica em um único
+  arquivo. As rotas ficam em <code>src/app/</code> (layouts + re-exports finos); cada tela é uma pasta em
+  <code>src/screens/</code>.</p>
+  <h3 class="sub">Estrutura de pastas</h3>
+  <table>
+    <thead><tr><th style="width:44mm">Pasta</th><th>Responsabilidade</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/app/</code></td><td>Rotas Expo Router — layouts de navegação e re-exports finos das telas</td></tr>
+      <tr><td><code>src/screens/</code></td><td>Implementação das telas (uma pasta <code>&lt;Tela&gt;Page/</code> por tela)</td></tr>
+      <tr><td><code>src/components/</code></td><td>UI: <code>ui/</code> = kit reutilizável multi-tela; <code>&lt;Tela&gt;Page/</code> = componentes de uma tela</td></tr>
+      <tr><td><code>src/hooks/</code></td><td>Hooks de dados que compõem repositórios e reagindo ao notifier</td></tr>
+      <tr><td><code>src/domain/</code></td><td>Entidades, regras de negócio e validações puras (sem React nem storage)</td></tr>
+      <tr><td><code>src/storage/</code></td><td>Persistência — repositórios sobre AsyncStorage (único ponto que conhece o storage)</td></tr>
+      <tr><td><code>src/services/</code></td><td>Integrações de sistema (expo-notifications — lembretes locais)</td></tr>
+      <tr><td><code>src/constants/</code></td><td>Fonte única dos tokens visuais (cores, tipografia, espaçamentos)</td></tr>
+      <tr><td><code>assets/</code></td><td>Imagens e ícones do aplicativo</td></tr>
+    </tbody>
+  </table>
+  <h3 class="sub">Componentes reutilizáveis (mínimo do roteiro: 3)</h3>
+  <p>O kit em <code>src/components/ui/</code> reúne cerca de <b>26 componentes</b> usados em mais de uma
+  tela, entre eles:</p>
+  <ul>
+    <li><code>ScreenHeader</code> (cabeçalho com título e ações), <code>Card</code>, <code>ListItem</code>, <code>Divider</code>;</li>
+    <li><code>Button</code>/<code>PrimaryButton</code>, <code>TextButton</code>, <code>CreateButton</code>, <code>Touchable</code>;</li>
+    <li><code>Input</code>, <code>FormField</code>, <code>SearchField</code>, <code>Chip</code>, <code>ChoiceChip</code>, <code>SubjectChip</code>, <code>SubjectFilterRow</code>;</li>
+    <li><code>IconTile</code>, <code>IconPicker</code>, <code>ColorPicker</code>, <code>Monogram</code>;</li>
+    <li><code>DateField</code>, <code>DatePicker</code>, <code>DateBlock</code>, <code>DueChip</code>;</li>
+    <li><code>ProgressBar</code>, <code>ProgressRing</code>, <code>EmptyState</code>, <code>ListSkeleton</code>, <code>SegmentedControl</code>.</li>
+  </ul>
+  <p class="note">A regra de ouro da arquitetura: a camada de UI consome apenas hooks; os hooks consomem
+  apenas repositórios por interface; e o domínio é feito de funções puras, testáveis isoladamente.</p>
+</div>
+
+<!-- ============ 14 CONCLUSÃO ============ -->
+<div class="section">
+  <div class="sec-head"><span class="sec-num">14</span><h2>Conclusão</h2></div>
+  <p class="lead">O Studia foi entregue como um aplicativo móvel completo e funcional, cumprindo — e
+  superando — os requisitos mínimos do roteiro.</p>
+  <p>Durante o projeto, a dupla desenvolveu um app com <b>7 telas navegáveis</b> (mínimo 5), <b>9 requisitos
+  funcionais</b> mais 2 expansões (mínimo 6), <b>6 requisitos não funcionais</b> (mínimo 4), <b>3 entidades
+  relacionadas</b> com chaves e cardinalidade documentadas (mínimo 3) e um <b>UI kit com cerca de 26
+  componentes reutilizáveis</b> (mínimo 3). O aplicativo implementa formulários com validação real, listas
+  ordenadas e filtráveis, busca sem acentos, lembrete local de prazo e persistência offline que sobrevive a
+  fechar e reabrir o app.</p>
+  <p>Além do produto, o projeto exercitou práticas de engenharia de software aplicadas ao desenvolvimento
+  móvel: arquitetura em camadas com domínio puro, gerenciamento de estado reativo por pub/sub, segurança de
+  tipos com TypeScript estrito, tratamento defensivo de dados corrompidos e um fluxo de trabalho guiado por
+  especificação e decisões registradas (ADRs). O histórico de commits no repositório demonstra a evolução do
+  projeto etapa por etapa.</p>
+  <p>Como aprendizado central, ficou a percepção de que <b>decisões de plataforma moldam a arquitetura</b>: a
+  escolha de manter o app executável no Expo Go para a demonstração levou, por exemplo, a migrar o sistema de
+  estilo para <code>StyleSheet</code> e a preferir notificação local a push remoto. O Studia demonstra que é
+  possível entregar, com ferramentas estudadas na disciplina, uma solução real, organizada e pronta para uso.</p>
+  <div class="footer-note">
+    Repositório do código-fonte: <code>github.com/heyalmeida/studia-app</code> · Acesso de avaliação concedido
+    à professora. Este documento acompanha a entrega por e-mail conforme a Etapa 7 do roteiro.
+  </div>
+</div>
+
+</body>
+</html>
