@@ -1,19 +1,18 @@
-import { router } from 'expo-router';
-import Inbox from 'lucide-react-native/icons/inbox';
-import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Inbox from "lucide-react-native/icons/inbox";
+import { useMemo } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Greeting } from '@/components/DashboardPage/Greeting';
-import { NextAssessmentCard } from '@/components/DashboardPage/NextAssessmentCard';
-import { ProgressSummaryCard } from '@/components/DashboardPage/ProgressSummaryCard';
-import { UpcomingList } from '@/components/DashboardPage/UpcomingList';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { ListSkeleton } from '@/components/ui/ListSkeleton';
-import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { Palette, SCREEN_PADDING, contentBottomInset } from '@/constants/theme';
-import type { Subject } from '@/domain/models';
-import { useDashboard } from '@/hooks/use-dashboard';
+import { Greeting } from "@/components/DashboardPage/Greeting";
+import { NextAssessmentCard } from "@/components/DashboardPage/NextAssessmentCard";
+import { ProgressSummaryCard } from "@/components/DashboardPage/ProgressSummaryCard";
+import { UpcomingList } from "@/components/DashboardPage/UpcomingList";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { Palette, SCREEN_PADDING, contentBottomInset } from "@/constants/theme";
+import type { Subject } from "@/domain/models";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 export default function DashboardPage() {
   const insets = useSafeAreaInsets();
@@ -41,7 +40,9 @@ export default function DashboardPage() {
 
       {!loading && error !== null ? (
         <EmptyState
-          icon={<Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+          icon={
+            <Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />
+          }
           title="Deu errado"
           text={error}
           actionLabel="Tentar de novo"
@@ -52,11 +53,11 @@ export default function DashboardPage() {
 
       {!loading && error === null && isEmpty ? (
         <EmptyState
-          icon={<Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
+          icon={
+            <Inbox size={40} color={Palette.textTertiary} strokeWidth={1.5} />
+          }
           title="Comece pela matéria"
           text="Cadastre uma matéria para registrar atividades e avaliações."
-          actionLabel="Nova matéria"
-          onAction={() => router.push('/subject-form')}
         />
       ) : null}
 
@@ -66,7 +67,8 @@ export default function DashboardPage() {
             styles.content,
             // O painel não cria item: basta não ficar atrás da tab bar flutuante.
             { paddingBottom: contentBottomInset(insets.bottom) },
-          ]}>
+          ]}
+        >
           <Greeting />
 
           <ProgressSummaryCard
@@ -76,7 +78,10 @@ export default function DashboardPage() {
             dueThisWeek={summary.dueThisWeek}
           />
 
-          <UpcomingList activities={summary.upcoming} subjectById={subjectById} />
+          <UpcomingList
+            activities={summary.upcoming}
+            subjectById={subjectById}
+          />
 
           {nextAssessment !== undefined ? (
             <NextAssessmentCard
