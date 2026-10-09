@@ -66,7 +66,7 @@
 | C3 | Busca por matéria (nome/professor) | Em Matérias, digite parte do **nome** ou do **professor**. Deve filtrar a lista de matérias. | AC-7.4 | ☐ |
 | C4 | Limpar busca (botão X) | Com texto no campo, toque no **X** à direita. O campo deve esvaziar e a lista completa reaparecer. | AC-7.1 | ☐ |
 | C5 | Chip de matéria filtra | Em Atividades, toque no chip de uma matéria (ex.: "História"). A lista deve reduzir só às atividades daquela matéria. O chip ativo fica com destaque. | AC-7.2 | ☐ |
-| C6 | Filtro combinado | Com o chip "História" ativo, **e** digitando um termo da busca, **e** no status "Pendentes": a lista deve mostrar só o que satisfaz os três ao mesmo tempo. | AC-7.2 |
+| C6 | Filtro combinado | Com o chip "História" ativo, **e** digitando um termo da busca, **e** no status "Pendentes": a lista deve mostrar só o que satisfaz os três ao mesmo tempo. | AC-7.2 | ☐ |
 | C7 | Chip "Todas" | Toque no chip "Todas": o filtro de matéria é removido e a lista volta ao todo. | AC-7.2 |
 | C8 | Estado "Nenhum resultado" | Combine filtros até a lista ficar vazia. Deve aparecer "Nenhum resultado" com a ação **"Limpar filtros"** — que, ao ser tocada, restaura a lista completa (e volta o status para Pendentes). | AC-7.5 |
 | C9 | Vazio real mantém CTA de criação | Em uma lista **sem nenhum registro** (apague tudo daquela aba ou use uma matéria nova), o estado vazio deve manter o botão de **criar** (não "Limpar filtros"). | AC-7.5 / AC-7.6 |
@@ -86,8 +86,8 @@
 | D5 | Trocar a data reagenda | Edite a atividade, mantenha "Lembrar" ligado e mude o prazo para outro dia. Na hora antiga **não** deve chegar nada; na nova, deve chegar **só uma** notificação. | CA-8.4 | ☐ |
 | D6 | Lembrete em avaliação | Repita o fluxo na aba **Avaliações**: switch "Lembrar" sob o campo Data, sempre habilitado (a data é obrigatória). Notificação "Amanhã: <título>". | CA-8.2 | ☐ |
 | D7 | Sem prazo = switch inativo | No formulário de **atividade**, sem preencher prazo, o switch "Lembrar" deve estar **desabilitado/esmaecido**. | CA-8.2 | ☐ |
-| D8 | Dados antigos abrem sem erro | Abra uma atividade/avaliação criada **antes** do Slice 8 (sem os campos novos), edite e salve. Deve abrir e salvar **sem erro**. | CA-8.5 |
-| D9 | Sem internet (offline) | Com o aparelho em modo avião, o app deve funcionar por completo (criar, listar, filtrar). O lembrete é **local** e não depende de rede. | RNF-03 |
+| D8 | Dados antigos abrem sem erro | Abra uma atividade/avaliação criada **antes** do Slice 8 (sem os campos novos), edite e salve. Deve abrir e salvar **sem erro**. | CA-8.5 | ☐ |
+| D9 | Sem internet (offline) | Com o aparelho em modo avião, o app deve funcionar por completo (criar, listar, filtrar). O lembrete é **local** e não depende de rede. | RNF-03 | ☐ |
 
 ## Bloco E — Encerramento
 
