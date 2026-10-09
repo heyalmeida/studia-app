@@ -12,7 +12,9 @@ fonte de verdade; o código a implementa.
 - Cadastra e organiza **matérias**;
 - Registra **atividades** por matéria, com prazo, conclusão e filtros;
 - Acompanha **avaliações/provas** por data;
-- Mostra no **painel inicial** o que vence primeiro, o que falta e o progresso geral.
+- Mostra no **painel inicial** o que vence primeiro, o que falta e o progresso geral;
+- **Busca e filtra por matéria** nas listas (busca sem acento e chip por matéria);
+- **Avisa um dia antes do prazo**, às 08:00, com notificação **local** (sem internet).
 
 Requisitos completos: [`docs/requirements/`](./docs/requirements/functional-requirements.md) ·
 Telas e fluxo: [`docs/architecture/screens-and-navigation.md`](./docs/architecture/screens-and-navigation.md) ·

@@ -6,6 +6,23 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Removed — Dependências órfãs (2026-10-09, Slice 9)
+
+Limpeza de release candidate: quatro pacotes ficaram sem import em `src/` depois do refactor
+visual (identidade escura, pickers próprios e UI kit em `StyleSheet`) e foram removidos do
+`package.json`. Spec: [2026-10-09-slice-9-hardening](docs/specs/2026-10-09-slice-9-hardening/spec.md).
+
+- **`expo-charts`** — os gráficos do painel (linha semanal, donut) saíram na revisão do
+  [ADR-0009](docs/adr/ADR-0009-identidade-visual-escura-com-destaque.md); o anel de progresso é
+  `react-native-svg`.
+- **`expo-device`** — não usado; o app é 100% local e não checa modelo/sistema.
+- **`expo-glass-effect`** — sem uso no app; o material vítreo do iOS não faz parte da identidade.
+- **`expo-symbols`** — sem uso; todos os ícones vêm do `lucide-react-native`.
+
+`expo-glass-effect` e `expo-symbols` permanecem instalados apenas como **dependência transitiva do
+`expo-router`** (que as declara) — saíram do `package.json` do projeto, não da árvore de
+dependências. `npx expo-doctor` antes e depois da remoção: **21/21 checks passed** nos dois momentos.
+
 ### Added — Busca e filtro por matéria nas listas (2026-10-09, Slice 7)
 
 As três listas ganham **busca textual** (case-insensitive, sem acentos: 'calculo' encontra
