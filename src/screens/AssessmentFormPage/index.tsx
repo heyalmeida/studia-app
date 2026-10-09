@@ -11,6 +11,7 @@ import { FormFooter } from '@/components/ui/FormFooter';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SubjectChip } from '@/components/ui/SubjectChip';
+import { SwitchField } from '@/components/ui/SwitchField';
 import { FORM_FOOTER_HEIGHT, Palette, Radius, SCREEN_PADDING } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import { validateAssessment, type FieldErrors } from '@/domain/validation';
@@ -31,6 +32,8 @@ export default function AssessmentFormPage() {
   const [titleDraft, setTitleDraft] = useState<Draft>(null);
   const [subjectDraft, setSubjectDraft] = useState<Draft>(null);
   const [dateDraft, setDateDraft] = useState<Draft>(null);
+  // `null` = ainda não tocado; aí vale o `reminder` da avaliação carregada (Slice 8).
+  const [reminderDraft, setReminderDraft] = useState<boolean | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitTried, setSubmitTried] = useState(false);
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
@@ -41,6 +44,7 @@ export default function AssessmentFormPage() {
   const dateISOValue = dateDraft ?? original?.date ?? null;
   const dateISO = dateISOValue === '' ? null : dateISOValue;
   const date = dateISO === null ? '' : formatDDMMYYYY(dateISO);
+  const reminder = reminderDraft ?? original?.reminder ?? false;
 
   // CA-08.1: sem matéria não se salva — o form vira ponte para o cadastro de matérias.
   const noSubjects = !loading && subjects.length === 0;
@@ -63,7 +67,7 @@ export default function AssessmentFormPage() {
   async function onSubmit() {
     setSubmitTried(true);
     setBlockMessage(null);
-    const input = { title, subjectId, date };
+    const input = { title, subjectId, date, reminder };
     const result = isEdit ? await update(id, input) : await create(input);
     if (result.ok) {
       router.back();
@@ -165,6 +169,15 @@ export default function AssessmentFormPage() {
             }}
             error={dateError}
             warning={liveWarning}
+            disabled={noSubjects}
+          />
+
+          {/* A data da avaliação é obrigatória, então o switch nunca fica inativo. */}
+          <SwitchField
+            label="Lembrar"
+            description="Avisa um dia antes da data"
+            value={reminder}
+            onChange={setReminderDraft}
             disabled={noSubjects}
           />
         </View>

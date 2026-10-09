@@ -16,6 +16,7 @@ import { FormFooter } from '@/components/ui/FormFooter';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SubjectChip } from '@/components/ui/SubjectChip';
+import { SwitchField } from '@/components/ui/SwitchField';
 import { FORM_FOOTER_HEIGHT, Palette, Radius, SCREEN_PADDING } from '@/constants/theme';
 import { formatDDMMYYYY } from '@/domain/date';
 import type { ActivityType } from '@/domain/models';
@@ -46,6 +47,8 @@ export default function ActivityFormPage() {
   const [subjectDraft, setSubjectDraft] = useState<Draft>(null);
   const [typeDraft, setTypeDraft] = useState<ActivityType | null>(null);
   const [dueDraft, setDueDraft] = useState<Draft>(null);
+  // `null` = ainda não tocado; aí vale o `reminder` da atividade carregada (Slice 8).
+  const [reminderDraft, setReminderDraft] = useState<boolean | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState<Draft>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitTried, setSubmitTried] = useState(false);
@@ -59,6 +62,7 @@ export default function ActivityFormPage() {
   const dueDateISO = dueDateISOValue === '' ? null : dueDateISOValue;
   const dueDate = dueDateISO === null ? '' : formatDDMMYYYY(dueDateISO);
   const description = descriptionDraft ?? original?.description ?? '';
+  const reminder = reminderDraft ?? original?.reminder ?? false;
 
   // CA-04.4: sem matéria não se salva — o form vira ponte para o cadastro de matérias.
   const noSubjects = !loading && subjects.length === 0;
@@ -82,7 +86,7 @@ export default function ActivityFormPage() {
   async function onSubmit() {
     setSubmitTried(true);
     setBlockMessage(null);
-    const input = { title, subjectId, dueDate, type, description };
+    const input = { title, subjectId, dueDate, type, description, reminder };
     const result = isEdit ? await update(id, input) : await create(input);
     if (result.ok) {
       router.back();
@@ -207,6 +211,17 @@ export default function ActivityFormPage() {
             disabled={noSubjects}
           />
 
+          {/* Lembrete só faz sentido com prazo — sem data o switch desliga (spec Slice 8). */}
+          <View style={styles.reminderGroup}>
+            <SwitchField
+              label="Lembrar"
+              description="Avisa um dia antes do prazo"
+              value={reminder && dueDateISO !== null}
+              onChange={setReminderDraft}
+              disabled={noSubjects || dueDateISO === null}
+            />
+          </View>
+
           <Input
             label="Descrição (opcional)"
             value={description}
@@ -256,5 +271,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+  },
+  reminderGroup: {
+    marginBottom: 20,
   },
 });

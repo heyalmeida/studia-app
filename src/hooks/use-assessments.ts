@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { assessmentRepository } from '@/storage/assessment.repository';
 import { subscribe } from '@/storage/notifier';
 import { subjectRepository } from '@/storage/subject.repository';
+import { cancel as cancelReminder, scheduleForDueDate } from '@/services/reminders';
 import { parseDDMMYYYY } from '@/domain/date';
 import { genId } from '@/domain/id';
 import type { Assessment, Subject } from '@/domain/models';
@@ -47,6 +48,12 @@ function readSnapshot(): Promise<Snapshot> {
 /**
  * Valida no domínio e persiste (inserção ou edição). O aviso de data no passado NÃO bloqueia
  * (CA-08.2): só entradas com erro de verdade são recusadas.
+ *
+ * Slice 8 — lembrete local: agenda ANTES do upsert porque o id devolvido pelo sistema
+ * precisa ser gravado na entidade (um id por avaliação). O cancelamento do id antigo vem
+ * primeiro quando o lembrete continua ligado, para nunca haver dois agendamentos vivos
+ * (CA-8.4). Com data já passada o switch fica ligado mas `notificationId` fica null
+ * (limitação registrada na spec).
  */
 async function saveAssessment(
   input: AssessmentFormInput,
@@ -66,16 +73,26 @@ async function saveAssessment(
   }
 
   const rawDate = input.date.trim();
+  // validateAssessment já recusou data vazia/inválida acima, então o parse só volta null aqui.
+  const dateISO = parseDDMMYYYY(rawDate)!;
+  const title = input.title.trim();
+
+  await cancelReminder(original?.notificationId ?? null);
+  let notificationId: string | null = null;
+  if (input.reminder === true) {
+    notificationId = await scheduleForDueDate(title, dateISO);
+  }
 
   try {
     await assessmentRepository.upsert({
       id: id ?? genId(),
       subjectId: input.subjectId.trim(),
-      title: input.title.trim(),
-      // validateAssessment já recusou data vazia/inválida acima, então o parse só volta null aqui.
-      date: parseDDMMYYYY(rawDate)!,
+      title,
+      date: dateISO,
       status: original?.status ?? 'agendada',
       createdAt: original?.createdAt ?? new Date().toISOString(),
+      reminder: input.reminder === true,
+      notificationId,
     });
   } catch {
     return { ok: false, errors: { title: SAVE_ERROR } };
@@ -136,17 +153,26 @@ export function useAssessments(): UseAssessments {
   );
 
   // Realizada ↔ agendada preserva os demais campos via spread (CA-08.4: histórico permanece visível).
+  // Marcar como realizada também cancela o lembrete (CA-8.3): a prova já passou.
   const toggleStatus = useCallback(async (id: string): Promise<void> => {
     const assessments = await assessmentRepository.getAll();
     const current = assessments.find((item) => item.id === id);
     if (!current) return;
+    const markingDone = current.status === 'agendada';
+    if (markingDone) await cancelReminder(current.notificationId);
     await assessmentRepository.upsert({
       ...current,
-      status: current.status === 'agendada' ? 'realizada' : 'agendada',
+      status: markingDone ? 'realizada' : 'agendada',
+      ...(markingDone ? { reminder: false, notificationId: null } : null),
     });
   }, []);
 
+  // Excluir cancela o lembrete ANTES de apagar o registro: depois da remoção o id do
+  // agendamento não existe mais em lugar nenhum (CA-8.3).
   const remove = useCallback(async (id: string): Promise<void> => {
+    const assessments = await assessmentRepository.getAll();
+    const current = assessments.find((item) => item.id === id);
+    if (current) await cancelReminder(current.notificationId);
     await assessmentRepository.remove(id);
   }, []);
 

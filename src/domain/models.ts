@@ -23,6 +23,10 @@ export interface Activity {
   status: ActivityStatus;
   createdAt: string;
   completedAt: string | null;
+  /** Lembrete ligado (1 dia antes do prazo, 08:00) — só faz sentido com prazo. */
+  reminder: boolean;
+  /** Id do agendamento devolvido pelo serviço de lembretes; null = nada agendado. */
+  notificationId: string | null;
 }
 
 export interface Assessment {
@@ -32,6 +36,10 @@ export interface Assessment {
   date: string; // 'YYYY-MM-DD'
   status: AssessmentStatus;
   createdAt: string;
+  /** Lembrete ligado (1 dia antes da data, 08:00). */
+  reminder: boolean;
+  /** Id do agendamento devolvido pelo serviço de lembretes; null = nada agendado. */
+  notificationId: string | null;
 }
 
 export const ACTIVITY_TYPES: ActivityType[] = ['tarefa', 'trabalho', 'leitura', 'estudo'];

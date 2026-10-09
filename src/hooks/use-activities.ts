@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { activityRepository } from '@/storage/activity.repository';
 import { subscribe } from '@/storage/notifier';
 import { subjectRepository } from '@/storage/subject.repository';
+import { cancel as cancelReminder, scheduleForDueDate } from '@/services/reminders';
 import { parseDDMMYYYY } from '@/domain/date';
 import { genId } from '@/domain/id';
 import type { Activity, ActivityType, Subject } from '@/domain/models';
@@ -53,6 +54,12 @@ function readSnapshot(): Promise<Snapshot> {
 /**
  * Valida no domínio e persiste (inserção ou edição). O aviso de data no passado NÃO bloqueia
  * (CA-04.3): só entradas com erro de verdade são recusadas.
+ *
+ * Slice 8 — lembrete local: agenda ANTES do upsert porque o id devolvido pelo sistema
+ * precisa ser gravado na entidade (um id por atividade). O cancelamento do id antigo vem
+ * primeiro quando o lembrete continua ligado, para nunca haver dois agendamentos vivos
+ * (CA-8.4). Sem prazo o lembrete é forçado a desligado; com prazo já passado o switch fica
+ * ligado mas `notificationId` fica null (limitação registrada na spec).
  */
 async function saveActivity(
   input: ActivityInput,
@@ -72,19 +79,29 @@ async function saveActivity(
   }
 
   const rawDueDate = input.dueDate.trim();
+  // validateActivity já recusou formato inválido acima, então o parse só volta null aqui.
+  const dueDateISO = rawDueDate.length > 0 ? parseDDMMYYYY(rawDueDate) : null;
+  const title = input.title.trim();
+
+  await cancelReminder(original?.notificationId ?? null);
+  let notificationId: string | null = null;
+  if (dueDateISO !== null && input.reminder === true) {
+    notificationId = await scheduleForDueDate(title, dueDateISO);
+  }
 
   try {
     await activityRepository.upsert({
       id: id ?? genId(),
       subjectId: input.subjectId.trim(),
-      title: input.title.trim(),
+      title,
       type: input.type ?? 'tarefa',
       description: (input.description ?? '').trim() || null,
-      // validateActivity já recusou formato inválido acima, então o parse só volta null aqui.
-      dueDate: rawDueDate.length > 0 ? parseDDMMYYYY(rawDueDate) : null,
+      dueDate: dueDateISO,
       status: original?.status ?? 'pendente',
       createdAt: original?.createdAt ?? new Date().toISOString(),
       completedAt: original?.completedAt ?? null,
+      reminder: dueDateISO !== null && input.reminder === true,
+      notificationId,
     });
   } catch {
     return { ok: false, errors: { title: SAVE_ERROR } };
@@ -145,19 +162,28 @@ export function useActivities(): UseActivities {
   );
 
   // Concluir/reabrir persiste na hora e o notifier atualiza painel e agregados (CA-06.1).
+  // Concluir também cancela o lembrete (CA-8.3): não faz sentido avisar de algo já feito.
   const toggleStatus = useCallback(async (id: string): Promise<void> => {
     const activities = await activityRepository.getAll();
     const current = activities.find((item) => item.id === id);
     if (!current) return;
     const nextStatus = current.status === 'pendente' ? 'concluida' : 'pendente';
+    const concluding = nextStatus === 'concluida';
+    if (concluding) await cancelReminder(current.notificationId);
     await activityRepository.upsert({
       ...current,
       status: nextStatus,
-      completedAt: nextStatus === 'concluida' ? new Date().toISOString() : null,
+      completedAt: concluding ? new Date().toISOString() : null,
+      ...(concluding ? { reminder: false, notificationId: null } : null),
     });
   }, []);
 
+  // Excluir cancela o lembrete ANTES de apagar o registro: depois da remoção o id do
+  // agendamento não existe mais em lugar nenhum (CA-8.3).
   const remove = useCallback(async (id: string): Promise<void> => {
+    const activities = await activityRepository.getAll();
+    const current = activities.find((item) => item.id === id);
+    if (current) await cancelReminder(current.notificationId);
     await activityRepository.remove(id);
   }, []);
 

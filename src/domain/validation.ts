@@ -20,12 +20,19 @@ export interface ActivityFormInput {
   title: string;
   subjectId: string;
   dueDate: string; // 'DD/MM/AAAA', '' se ausente
+  /**
+   * Lembrete local de prazo (Slice 8). NÃO é validado aqui: é um booleano do formulário e
+   * quem agenda é o hook, via `src/services/reminders.ts` (regra de negócio não conhece o SO).
+   */
+  reminder?: boolean;
 }
 
 export interface AssessmentFormInput {
   title: string;
   subjectId: string;
   date: string; // 'DD/MM/AAAA'
+  /** Lembrete local de data (Slice 8) — não validado, como no formulário de atividade. */
+  reminder?: boolean;
 }
 
 /**

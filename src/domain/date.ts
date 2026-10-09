@@ -26,6 +26,30 @@ function toLocalDate(iso: string): Date | null {
   return new Date(year, month - 1, day);
 }
 
+/** Partes de uma data ISO 'YYYY-MM-DD', já validadas. */
+export interface ISODateParts {
+  year: number;
+  /** 1-12 (humano) — o construtor `new Date` usa 0-11. */
+  month: number;
+  day: number;
+}
+
+/**
+ * Quebra 'YYYY-MM-DD' em `{year, month, day}` sem construir Date: útil para montar um
+ * instante em OUTRO dia (ex.: 08:00 do dia anterior ao prazo, no serviço de lembretes).
+ * Mesma validação de `toLocalDate` — entrada inválida devolve `null`, nunca lança.
+ */
+export function parseISODateParts(iso: string): ISODateParts | null {
+  const match = ISO_DATE_PATTERN.exec(iso.trim());
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12) return null;
+  if (day < 1 || day > daysInMonth(month, year)) return null;
+  return { year, month, day };
+}
+
 /** '07/10/2026' -> '2026-10-07'; null se dia/mês/ano inválidos (valida dia contra mês/ano reais). */
 export function parseDDMMYYYY(value: string): string | null {
   const match = DDMMYYYY_PATTERN.exec(value.trim());
