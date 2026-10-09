@@ -1146,6 +1146,92 @@ divergências entre doc e prompt (a doc vence).
 
 ---
 
+## P10 — Endurecimento e release candidate (Slice 9)
+
+```text
+Você vai fechar o Studia como release candidate (Expo SDK 57, Expo Router, TS strict, branch
+development): limpar dependências órfãs, re-verificar conformidade estática e montar o checklist
+físico que o dono executará no Expo Go. **Nenhuma funcionalidade nova; nenhuma linha de produto
+muda de comportamento.**
+
+LEIA ANTES: docs/specs/2026-10-09-slice-9-hardening/spec.md (CA-9.1..9.5); as seções 1–4 abaixo são
+o trabalho; a seção 6 é o que você NÃO faz.
+
+FAÇA, nesta ordem:
+
+1) DEPENDÊNCIAS ÓRFÃS — candidatos já mapeados pelo planejador (grep em src/ e app.json deu zero):
+   `expo-charts`, `expo-device`, `expo-glass-effect`, `expo-symbols`.
+   RE-CONFIRME antes de remover: grep -rn "<lib>" src/ app.json (zero) E ela não é peer exigido por
+   expo/expo-router/react-native (use `npx expo-doctor` ANTES e DEPOIS da remoção como árbitro —
+   se o doctor apontar problema pós-remoção, reinstale a lib e registre no relatório).
+   Remova com: npm uninstall expo-charts expo-device expo-glass-effect expo-symbols
+   (ajuste a lista ao que re-confirmou órfã). Depois: os 3 gates + expo-doctor.
+
+2) VARREDURA DE CONFORMIDADE (padrão ADR-0009/0010 — registre resultado item a item no relatório):
+   - grep -rn "className" src/ -> zero (comentários citando a regra não contam)
+   - grep -rn "#[0-9A-Fa-f]\{3,8\}" src/ -> só em src/constants/theme.ts, src/styles/global.css e
+     tailwind.config.js (espelhos); qualquer outro: corrija apontando para Palette.
+   - grep -rni "shadow\|elevation" src/ -> só src/components/ui/FAB.tsx (ADR-0010 §3).
+   - grep -rn "async-storage" src/ -> só src/storage/storage.ts.
+   - grep -rn "expo-notifications" src/ -> só src/services/reminders.ts.
+   - grep -rn ": any\|@ts-ignore\|@ts-expect-error" src/ -> zero.
+   - grep -rn "function.*Screen\b" src/screens -> zero (nomes são <Tela>Page).
+   - src/app/*.tsx exceto _layout*.tsx: todos re-export de exatamente 1 linha; ls src/screens: só
+     pastas <Tela>Page/; src/components/ui: só kit multi-tela (uma tela usando não desqualifica um
+     componente JÁ existente — não mova nada sem evidência de violação).
+   - Textos de UI em PT-BR (grep por 'undefined', 'null', placeholders EN em strings de componente).
+   Correção cosmética permitida: newline final ausente, import óbvio não usado, texto PT.
+   Qualquer correção que MUDE comportamento: PARE e reporte em vez de corrigir.
+
+3) CHECKLIST DE APARELHO — crie docs/specs/2026-10-09-slice-9-hardening/checklist-aparelho.md
+   (PT-BR, tabela [item | instruções | resultado ☐]) consolidando o que está pendente de manual:
+   - Etapa 6 do roteiro: app abre no Expo Go sem erro; 4 abas; abas→form→voltar; os 3 formulários
+     validam (liste cada mensagem: 'Informe o nome da matéria.', duplicado, 'Informe um título.',
+     'Data inválida. Use o formato DD/MM/AAAA.', 'Informe a data...', carga horária 0/250 -> erro);
+     storage sobrevive a fechar/reabrir; legibilidade no escuro.
+   - Slice 6: matéria com carga horária válida/inválida; ícone escolhido aparece no card e forms;
+     picker de calendário abre/fecha/seleciona nos 2 forms; painel mostra anel + barras corretos
+     com dados reais.
+   - Slice 7: busca 'calculo' acha 'Cálculo'; chip de matéria filtra; combinado busca+chip+status;
+     'Nenhum resultado' -> 'Limpar filtros' restaura a lista; vazio real mantém CTA de criação.
+   - Slice 8: ligar 'Lembrar' pede permissão; adiantar relógio do aparelho -> notificação
+     'Amanhã: <título>' no dia/hora; concluir/excluir/trocar data cancela ou reagenda; dados
+     antigos (criados antes do slice) abrem e salvam sem erro.
+   Cada item cite de onde veio (CA-x.y) para rastreabilidade. NÃO execute o checklist você mesmo.
+
+4) SYNC DE DOCS:
+   - README.md seção 'O que o app faz (resumo)': adicione 2 bullets — busca/filtro por matéria nas
+     listas e lembrete local de prazo (1 dia antes, 08:00). Uma linha cada, sem reinventar texto.
+   - CHANGELOG.md: nova entrada em [Unreleased] (acima da de Slice 7) '### Removed — Dependências
+     órfãs (2026-10-09, Slice 9)' listando as libs removidas e por quê (sem uso após refactor
+     visual/picker próprio), apontando a spec do slice.
+
+5) GATES FINAIS: npx tsc --noEmit; npx expo lint; npx expo export --platform web (limpe dist antes:
+   rm -rf dist); npx expo-doctor. Cole as saídas no relatório.
+
+6) NÃO FAÇA: feature nova, mover componentes entre pastas "por organização", mexer em version/tag
+   do app.json, tocar em arquivos fora da lista deste prompt, reformatar código inteiro, criar
+   teste/Jest. Se sentir falta de algo: pare e reporte.
+
+COMMIT (dois commits, nesta ordem):
+git add package.json package-lock.json CHANGELOG.md README.md
+git commit -m "chore(deps): remove dependências órfãs (expo-charts, expo-device, expo-glass-effect, expo-symbols)
+
+Refs: docs/specs/2026-10-09-slice-9-hardening"
+git add docs/specs/2026-10-09-slice-9-hardening/checklist-aparelho.md
+git commit -m "docs(release): checklist físico unificado (slices 6-8 + Etapa 6)
+
+Refs: docs/specs/2026-10-09-slice-9-hardening"
+(se as libs do 1º commit não estiverem todas na sua lista final, ajuste a mensagem — não commite
+em branco nem invente arquivo.)
+
+RELATÓRIO FINAL: libs removidas (com a saída do doctor antes/depois), varredura item a item,
+correções cosméticas feitas, gates finais, caminhos de docs alterados e QUALQUER ponto onde precisou
+divergir (divergência sem reporte = falha).
+```
+
+---
+
 ## PR — Pesquisa Mobbin (opcional; executo eu quando o MCP estiver ativo)
 
 ```text
