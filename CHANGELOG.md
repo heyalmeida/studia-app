@@ -6,6 +6,21 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Unreleased]
 
+### Changed — Botão de criação central na tab bar + chips de filtro corrigidos (2026-10-09)
+
+Dois ajustes pedidos pelo dono (com print do bug):
+
+- **Botão de criação no centro da barra de navegação:** a FAB flutuante do canto foi removida; o círculo
+  de 56 na cor de destaque (com a sombra de exceção do ADR-0010 §3) agora vive no centro da tab bar —
+  **Painel e Matérias à esquerda, Atividades e Avaliações à direita** — e abre a tela certa conforme a
+  aba ativa. `src/components/ui/FAB.tsx` removido; `listBottomInset` extinto (listas passaram a reservar
+  só `contentBottomInset`); textos de estado vazio atualizados. Revisão registrada no
+  [ADR-0009](docs/adr/ADR-0009-identidade-visual-escura-com-destaque.md).
+- **Chips de filtro por matéria esticados (bug):** `SubjectFilterRow` renderizava os chips dentro de um
+  `ScrollView` horizontal sem `flexGrow: 0` — o scroll ocupava o espaço restante da coluna e, com
+  `alignItems: stretch` default, "Todas" e o nome da matéria viravam retângulos gigantes. Agora a linha
+  tem altura fixa (chips de 40 px, conteúdo centralizado).
+
 ### Removed — Dependências órfãs (2026-10-09, Slice 9)
 
 Limpeza de release candidate: quatro pacotes ficaram sem import em `src/` depois do refactor

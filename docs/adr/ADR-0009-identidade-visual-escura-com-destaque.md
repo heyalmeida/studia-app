@@ -61,6 +61,14 @@ cor por matéria (`visual-identity.md` §4 e ADR-0006 §3) e o modelo de dados s
 - **Vinculante:** nenhuma tela usa literal de cor fora dos três arquivos de token (Regra 4.10);
   estados continuam com rótulo textual; a cor por matéria só entra por `SUBJECT_COLORS`.
 
+## Revisão (2026-10-09)
+
+A pedido do dono, o item **5 (FAB)** foi alterado: o botão de criação de 56 px na cor de destaque não
+flutua mais sobre a lista — ele mora no **centro da tab bar** (2 abas à esquerda, 2 à direita), com o
+destino variando conforme a aba ativa. O componente `FAB` foi removido, `listBottomInset` extinto (as
+listas reservam apenas `contentBottomInset`), e a sombra da exceção ADR-0010 §3 passa a ser atributo
+desse botão central. Os demais itens (acentos, semânticas, cor por matéria, sem sombras) permanecem.
+
 ## Referências
 
 Decisão do dono do projeto (2026-10-08); [ADR-0006](ADR-0006-identidade-visual-monocromatica.md)

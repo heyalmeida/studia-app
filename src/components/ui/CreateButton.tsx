@@ -21,8 +21,8 @@ export interface CreateButtonProps {
 /**
  * Botão de criação "+ Nova …" (ADR-0009): ícone `Plus` 18 + rótulo 16/600, superfície
  * elevada `#1C1C24` com hairline de 1px — discreto o bastante para repetir no header e
- * no estado vazio sem competir com a cor de destaque, que fica reservada a Salvar, FAB e
- * tab ativa.
+ * no estado vazio sem competir com a cor de destaque, que fica reservada a Salvar, botão de
+ * criação da tab bar e tab ativa.
  *
  * O espaçamento vem de `StyleSheet` com valores numéricos explícitos (não de `className`):
  * assim ele é aplicado também no Expo Go, onde o NativeWind não roda.

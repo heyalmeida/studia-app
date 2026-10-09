@@ -64,7 +64,7 @@ export default function DashboardPage() {
         <ScrollView
           contentContainerStyle={[
             styles.content,
-            // O painel não cria item (sem FAB): basta não ficar atrás da tab bar flutuante.
+            // O painel não cria item: basta não ficar atrás da tab bar flutuante.
             { paddingBottom: contentBottomInset(insets.bottom) },
           ]}>
           <Greeting />

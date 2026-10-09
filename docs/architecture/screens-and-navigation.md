@@ -58,8 +58,8 @@ de "≤2 toques para ação comum".
 - **Informações apresentadas:** cards por matéria: **ícone em quadrado 44×44 com fundo tingido na cor da
   matéria**, nome (2 linhas), professor(a), "N pendentes · N avaliações" e barra de progresso **na cor da
   matéria**. Estado vazio orientando cadastro (CA-02.2).
-- **Ações/botões:** FAB "+ Nova matéria" (acima da tab bar); o card inteiro abre a edição; exclusão no
-  formulário com confirmação (CA-03.3).
+- **Ações/botões:** botão de criação "+ Nova matéria" (centro da tab bar; também no header); o card
+  inteiro abre a edição; exclusão no formulário com confirmação (CA-03.3).
 - **Origem:** tab Matérias (ou T1). **Destinos:** T5 (novo/edição).
 - **Dados:** coleção `subjects` (inclui `color`) + agregações de `activities`/`assessments`.
 
@@ -71,7 +71,8 @@ de "≤2 toques para ação comum".
   único** (Pendentes / Todas / Concluídas) com transição suave; por item: checkbox circular animado,
   título em até 2 linhas, matéria com a bolinha da cor e chip de prazo à direita (cinza / alerta /
   urgente) — **cor sempre acompanhada de rótulo textual**. Estado vazio específico por filtro (CA-05.4).
-- **Ações/botões:** FAB "+ Nova atividade"; checkbox alternar situação (RF-06); toque no item abre edição.
+- **Ações/botões:** botão de criação "+ Nova atividade" (centro da tab bar); checkbox alternar situação
+  (RF-06); toque no item abre edição.
 - **Origem:** tab Atividades (ou T1). **Destinos:** T6.
 - **Dados:** coleção `activities` (+ `subjects` para a cor da matéria).
 
@@ -82,7 +83,8 @@ de "≤2 toques para ação comum".
   **bloco de data à esquerda (dia grande, mês pequeno)**, título, matéria com a bolinha da cor e
   contagem regressiva ("em 5 dias"); realizadas esmaecidas e tracejadas como histórico. Estado vazio com
   ícone de calendário.
-- **Ações/botões:** FAB "+ Nova avaliação"; alternar situação agendada↔realizada; toque abre edição.
+- **Ações/botões:** botão de criação "+ Nova avaliação" (centro da tab bar); alternar situação
+  agendada↔realizada; toque abre edição.
 - **Origem:** tab Avaliações (ou T1). **Destinos:** T7.
 - **Dados:** coleção `assessments` (+ `subjects`).
 
@@ -134,7 +136,8 @@ de "≤2 toques para ação comum".
   activities, assessments, subject-form, activity-form, assessment-form); os arquivos em `src/app/`
   são rotas-finas que só re-exportam. As descrições T1–T7 referem-se aos `src/screens/*`.
 - **Header e criação (ADR-0009):** todas as telas usam `components/ui/ScreenHeader.tsx` (título +
-  ações em linha, sem sobreposição) e a criação sai da **FAB**, não do header.
+  ações em linha, sem sobreposição); a criação principal sai do **botão central da tab bar**
+  (desde 2026-10-09), com atalho equivalente no header.
 - **Prazo/data:** campo pressable que abre o calendário mensal em `Modal` nativo
   (`components/ui/DatePicker`), com atalhos Hoje/Amanhã/Próxima semana. Sem dependência nova — roda no
   Expo Go (ADR-0001/0007).

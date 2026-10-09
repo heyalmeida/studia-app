@@ -29,7 +29,7 @@
 |---|---|---|---|---|
 | A1 | App abre sem erro | Abra o Studia. Nenhuma tela vermelha, nenhum erro no console/log do Expo Go. | Etapa 6 | ☐ |
 | A2 | As 4 abas existem | Painel, Matérias, Atividades, Avaliações — todas acessíveis pela barra inferior. | Etapa 6 | ☐ |
-| A3 | Aba → formulário → voltar | Em cada aba com lista, toque no botão de criação **ao lado do título**, preencha e salve; depois volte pelo botão voltar/cancelar. O app deve voltar para a aba, sem tela presa. | Etapa 6 | ☐ |
+| A3 | Aba → formulário → voltar | Em cada aba, toque no **botão de criação central da barra inferior** (o círculo roxo no meio da tab bar), preencha e salve; depois volte pelo botão voltar/cancelar. O app deve voltar para a aba, sem tela presa. Confirme que o botão abre a tela certa em cada aba (Painel/Matérias → matéria; Atividades → atividade; Avaliações → avaliação). | Etapa 6 | ☐ |
 | A4 | Matéria: nome vazio | No formulário de matéria, salve sem digitar nome. Deve aparecer: **"Informe o nome da matéria."** | Etapa 6 / CA-01.1 | ☐ |
 | A5 | Matéria: nome duplicado | Cadastre "Cálculo I", depois crie outra matéria também chamada "cálculo i" (minúsculas). Deve aparecer: **"Já existe uma matéria com esse nome."** | Etapa 6 / CA-01.1 | ☐ |
 | A6 | Matéria: nome curto | Digite 1 letra (ex.: "A"). Deve aparecer: **"O nome precisa ter pelo menos 2 caracteres."** | Etapa 6 / CA-01.1 | ☐ |
@@ -67,10 +67,10 @@
 | C4 | Limpar busca (botão X) | Com texto no campo, toque no **X** à direita. O campo deve esvaziar e a lista completa reaparecer. | AC-7.1 | ☐ |
 | C5 | Chip de matéria filtra | Em Atividades, toque no chip de uma matéria (ex.: "História"). A lista deve reduzir só às atividades daquela matéria. O chip ativo fica com destaque. | AC-7.2 | ☐ |
 | C6 | Filtro combinado | Com o chip "História" ativo, **e** digitando um termo da busca, **e** no status "Pendentes": a lista deve mostrar só o que satisfaz os três ao mesmo tempo. | AC-7.2 | ☐ |
-| C7 | Chip "Todas" | Toque no chip "Todas": o filtro de matéria é removido e a lista volta ao todo. | AC-7.2 |
-| C8 | Estado "Nenhum resultado" | Combine filtros até a lista ficar vazia. Deve aparecer "Nenhum resultado" com a ação **"Limpar filtros"** — que, ao ser tocada, restaura a lista completa (e volta o status para Pendentes). | AC-7.5 |
-| C9 | Vazio real mantém CTA de criação | Em uma lista **sem nenhum registro** (apague tudo daquela aba ou use uma matéria nova), o estado vazio deve manter o botão de **criar** (não "Limpar filtros"). | AC-7.5 / AC-7.6 |
-| C10 | Ordenação preservada | Com um filtro ativo (ex.: chip "Cálculo"), a ordem da lista deve ser a mesma de antes do filtro (pendentes por prazo ascendente primeiro). O filtro não embaralha. | AC-7.2 |
+| C7 | Chip "Todas" | Toque no chip "Todas": o filtro de matéria é removido e a lista volta ao todo. | AC-7.2 | ☐ |
+| C8 | Estado "Nenhum resultado" | Combine filtros até a lista ficar vazia. Deve aparecer "Nenhum resultado" com a ação **"Limpar filtros"** — que, ao ser tocada, restaura a lista completa (e volta o status para Pendentes). | AC-7.5 | ☐ |
+| C9 | Vazio real ≠ vazio filtrado | Em uma lista **sem nenhum registro** (apague tudo daquela aba), o estado vazio mostra a frase de orientação e **NÃO** o botão "Limpar filtros" (esse só aparece quando havia itens e o filtro zerou). A criação é pelo botão central da tab bar. | AC-7.5 / AC-7.6 | ☐ |
+| C10 | Ordenação preservada | Com um filtro ativo (ex.: chip "Cálculo"), a ordem da lista deve ser a mesma de antes do filtro (pendentes por prazo ascendente primeiro). O filtro não embaralha. | AC-7.2 | ☐ |
 
 ## Bloco D — Slice 8 (lembrete local de prazo)
 

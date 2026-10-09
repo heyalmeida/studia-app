@@ -67,8 +67,8 @@ export function Touchable({
       <Pressable
         {...rest}
         disabled={disabled}
-        // `fill`: quando o alvo tem altura definida (FAB, checkbox, item da tab bar), o
-        // Pressable ocupa o retângulo inteiro em vez de só o conteúdo.
+        // `fill`: quando o alvo tem altura definida (botão de criação, checkbox, item da
+        // tab bar), o Pressable ocupa o retângulo inteiro em vez de só o conteúdo.
         style={[styles.fill, contentStyle]}
         onPressIn={() => animate(pressedScale, pressedOpacity)}
         onPressOut={() => animate(1, 1)}>

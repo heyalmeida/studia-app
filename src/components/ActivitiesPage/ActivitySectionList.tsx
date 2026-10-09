@@ -5,13 +5,13 @@ import { ActivityRow } from '@/components/ActivitiesPage/ActivityRow';
 import { groupByPeriod } from '@/components/ActivitiesPage/activity-groups';
 import { EmptyState } from '@/components/ui/EmptyState';
 import ListChecks from 'lucide-react-native/icons/list-checks';
-import { Palette, SCREEN_PADDING, Spacing, Typography, listBottomInset } from '@/constants/theme';
+import { Palette, SCREEN_PADDING, Spacing, Typography, contentBottomInset } from '@/constants/theme';
 import type { Activity, Subject } from '@/domain/models';
 
 export interface ActivitySectionListProps {
   activities: Activity[];
   subjectById: Record<string, Subject>;
-  /** Safe area inferior da tela: define o respiro que mantém a última linha fora do FAB. */
+  /** Safe area inferior da tela: define o respiro que mantém a última linha fora da tab bar. */
   insetsBottom: number;
   onToggle: (id: string) => void;
   onOpen: (id: string) => void;
@@ -74,7 +74,7 @@ export function ActivitySectionList({
       }
       contentContainerStyle={{
         paddingHorizontal: SCREEN_PADDING,
-        paddingBottom: listBottomInset(insetsBottom),
+        paddingBottom: contentBottomInset(insetsBottom),
         flexGrow: 1,
       }}
       ListEmptyComponent={

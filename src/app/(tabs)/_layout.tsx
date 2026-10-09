@@ -1,10 +1,18 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Plus from 'lucide-react-native/icons/plus';
 
 import { centeredContent, Touchable } from '@/components/ui/Touchable';
-import { Palette, Radius, SCREEN_PADDING, Spacing, Typography } from '@/constants/theme';
+import {
+  FAB_SIZE,
+  Palette,
+  Radius,
+  SCREEN_PADDING,
+  Spacing,
+  Typography,
+} from '@/constants/theme';
 
 interface TabRoute {
   key: string;
@@ -27,53 +35,90 @@ const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> 
 };
 
 /**
+ * Botão central de criação (pedido do dono, 2026-10-09 — substitui o FAB flutuante):
+ * o destino depende da aba ativa. No Painel cria matéria, que é o ponto de entrada do app
+ * (sem matéria não há atividade nem avaliação).
+ */
+const CREATE_BY_TAB = {
+  index: { path: '/subject-form', label: 'Nova matéria' },
+  subjects: { path: '/subject-form', label: 'Nova matéria' },
+  activities: { path: '/activity-form', label: 'Nova atividade' },
+  assessments: { path: '/assessment-form', label: 'Nova avaliação' },
+} as const;
+
+/**
  * Barra de abas flutuante (ADR-0009): fundo `surface`, hairline de 1px, item **ativo** na
  * cor de destaque (ícone + label) e inativos em `text-tertiary`.
  *
- * **Importante:** a tela do React Navigation é `absoluteFill` dentro do `Tabs`, então ela
- * passa **por baixo** desta barra. É por isso que o FAB soma `TAB_BAR_HEIGHT` no `bottom` e
- * que as listas reservam `listBottomInset(insets.bottom)` — o conteúdo nunca fica escondido.
- * A altura sem safe area é `8 (paddingTop) + 48 (item) + 8 (paddingVertical) + 2 (borda) =
- * 66`: mantenha `TAB_BAR_HEIGHT` em `src/constants/theme.ts` em sincronia com os estilos
- * abaixo.
+ * Anatomia (2026-10-09): `Painel | Matérias | [criar] | Atividades | Avaliações` — o botão de
+ * criação (círculo de 56 no destaque, sombra mantida por ADR-0010 §3) mora no centro da barra,
+ * não mais flutuando sobre a lista. A altura da barra é `4 (paddingTop) + 56 (botão central,
+ * o mais alto) + 4 (paddingBottom) + 2 (borda) = 66` — mantenha `TAB_BAR_HEIGHT` em
+ * `src/constants/theme.ts` em sincronia com os estilos abaixo.
+ *
+ * **Importante:** a tela do React Navigation é `absoluteFill` dentro do `Tabs`, então ela passa
+ * **por baixo** desta barra. As listas reservam `contentBottomInset(insets.bottom)` — o
+ * conteúdo nunca fica escondido.
  *
  * Estilo em `StyleSheet` com valores numéricos explícitos — no Expo Go o `className` do
  * NativeWind não se aplica.
  */
 function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const activeName = state.routes[state.index]?.name ?? 'index';
+  const create =
+    CREATE_BY_TAB[activeName as keyof typeof CREATE_BY_TAB] ?? CREATE_BY_TAB.index;
+
+  function renderTab(route: TabRoute) {
+    const icons = TAB_ICONS[route.name];
+    if (!icons) return null;
+    const focused = state.routes[state.index]?.key === route.key;
+    const title = descriptors[route.key]?.options.title ?? '';
+
+    return (
+      <Touchable
+        key={route.key}
+        accessibilityRole="tab"
+        accessibilityState={{ selected: focused }}
+        accessibilityLabel={title}
+        onPress={() => navigation.navigate(route.name)}
+        pressedOpacity={0.7}
+        pressedScale={0.94}
+        style={styles.item}
+        contentStyle={[centeredContent, styles.itemContent]}>
+        <Ionicons
+          name={focused ? icons.active : icons.inactive}
+          size={20}
+          color={focused ? Palette.accent : Palette.textTertiary}
+        />
+        <Text
+          style={[styles.label, { color: focused ? Palette.accent : Palette.textTertiary }]}
+          numberOfLines={1}>
+          {title}
+        </Text>
+      </Touchable>
+    );
+  }
 
   return (
     <View style={[styles.outer, { paddingBottom: Math.max(insets.bottom, Spacing.two) }]}>
       <View style={styles.bar}>
-        {state.routes.map((route) => {
-          const icons = TAB_ICONS[route.name];
-          if (!icons) return null;
-          const focused = state.routes[state.index]?.key === route.key;
-          const title = descriptors[route.key]?.options.title ?? '';
+        {state.routes.slice(0, 2).map(renderTab)}
 
-          return (
-            <Touchable
-              key={route.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: focused }}
-              accessibilityLabel={title}
-              onPress={() => navigation.navigate(route.name)}
-              pressedOpacity={0.7}
-              pressedScale={0.94}
-              style={styles.item}
-              contentStyle={[centeredContent, styles.itemContent]}>
-              <Ionicons
-                name={focused ? icons.active : icons.inactive}
-                size={20}
-                color={focused ? Palette.accent : Palette.textTertiary}
-              />
-              <Text style={[styles.label, { color: focused ? Palette.accent : Palette.textTertiary }]} numberOfLines={1}>
-                {title}
-              </Text>
-            </Touchable>
-          );
-        })}
+        <View style={styles.createSlot}>
+          <Touchable
+            accessibilityRole="button"
+            accessibilityLabel={create.label}
+            onPress={() => router.push(create.path)}
+            pressedOpacity={0.7}
+            pressedScale={0.94}
+            style={styles.createButton}
+            contentStyle={centeredContent}>
+            <Plus size={24} color={Palette.onAccent} strokeWidth={2.5} />
+          </Touchable>
+        </View>
+
+        {state.routes.slice(2).map(renderTab)}
       </View>
     </View>
   );
@@ -122,5 +167,23 @@ const styles = StyleSheet.create({
   },
   label: {
     ...Typography.legend,
+  },
+  createSlot: {
+    width: FAB_SIZE + Spacing.two,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButton: {
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
+    backgroundColor: Palette.accent,
+    // elevation 6 no Android; os demais campos cobrem iOS/web. Exceção única à regra
+    // "sem sombras" — o botão de criação (ADR-0010 §3, agora central na barra).
+    elevation: 6,
+    shadowColor: Palette.shadow,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
   },
 });

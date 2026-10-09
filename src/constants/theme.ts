@@ -40,8 +40,8 @@ export const Palette = {
   /** Semântica: urgente (atrasado, erro, exclusão). */
   danger: '#F87171',
   /**
-   * Cor de sombra. Só o botão flutuante usa sombra (ADR-0010 §3) e é sempre preto — a
-   * separação do FAB vem da cor, não de um tom de marca.
+   * Cor de sombra. Só o botão de criação usa sombra (ADR-0010 §3) e é sempre preto — a
+   * separação dele vem da cor, não de um tom de marca.
    */
   shadow: '#000000',
 } as const;
@@ -112,14 +112,14 @@ export const FIELD_HEIGHT = 52;
 export const FAB_SIZE = 56;
 
 /**
- * Distância mínima de um elemento fixo (rodapé, FAB, botão) até a borda útil da tela.
+ * Distância mínima de um elemento fixo (rodapé, tab bar, botão) até a borda útil da tela.
  * Em Android é também o que afasta o alvo da barra de gestos.
  */
 export const SAFE_GAP = 16;
 /**
  * Altura da barra de abas flutuante **sem** a safe area inferior — a barra soma
  * `Math.max(insets.bottom, Spacing.two)` por conta própria. Precisa casar com o estilo da
- * barra em `src/app/(tabs)/_layout.tsx` (8 + 48 + 8 + 2 de borda).
+ * barra em `src/app/(tabs)/_layout.tsx` (4 + 56 do botão central + 4 + 2 de borda).
  */
 export const TAB_BAR_HEIGHT = 66;
 /**
@@ -130,16 +130,9 @@ export const TAB_BAR_HEIGHT = 66;
 export const FORM_FOOTER_HEIGHT = 148;
 
 /**
- * Padding inferior de uma lista **que tem FAB**: tab bar + folga + FAB + folga, medidos a
- * partir da borda inferior da tela (`insetsBottom` já inclui a barra de gestos).
- */
-export function listBottomInset(insetsBottom: number): number {
-  return insetsBottom + TAB_BAR_HEIGHT + SAFE_GAP + FAB_SIZE + SAFE_GAP;
-}
-
-/**
- * Padding inferior de uma tela **sem FAB** (painel): só a tab bar e a folga. O painel não
- * cria item, então não precisa reservar espaço para botão flutuante.
+ * Padding inferior de uma tela de lista: tab bar + folga. Desde 2026-10-09 o botão de
+ * criação mora **dentro** da tab bar (centro) e não flutua sobre a lista — não existe mais
+ * reserva de FAB.
  */
 export function contentBottomInset(insetsBottom: number): number {
   return insetsBottom + TAB_BAR_HEIGHT + SAFE_GAP;

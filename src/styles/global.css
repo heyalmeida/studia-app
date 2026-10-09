@@ -21,7 +21,7 @@
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-danger: #f87171;
-  /* Sombra: só o FAB usa (exceção única, ADR-0010 §3). */
+  /* Sombra: só o botão de criação usa (exceção única, ADR-0010 §3). */
   --color-shadow: #000000;
 
   --font-display:

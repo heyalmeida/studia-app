@@ -6,12 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AssessmentCard } from '@/components/AssessmentsPage/AssessmentCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FAB } from '@/components/ui/FAB';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SearchField } from '@/components/ui/SearchField';
 import { SubjectFilterRow } from '@/components/ui/SubjectFilterRow';
-import { Palette, SCREEN_PADDING, Spacing, listBottomInset } from '@/constants/theme';
+import { Palette, SCREEN_PADDING, Spacing, contentBottomInset } from '@/constants/theme';
 import { filterBySubject, matchesSearch } from '@/domain/filtering';
 import type { Subject } from '@/domain/models';
 import { useAssessments } from '@/hooks/use-assessments';
@@ -98,10 +97,11 @@ export default function AssessmentsPage() {
               onOpen={() => router.push(`/assessment-form?id=${encodeURIComponent(item.id)}`)}
             />
           )}
-          // Reserva tab bar + FAB: a última avaliação nunca fica sob o botão flutuante.
+          // Reserva a tab bar (com o botão central de criação): a última avaliação nunca fica
+          // sob a barra flutuante.
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: listBottomInset(insets.bottom) },
+            { paddingBottom: contentBottomInset(insets.bottom) },
           ]}
           ListEmptyComponent={
             filteredToNothing === true ? (
@@ -120,15 +120,11 @@ export default function AssessmentsPage() {
                 icon={<CalendarX size={40} color={Palette.textTertiary} strokeWidth={1.5} />}
                 title="Nenhuma avaliação"
                 text="Cadastre provas e trabalhos para acompanhar as datas."
-                actionLabel="Nova avaliação"
-                onAction={openCreate}
               />
             )
           }
         />
       ) : null}
-
-      {!loading && error === null ? <FAB label="Nova avaliação" onPress={openCreate} /> : null}
     </View>
   );
 }

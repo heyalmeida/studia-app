@@ -6,7 +6,6 @@ import ListX from 'lucide-react-native/icons/list-x';
 
 import { ActivitySectionList } from '@/components/ActivitiesPage/ActivitySectionList';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FAB } from '@/components/ui/FAB';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SearchField } from '@/components/ui/SearchField';
@@ -28,7 +27,7 @@ const FILTERS: { key: ActivityFilter; label: string }[] = [
 const EMPTY_STATE: Record<ActivityFilter, { title: string; text: string }> = {
   pendentes: { title: 'Nada pendente', text: 'Você está em dia.' },
   concluidas: { title: 'Nada concluído ainda', text: 'Marque uma atividade para vê-la aqui.' },
-  todas: { title: 'Nenhuma atividade', text: 'Crie a primeira pelo botão ao lado do título.' },
+  todas: { title: 'Nenhuma atividade', text: 'Toque no botão + no centro da barra inferior.' },
 };
 
 export default function ActivitiesPage() {
@@ -126,20 +125,17 @@ export default function ActivitiesPage() {
                   ? 'Nenhuma atividade combina com os filtros.'
                   : EMPTY_STATE[filter].text
               }
+              // O vazio pós-filtro (AC-7.5) tem ação: limpar. O vazio real não cria CTA aqui —
+              // o botão de criação mora no centro da tab bar (2026-10-09).
               emptyAction={
                 filteredToNothing === true
                   ? { label: 'Limpar filtros', onPress: clearFilters }
-                  : // Só o filtro "todas" vazio significa "nada cadastrado": aí há o que criar.
-                    filter === 'todas'
-                    ? { label: 'Nova atividade', onPress: openCreate }
-                    : undefined
+                  : undefined
               }
             />
           </FadeIn>
         </>
       ) : null}
-
-      {ready ? <FAB label="Nova atividade" onPress={openCreate} /> : null}
     </View>
   );
 }

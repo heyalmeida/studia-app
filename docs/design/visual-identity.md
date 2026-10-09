@@ -91,9 +91,9 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
   20 entre grupos de formulário; 8 entre rótulo e campo.
 - **Raio:** card 16, campo/botão 12, chip/bloco de data 12, bolinha 999.
 - **Hairline:** `border` de 1 px e `StyleSheet.hairlineWidth` nos separadores de lista.
-- **Sem sombra** (RNF-01): profundidade = tom de superfície + hairline. **Exceção única:** a FAB usa
-  `elevation: 6` preto, porque é o único elemento sobreposto ao conteúdo que passa por baixo dele
-  (ADR-0010 §3). Nenhuma outra superfície usa sombra.
+- **Sem sombra** (RNF-01): profundidade = tom de superfície + hairline. **Exceção única:** o botão de
+  criação (círculo no centro da tab bar) usa `elevation: 6` preto, por ser o único elemento elevado
+  sobre o conteúdo (ADR-0010 §3). Nenhuma outra superfície usa sombra.
 - **Alvo de toque mínimo 44×44** em todo pressable; feedback de escala 0.97 + opacidade (primitivo
   `Touchable`), e 0.9–0.92 em alvos pequenos (ícone do header, checkbox).
 
@@ -101,9 +101,11 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
 
 - **Header (`ScreenHeader`):** título à esquerda, ações à direita **na mesma linha** (ícone 20 px, sem
   círculo de fundo, alvo 44). A criação de item aparece **também** aqui, em texto com ícone `Plus`
-  (`CreateButton`), e na FAB — o mesmo rótulo, o mesmo destino.
-- **FAB:** círculo de 56 na cor de destaque, canto inferior direito, acima da tab bar. Listas usam
-  `listBottomInset(insets.bottom)` para o conteúdo não ficar sob ela.
+  (`CreateButton`) — o mesmo destino do botão central da tab bar.
+- **Botão de criação:** círculo de 56 na cor de destaque, **no centro da tab bar** (desde
+  2026-10-09 — substitui a FAB flutuante do canto). O destino depende da aba ativa (Painel/Matérias →
+  matéria; Atividades → atividade; Avaliações → avaliação). Listas usam `contentBottomInset(insets.bottom)`
+  para o conteúdo não ficar sob a barra.
 - **Cards:** 1 item por card em matérias e avaliações; listas de atividade usam linha única com
   separador hairline (padrão iOS settings / Linear).
 - **Estado vazio:** ícone lucide 40 px em `text-tertiary`, título, **uma** frase de apoio e botão
@@ -112,7 +114,7 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
   Excluir (texto `danger`) e Cancelar (texto neutro).
 - **Data:** campo pressable (abre o calendário) + atalhos Hoje / Amanhã / Próxima semana.
 - **Tab bar:** flutuante, `surface` + hairline, item **ativo** no destaque com label, inativos em
-  `text-tertiary`.
+  `text-tertiary`; **2 abas à esquerda, botão de criação ao centro, 2 à direita**.
 
 ## 5. Checklist de conformidade
 
@@ -121,6 +123,6 @@ Hierarquia de estados — **cor nunca sozinha** (o texto sempre diz o mesmo que 
 - [ ] Nenhum `className` em `src/` (o Expo Go não aplica) — ADR-0010 §1
 - [ ] Estados sempre com rótulo textual junto da cor
 - [ ] Contraste ≥ 4.5:1 nos pares listados em §1
-- [ ] `shadow*`/`elevation` apenas no FAB (exceção do ADR-0010 §3)
+- [ ] `shadow*`/`elevation` apenas no botão de criação da tab bar (exceção do ADR-0010 §3)
 - [ ] Nenhum alvo tocável abaixo de 44×44
 - [ ] `Subject.color` sempre vindo de `SUBJECT_COLORS`

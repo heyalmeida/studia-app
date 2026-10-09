@@ -21,27 +21,28 @@ em todas as 7 telas, sem tocar na lógica de domínio nem nos repositórios.
 ## 2. Quem utiliza
 
 Qualquer estudante em sessão curta no celular: abre o app para ver o que vence, marca uma atividade como
-concluída e cadastra matéria/atividade/avaliação. O cadastro rápido é a ação mais repetida, por isso a
-FAB e os atalhos de data.
+concluída e cadastra matéria/atividade/avaliação. O cadastro rápido é a ação mais repetida, por isso o
+botão de criação central na tab bar e os atalhos de data.
 
 ## 3. Telas e rotas impactadas
 
 | Tela (screens-and-navigation) | Rota Expo Router | Mudança |
 |---|---|---|
 | T1 Painel | `(tabs)/index.tsx` | 4 blocos novos (saudação+data, progresso, próximos prazos, próxima avaliação) |
-| T2 Matérias | `(tabs)/subjects.tsx` | cards com ícone tingido + barra na cor da matéria; FAB |
+| T2 Matérias | `(tabs)/subjects.tsx` | cards com ícone tingido + barra na cor da matéria; criação na tab bar |
 | T3 Atividades | `(tabs)/activities.tsx` | controle segmentado, agrupamento por período, item novo |
-| T4 Avaliações | `(tabs)/assessments.tsx` | cards com bloco de data; FAB |
+| T4 Avaliações | `(tabs)/assessments.tsx` | cards com bloco de data; criação na tab bar |
 | T5 Form. Matéria | `subject-form.tsx` | grade de ícones + seletor de cor; rodapé fixo |
 | T6 Form. Atividade | `activity-form.tsx` | chips coloridos, tipo com ícone, campo de data com atalhos |
 | T7 Form. Avaliação | `assessment-form.tsx` | mesmo padrão de T6, sem tipo/descrição |
-| — | `(tabs)/_layout.tsx` | tab bar flutuante na identidade nova |
+| — | `(tabs)/_layout.tsx` | tab bar flutuante na identidade nova; botão de criação central (2026-10-09) |
 
 ## 4. Comportamento esperado
 
 O app abre no painel: greeting com a data, anel de progresso com "X de Y concluídas" e quantas vencem na
 semana; abaixo, as 3 próximas atividades com chip de prazo e a próxima avaliação (se houver). Cada lista
-tem um único header com o título e uma FAB para criar. Criar matéria: nome, professor, carga horária,
+tem um único header com o título; a criação é pelo **botão central da tab bar** (destino conforme a aba
+ativa), com atalho equivalente no header. Criar matéria: nome, professor, carga horária,
 ícone em grade de 6 colunas e cor entre 8 bolinhas — o mesmo tom aparece no card e nas listas. Salvar é o
 único botão com cor de destaque; excluir é texto vermelho com confirmação. Atividades abrem em um
 segmented control e são agrupadas por período; o prazo é escolhido tocando o campo (calendário) ou por
@@ -55,15 +56,16 @@ atalho de 1 toque.
 | RN-2 | Valor de cor fora da paleta lido do storage vira `null` (nunca hex arbitrário na UI) | RNF-04, RNF-06 |
 | RN-3 | Cor não substitui texto: prazo sempre rotulado ("hoje", "em 12 dias", "atrasada 3 dias") | RNF-01, RNF-04 |
 | RN-4 | Alvo de toque ≥ 44×44 e feedback de escala/opacidade em todo pressable | RNF-01 |
-| RN-5 | Sem `shadow*`/`elevation`: profundidade por tom de superfície + hairline. **Exceção única:** o FAB usa `elevation: 6` preto, por ser sobreposto ao conteúdo | RNF-01, ADR-0010 §3 |
+| RN-5 | Sem `shadow*`/`elevation`: profundidade por tom de superfície + hairline. **Exceção única:** o botão de criação (centro da tab bar) usa `elevation: 6` preto, por ser o elemento elevado sobre o conteúdo | RNF-01, ADR-0010 §3 |
 | RN-6 | Nenhum literal de cor fora de `constants/theme.ts`, `styles/global.css` e `tailwind.config.js` | ADR-0010 §2, Regra 4.10 |
 | RN-7 | Nenhum componente escreve `className`: o estilo vem de `StyleSheet` com valores de `constants/theme.ts` | ADR-0010 §1 |
 
 ## 6. Estados
 
 - **Vazio:** ícone lucide 40 px + título + uma frase de apoio + botão primário (listas e painel).
-- **Carregando:** `ListSkeleton` com cards na mesma superfície da lista; FAB oculta.
-- **Erro:** `EmptyState` com "Deu errado" + mensagem sem texto técnico + "Tentar de novo"; FAB oculta.
+- **Carregando:** `ListSkeleton` com cards na mesma superfície da lista (o botão de criação da tab bar
+  permanece visível — desde 2026-10-09 ele não é mais sobreposto à lista).
+- **Erro:** `EmptyState` com "Deu errado" + mensagem sem texto técnico + "Tentar de novo".
 - **Sucesso:** retorno da tela anterior com os dados recompostos pelo notifier (ADR-0005).
 
 ## 7. Formulários e validações
@@ -90,11 +92,12 @@ atalho de 1 toque.
 ## 9. Impacto na UI
 
 - **UI kit (`src/components/ui/`):** `Touchable`, `ScreenHeader`, `Card`, `Chip`, `ChoiceChip`, `Input`,
-  `PrimaryButton`, `TextButton`, `SegmentedControl` (+`FadeIn`), `EmptyState`, `FAB`, `IconTile`,
+  `PrimaryButton`, `TextButton`, `SegmentedControl` (+`FadeIn`), `EmptyState`, `IconTile`,
   `IconPicker`, `ColorPicker`, `DateField`, `DatePicker`, `DateBlock`, `DueChip`, `ProgressRing`,
   `ProgressBar`, `SubjectChip`, `FormField`, `FormFooter`, `ListItem`, `Divider`, `ListSkeleton`.
   Removidos (sem consumidor): `Button`, `Badge`, `DashCard`, `LineChart`, `Monogram`, `DonutChart`,
-  `DateInput`, `SegmentedFilter`, `DueSoonCard`, `NextAssessmentRow`, `SubjectProgressRow`, `SectionLabel`.
+  `DateInput`, `SegmentedFilter`, `DueSoonCard`, `NextAssessmentRow`, `SubjectProgressRow`,
+  `SectionLabel`, `FAB` (2026-10-09 — substituída pelo botão central da tab bar).
 - **Componentes por tela:** `DashboardPage/{Greeting,ProgressSummaryCard,UpcomingList,NextAssessmentCard}`,
   `SubjectsPage/SubjectCard`, `ActivitiesPage/{ActivityRow,ActivitySectionList,activity-groups}`,
   `AssessmentsPage/AssessmentCard`.
@@ -108,7 +111,7 @@ atalho de 1 toque.
 |---|---|---|
 | AC-V.1 | Nenhum hex fora dos 3 arquivos de token | busca textual |
 | AC-V.2 | As 7 telas usam o mesmo header, cards/listas, estado vazio e tokens | inspeção por tela |
-| AC-V.3 | Header sem sobreposição; FAB acima da tab bar sem cobrir conteúdo | manual (Expo Go) |
+| AC-V.3 | Header sem sobreposição; botão de criação central na tab bar; listas reservam folga para a barra | manual (Expo Go) |
 | AC-V.4 | Feedback de toque e transição de filtro | manual |
 | AC-V.5 | Tab bar: ativo em destaque com label, inativos em `#6B6B76` | manual |
 | AC-V.6 | Campo ≥52, placeholder visível, foco em destaque | manual |
@@ -138,3 +141,4 @@ gráfico no painel (gráfico de linha removido), cores por atividade, upload de 
 |---|---|---|
 | 2026-10-08 | Feature implementada: identidade escura com destaque, cor por matéria, FAB, kit de 26 componentes | Pedido do dono (2026-10-08); substitui o ADR-0006 pelo ADR-0009 |
 | 2026-10-08 | Kit migrado de `className` para `StyleSheet`; ação "+ Nova …" (`CreateButton`), rodapé dos formulários com Salvar/Cancelar/Excluir, `ScreenHeader` com voltar e `createAction`, insets inferiores por tela | No Expo Go o `className` do NativeWind não é aplicado e todo o espaçamento colapsava; decisão registrada no ADR-0010, que substitui o ADR-0007 |
+| 2026-10-09 | **FAB removida**: o botão de criação (56 px, destaque, sombra mantida) passa ao **centro da tab bar** — 2 abas à esquerda (Painel, Matérias), 2 à direita (Atividades, Avaliações); destino conforme a aba ativa. `listBottomInset` extinto (listas usam `contentBottomInset`). Chips de `SubjectFilterRow` corrigidos (esticavam: `ScrollView` sem `flexGrow: 0`) | Pedido do dono (2026-10-09), com print do bug dos filtros |

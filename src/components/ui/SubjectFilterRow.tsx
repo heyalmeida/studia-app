@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Touchable } from '@/components/ui/Touchable';
+import { centeredContent, Touchable } from '@/components/ui/Touchable';
 import { Palette, Radius, SCREEN_PADDING, Spacing, Typography } from '@/constants/theme';
 import type { Subject } from '@/domain/models';
 
@@ -26,6 +26,10 @@ export function SubjectFilterRow({ subjects, selected, onChange }: SubjectFilter
       horizontal
       showsHorizontalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      // `flexGrow: 0` é obrigatório: sem ele o ScrollView horizontal ocupa o espaço que
+      // sobra na coluna e, com `alignItems` default (`stretch`), os chips esticam até a
+      // altura dele (bug visual reportado na tela de Atividades, 2026-10-09).
+      style={styles.scroll}
       contentContainerStyle={styles.row}>
       <FilterChip
         label="Todas"
@@ -62,7 +66,7 @@ function FilterChip({
       pressedOpacity={0.7}
       pressedScale={0.97}
       style={[styles.chip, selected === true ? styles.chipSelected : styles.chipUnselected]}
-      contentStyle={styles.chipContent}>
+      contentStyle={[centeredContent, styles.chipContent]}>
       <Text
         style={[styles.label, selected === true ? styles.labelSelected : styles.labelUnselected]}
         numberOfLines={1}>
@@ -73,18 +77,23 @@ function FilterChip({
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   row: {
+    alignItems: 'center',
     gap: Spacing.two,
     paddingHorizontal: SCREEN_PADDING,
-    paddingBottom: Spacing.two,
+    paddingVertical: Spacing.two,
   },
   chip: {
+    height: 40,
     borderRadius: Radius.chip,
   },
   // Padding no Pressable: o respiro também é área tocável.
   chipContent: {
     paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
   },
   chipSelected: {
     backgroundColor: Palette.accentSoft,
