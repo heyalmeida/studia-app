@@ -26,6 +26,9 @@ export function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRow
   const done = activity.status === 'concluida';
   const subjectName = subject?.name ?? 'Sem matéria'; // FK órfã não quebra a linha (RNF-04)
   const tone = subjectTone(subject?.color);
+  // Estilo da bolinha montado fora do JSX: dentro de `style={{...}}` o plugin do
+  // Reanimated/worklets avisa sobre qualquer `.value` (aqui é a cor do tom, não um shared value).
+  const dotStyle = tone !== null ? { backgroundColor: tone.value } : null;
 
   // Animação do checkbox: preenche na conclusão, esvazia ao reabrir.
   const [fill] = useState(() => new Animated.Value(done ? 1 : 0));
@@ -71,7 +74,7 @@ export function ActivityRow({ activity, subject, onToggle, onOpen }: ActivityRow
 
           <View style={styles.subjectRow}>
             {tone !== null ? (
-              <View style={[styles.dot, { backgroundColor: tone.value }]} />
+              <View style={[styles.dot, dotStyle]} />
             ) : null}
             <Text style={styles.subject} numberOfLines={1}>
               {subjectName}

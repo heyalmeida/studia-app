@@ -25,6 +25,9 @@ export function AssessmentCard({ assessment, subject, onToggle, onOpen }: Assess
   const done = assessment.status === 'realizada';
   const subjectName = subject?.name ?? 'Sem matéria'; // FK órfã não quebra o card (RNF-04)
   const tone = subjectTone(subject?.color);
+  // Fora do JSX de propósito: `tone.value` num style inline dispara o aviso do plugin do
+  // Reanimated/worklets (que não distingue cor de shared value).
+  const dotStyle = tone !== null ? { backgroundColor: tone.value } : null;
 
   return (
     <Card onPress={onOpen} contentStyle={styles.card}>
@@ -57,7 +60,7 @@ export function AssessmentCard({ assessment, subject, onToggle, onOpen }: Assess
         </Text>
         <View style={styles.subjectRow}>
           {tone !== null ? (
-            <View style={[styles.dot, { backgroundColor: tone.value }]} />
+            <View style={[styles.dot, dotStyle]} />
           ) : null}
           <Text style={styles.subject} numberOfLines={1}>
             {subjectName}

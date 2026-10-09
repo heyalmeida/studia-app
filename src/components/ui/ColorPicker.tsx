@@ -26,6 +26,9 @@ export function ColorPicker({ value, onChange, label = 'Cor', error }: ColorPick
       <View style={styles.grid}>
         {SUBJECT_COLORS.map((tone) => {
           const selected = tone.value === value;
+          // Fora do JSX de propósito: `tone.value` num style inline dispara o aviso do
+          // plugin do Reanimated/worklets (que não distingue cor de shared value).
+          const dotStyle = { backgroundColor: tone.value };
           return (
             <View key={tone.value} style={styles.cell}>
               <Touchable
@@ -37,7 +40,7 @@ export function ColorPicker({ value, onChange, label = 'Cor', error }: ColorPick
                 pressedScale={0.97}
                 style={styles.swatch}
                 contentStyle={centeredContent}>
-                <View style={[styles.dot, { backgroundColor: tone.value }]}>
+                <View style={[styles.dot, dotStyle]}>
                   {selected ? <Check size={16} color={Palette.onAccent} strokeWidth={3} /> : null}
                 </View>
               </Touchable>

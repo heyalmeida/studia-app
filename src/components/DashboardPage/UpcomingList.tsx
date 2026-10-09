@@ -39,6 +39,9 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
         activities.map((activity, index) => {
           const subject = subjectById[activity.subjectId];
           const tone = subjectTone(subject?.color);
+          // Fora do JSX de propósito: `tone.value` num style inline dispara o aviso do
+          // plugin do Reanimated/worklets (que não distingue cor de shared value).
+          const dotStyle = tone !== null ? { backgroundColor: tone.value } : null;
 
           return (
             <Touchable
@@ -50,7 +53,7 @@ export function UpcomingList({ activities, subjectById }: UpcomingListProps) {
               style={index === activities.length - 1 ? undefined : styles.divider}
               contentStyle={styles.item}>
               {tone !== null ? (
-                <View style={[styles.dot, { backgroundColor: tone.value }]} />
+                <View style={[styles.dot, dotStyle]} />
               ) : (
                 // Espaçador: sem cor de matéria, a coluna do texto continua alinhada.
                 <View style={styles.dotPlaceholder} />

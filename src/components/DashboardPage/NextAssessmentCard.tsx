@@ -18,6 +18,9 @@ export interface NextAssessmentCardProps {
  */
 export function NextAssessmentCard({ assessment, subject }: NextAssessmentCardProps) {
   const tone = subjectTone(subject?.color);
+  // Fora do JSX de propósito: `tone.value` num style inline dispara o aviso do plugin do
+  // Reanimated/worklets (que não distingue cor de shared value).
+  const dotStyle = tone !== null ? { backgroundColor: tone.value } : null;
 
   return (
     <Card
@@ -32,7 +35,7 @@ export function NextAssessmentCard({ assessment, subject }: NextAssessmentCardPr
         </Text>
         <View style={styles.subjectRow}>
           {tone !== null ? (
-            <View style={[styles.dot, { backgroundColor: tone.value }]} />
+            <View style={[styles.dot, dotStyle]} />
           ) : null}
           <Text style={styles.subject} numberOfLines={1}>
             {subject?.name ?? 'Sem matéria'}
