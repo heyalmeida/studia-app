@@ -47,3 +47,5 @@ example
 .agents/
 .zcodeignore
 brand/
+.vscode/
+.claude/
