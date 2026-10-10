@@ -94,14 +94,12 @@
   svg { max-width: 100%; height: auto; }
 
   .fillline { display: inline-block; min-width: 55mm; border-bottom: 1px solid #9a9ab0; }
-  .ph {
-    border: 1.5px dashed #b7bad4; border-radius: 8px; background: #fafbff;
-    color: #8a8fa8; text-align: center; padding: 14mm 6mm; font-size: 10pt;
-    break-inside: avoid; margin: 3mm 0;
-  }
-  .ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
-  .ph-grid .ph { padding: 16mm 4mm; }
-  .ph .big { font-size: 12pt; font-weight: 700; color: #6b6b76; display: block; margin-bottom: 1.5mm; }
+
+  /* ---------- PROTÓTIPO (capturas de tela) ---------- */
+  .shots { display: flex; flex-wrap: wrap; gap: 5mm 4mm; justify-content: center; margin: 5mm 0 3mm; break-inside: avoid; }
+  .shot { width: 40mm; margin: 0; }
+  .shot img { width: 100%; display: block; border: 1px solid #d8dbf0; border-radius: 7px; }
+  .shot figcaption { font-size: 8.5pt; color: #6b6b76; text-align: center; margin-top: 1.5mm; }
 
   .toc { list-style: none; padding: 0; margin: 4mm 0; columns: 2; column-gap: 10mm; }
   .toc li { break-inside: avoid; margin-bottom: 2.2mm; font-size: 10pt; display: flex; gap: 3mm; }
@@ -391,19 +389,27 @@
 <!-- ============ 8 PROTÓTIPO ============ -->
 <div class="section">
   <div class="sec-head"><span class="sec-num">8</span><h2>Protótipo das Telas</h2></div>
-  <p class="lead">O roteiro exige o protótipo de, no mínimo, 5 telas. As capturas abaixo correspondem às
-  telas finais do aplicativo (desenvolvidas em Figma / telas reais) e devem ser inseridas nos quadros
-  reservados, uma por tela.</p>
-  <div class="ph-grid">
-    <div class="ph"><span class="big">T1 · Painel</span>inserir protótipo</div>
-    <div class="ph"><span class="big">T2 · Matérias</span>inserir protótipo</div>
-    <div class="ph"><span class="big">T3 · Atividades</span>inserir protótipo</div>
-    <div class="ph"><span class="big">T5 · Form. Matéria</span>inserir protótipo</div>
-    <div class="ph"><span class="big">T6 · Form. Atividade</span>inserir protótipo</div>
-    <div class="ph"><span class="big">T4 · Avaliações</span>inserir protótipo (opcional)</div>
+  <p class="lead">O roteiro exige o protótipo de, no mínimo, 5 telas. As capturas abaixo cobrem as
+  <b>7 telas implementadas</b>, executadas no aplicativo real via Expo Go (Android). Cada tela está
+  no seu estado inicial — listas com estado vazio e formulários vazios —, que é o ponto de partida
+  do usuário ao instalar o app. As imagens estão versionadas em <code>docs/prototype/</code>.</p>
+
+  <h3 class="sub">Abas (navegação principal)</h3>
+  <div class="shots">
+    <figure class="shot"><img src="../prototype/t1-painel.jpeg" alt="T1 Painel"><figcaption>T1 · Painel — estado inicial</figcaption></figure>
+    <figure class="shot"><img src="../prototype/t2-materias.jpeg" alt="T2 Matérias"><figcaption>T2 · Matérias — busca e estado vazio</figcaption></figure>
+    <figure class="shot"><img src="../prototype/t3-atividades.jpeg" alt="T3 Atividades"><figcaption>T3 · Atividades — filtros e estado vazio</figcaption></figure>
+    <figure class="shot"><img src="../prototype/t4-avaliacoes.jpeg" alt="T4 Avaliações"><figcaption>T4 · Avaliações — filtros e estado vazio</figcaption></figure>
   </div>
-  <p class="note">Cinco quadros atendem ao mínimo exigido; o sexto é opcional. Recomenda-se versionar as
-  imagens em <code>docs/prototype/</code> junto ao repositório (questão OQ-08).</p>
+
+  <h3 class="sub">Formulários (rotas modais)</h3>
+  <div class="shots">
+    <figure class="shot"><img src="../prototype/t5-form-materia.jpeg" alt="T5 Formulário de matéria"><figcaption>T5 · Nova matéria — campos, ícone e cor</figcaption></figure>
+    <figure class="shot"><img src="../prototype/t6-form-atividade.jpeg" alt="T6 Formulário de atividade"><figcaption>T6 · Nova atividade — tipo, prazo e lembrete</figcaption></figure>
+    <figure class="shot"><img src="../prototype/t7-form-avaliacao.jpeg" alt="T7 Formulário de avaliação"><figcaption>T7 · Nova avaliação — data obrigatória</figcaption></figure>
+  </div>
+  <p class="note">A barra de navegação flutuante, visível em todas as abas, concentra os quatro
+  destinos e o botão central de criação — o destino do botão acompanha a aba ativa.</p>
 </div>
 
 <!-- ============ 9 MODELAGEM ============ -->
